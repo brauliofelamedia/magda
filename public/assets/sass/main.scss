@@ -1,0 +1,477 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+
+//Colors
+$pink: #FEEFEC;
+$white: #ffffff;
+$orange: #F74219;
+$orange-light:#f55936;
+$grey:#BBBBBB;
+$blue:#033A60;
+$purple-light:#C6CBE9;
+
+a {
+    color: $blue;
+
+    &:hover {
+        text-decoration: underline;
+    }
+}
+
+h1,h2,h3,h4,h5,h6,p {
+    margin-bottom: 0;
+}
+
+.form-control:focus {
+    box-shadow: none;
+}
+
+* {
+    font-family: "Montserrat", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 400;
+    font-style: normal;
+}
+
+//Size
+.fw {
+    &-500 {font-weight: 500;}
+    &-600 {font-weight: 600;}
+    &-700 {font-weight: 700;}
+    &-800 {font-weight: 800;}
+    &-900 {font-weight: 900;}
+}
+
+.c {
+    &-blue {
+        color: $blue;
+    }
+    &-orange {
+        color: $orange;
+    }
+    &-white {
+        color: white;
+    }
+}
+
+.mt {
+    &-6 {
+        margin-top:6rem;
+    }
+    &-10 {
+        margin-top: 10rem;
+    }
+}
+
+.bg {
+    &-orange {
+        background-color: $orange;
+        &:hover {
+            background-color: $orange-light!important;
+            color: $white;
+        }
+    }
+    &-transparent {
+        background-color: transparent;
+        border-color: $blue;
+
+        &:hover {
+            background-color: $blue!important;
+            color: $white;
+        }
+    }
+}
+
+.b-block {
+    width: 100%;
+}
+
+.c-auto {
+    margin: 0 auto;
+    display: block;
+}
+
+.f {
+    &-right {
+        float: right;
+    }
+    &-left {
+        float: left;
+    }
+}
+
+//Utilities
+.t {
+    &-none {
+        text-decoration: none;
+    }
+}
+
+.vertical-align {
+    top:50%;
+    position: relative;
+    transform: translate(0,-50%);
+}
+
+//Bg colors
+.bg-pink {
+    background-color: $pink;
+}
+
+.form-group {
+    margin-bottom: 15px;
+
+    .form-control {
+        border-color: $blue;
+        padding: 15px 23px;
+        border-radius: 10px;
+    
+        &::placeholder {
+            color: $grey;
+        }
+    }
+}
+
+//Buttons
+.btn {
+    padding: 13px 30px;
+    border-radius: 30px;
+    font-size: 20px;
+}
+
+//Animatons
+@keyframes move-down {
+    0% {
+        transform: translate(-50%,0);
+    }
+    100% {
+        transform: translate(-50%,300px);
+    }
+}
+
+@keyframes rotate-smooth {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+}
+
+@keyframes top-bottom {
+    0% {
+        transform: translate(-50%,0px);
+      }
+      50% {
+        transform: translate(-50%,50px);
+      }
+      100% {
+        transform: translateY(-50%,0px);
+      }
+}
+
+@keyframes left-right {
+    0% {
+      transform: translateX(0px);
+    }
+    50% {
+      transform: translateX(10px);
+    }
+    100% {
+      transform: translateX(0px);
+    }
+}
+
+@keyframes left-right-30 {
+    0% {
+      transform: translateX(0px);
+    }
+    50% {
+      transform: translateX(30px);
+    }
+    100% {
+      transform: translateX(0px);
+    }
+}
+
+//LOADER
+#loader {
+    z-index: 10;
+    height: 100vh;
+    background-color: $blue;
+    position: fixed;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    top: 0;
+
+    .circle {
+        width: 30px;
+        height: 30px;
+        background: white;
+        border-radius: 50%;
+        left: 50%;
+        transform: translate(-50%,0);
+        position: absolute;
+        animation-name: move-down;
+        animation-duration: 2s;
+    }
+
+    .top {
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 350px;
+    }
+
+    .bottom {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 400px;
+    }
+
+    .logo {
+        top: 50%;
+        left: 50%;
+        position: absolute;
+        transform: translate(-50%,-50%);
+
+        img {
+            width: 250px;
+        }
+    }
+}
+
+//LOGIN PAGE
+#login {
+    padding: 30px;
+
+    .img {
+        max-width: 200px;
+        margin-bottom: 10px;
+    }
+
+    h1 {
+        font-size: 38px;
+    }
+}
+
+//FORGET PAGE
+#forgot {
+    padding: 30px;
+
+    .img {
+        max-width: 200px;
+        margin-bottom: 10px;
+    }
+
+    h1 {
+        font-size: 38px;
+    }
+
+    h4 {
+        font-size: 18px;
+        font-weight: 700;
+    }
+}
+
+//DASHBOARD
+#dashboard {
+    padding: 30px;
+
+    .avatar {
+        content:'';
+        width: 100%;
+        height: 110px;
+        display: block;
+        background-size: contain;
+        background-position: center;
+        background-repeat: no-repeat;
+    }
+
+    .box {
+        background-color: $purple-light;
+        padding: 230px 30px 30px 30px;
+        position: relative;
+        border-radius: 50px;
+
+        h3 {
+            font-weight: 600;
+        }
+
+        p {
+            font-size: 19px;
+        }
+
+        .box-inner {
+            background-color: $white;
+            padding: 30px;
+            border-radius: 40px;
+            position: relative;
+            z-index: 2;
+            box-shadow: 0 5px 12px rgba(1,1,1,0.2);
+        }
+
+        .octopus {
+            position: absolute;
+            z-index: 1;
+            top:-210px;
+            left: 50%;
+            transform: translate(-50%,0);
+            animation-name: top-bottom;
+            animation-duration: 5s;
+            animation-iteration-count: infinite; 
+        }
+
+        .alga {
+            position: absolute;
+            z-index: 0;
+            bottom:100px;
+            left: 18%;
+            animation-name: left-right-30;
+            animation-duration: 5s;
+            animation-iteration-count: infinite; 
+        }
+
+        .coral {
+            position: absolute;
+            z-index: 0;
+            bottom:60px;
+            right: 17%;
+            animation-name: left-right;
+            animation-duration: 6s;
+            animation-iteration-count: infinite; 
+        }
+
+        .burbujas {
+            position: absolute;
+            z-index: 1;
+            top:-140px;
+            right: 25%;
+            animation-name: rotate-smooth;
+            animation-duration: 30s;
+            animation-iteration-count: infinite; 
+        }
+    }
+
+    .box-pink {
+        background-color: $pink;
+        padding: 30px;
+        position: relative;
+        border-radius: 50px;
+
+        h4 {
+            font-weight: 600;
+        }
+
+        p {
+            font-size: 18px;
+        }
+
+        .logo {
+            margin: 0 auto;
+            display: block;
+        }
+
+        .box-inner {
+            background-color: $white;
+            padding: 30px;
+            border-radius: 40px;
+            box-shadow: 0 5px 12px rgba(1,1,1,0.2);
+            position: relative;
+            z-index: 2;
+        }
+    }
+}
+
+//TEST1
+#test1, #test2, #test3, #result {
+    padding: 30px;
+
+    .octopus {
+        animation-name: left-right;
+        animation-duration: 2s;
+        animation-iteration-count: infinite;
+    }
+
+    h2 {
+        font-size: 40px;
+        line-height: 40px;
+        margin-bottom: 20px;
+    }
+
+    p {
+        font-size: 18px;
+        line-height: 20px;
+    }
+
+    .box-pink {
+        background-color: $pink;
+        padding: 40px;
+        position: relative;
+        border-radius: 50px;
+
+        .form-check-input {
+            display: none;
+
+            &:checked + label {
+                background-color: $blue;
+                color: $white;
+            }
+        }
+
+        .form-check {
+            label {
+                width: 100%;
+                background-color: white;
+                font-weight: 600;
+                border-radius: 20px;
+                padding: 25px 30px;
+                box-shadow: 0 0 12px rgba(1,1,1,0.2);
+                margin-bottom: 20px;
+                text-align: center;
+                font-weight: 600;
+                font-size: 18px;
+
+                &:hover {
+                    background-color: $blue;
+                    color: $white;
+                    cursor: pointer;
+                }
+            }
+        }
+
+        .form-check-input {
+            float: inherit;
+            margin-left:0;
+        }
+
+        h4 {
+            font-weight: 600;
+        }
+
+        p {
+            font-size: 18px;
+        }
+
+        .logo {
+            margin: 0 auto;
+            display: block;
+        }
+
+        .box-inner {
+            background-color: $white;
+            padding: 30px;
+            border-radius: 40px;
+            box-shadow: 0 5px 12px rgba(1,1,1,0.2);
+            position: relative;
+            z-index: 2;
+        }
+    }
+}
+
+#test1,#test3 {
+    .box-pink {
+        background-color: $white;
+    }
+}
