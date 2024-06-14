@@ -8,7 +8,7 @@
         </div>
         <img src="{{asset('assets/img/bottom-loader.png')}}" class="bottom">
     </div>
-
+    
     @yield('content')
 
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>

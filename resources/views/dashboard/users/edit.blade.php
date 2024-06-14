@@ -20,6 +20,7 @@
     <div class="container" id="dashboard">
         @include('parts.user-top')
         <div class="row mt-10">
+            @include('parts.message')
             <div class="col-12">
                 <div class="box">
                     <div class="box-inner">
@@ -27,40 +28,51 @@
                             <div class="col-xl-12">
                                 <h3 class="text-center">Editar usuario</h3>
                                 <div class="row">
-                                    <div class="col-6 offset-3">
-                                        @if (session('success'))
-                                            <div class="alert alert-success">
-                                                {{ session('success') }}
-                                            </div>
-                                        @endif
+                                    <div class="col-10 offset-1">
                                         <form action="{{route('users.update',$user->id)}}" method="post">
                                             @csrf
                                             @method('PATCH')
-                                            <div class="form-group">
-                                                <label for="">Nombre:</label>
-                                                <input type="text" name="name" class="form-control" value="{{$user->name}}">
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <label for="name">Nombre:</label>
+                                                        <input type="text" id="name" name="name" class="form-control" value="{{$user->name}}">
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <label for="email">Correo electrónico:</label>
+                                                        <input type="email" id="email" name="email" class="form-control" value="{{$user->email}}">
+                                                    </div>
+                                                </div>
                                             </div>
-                                        
                                             <div class="form-group">
-                                                <label for="">Correo electrónico:</label>
-                                                <input type="email" name="email" class="form-control" value="{{$user->email}}">
+                                                <label for="user_id">Asignar a un instituto:</label>
+                                                <select name="user_id" id="user_id" class="form-control">
+                                                    <option value="">-- Selecciona a quien sera asignado el usuario --</option>
+                                                    @foreach($institutes as $institute)
+                                                        <option value="{{$institute->id}}" @if($institute->id == $user->user_id) selected @endif>{{$institute->name}}</option>
+                                                    @endforeach
+                                                </select>
                                             </div>
-
                                             <hr>
                                             <h4>Cambiar contraseña</h4>
                                             <p>Si deseas cambiar la contraseña, necesitas rellenar la contraseña y confirmar la misma.</p>
-                                            <div class="form-group">
-                                                <label for="">Contraseña:</label>
-                                                <input type="password" name="password" class="form-control">
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <label for="">Contraseña:</label>
+                                                        <input type="password" name="password" class="form-control" autocomplete="off">
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <label for="">Repetir contraseña:</label>
+                                                        <input type="password" name="password_confirmation" class="form-control" autocomplete="off">
+                                                    </div>
+                                                </div>
                                             </div>
-
-                                            <div class="form-group">
-                                                <label for="">Repetir contraseña:</label>
-                                                <input type="password" name="password_confirmation" class="form-control">
-                                            </div>
-
                                             <button type="submit" class="btn btn-primary btn-big btn-block">Guardar cambios</button><hr>
-                                            <a href="{{route('dashboard.welcome')}}" class="btn btn-big btn-danger btn-block">Cancelar y volver</a>
                                         </form>
                                     </div>
                                 </div>

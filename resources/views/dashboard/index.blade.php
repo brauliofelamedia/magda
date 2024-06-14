@@ -12,17 +12,21 @@
 
 @section('content')
 
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <div class="container" id="dashboard">
         @include('parts.user-top')
         <div class="row mt-10">
             <div class="col-12">
+                @include('parts.message')
                 <div class="box">
                     <div class="box-inner">
                         <div class="row">
                             <div class="col-xl-12">
                                 <h3 class="text-center">Usuarios</h3>
                                 {{ $dataTable->table() }}
-                                <a href="{{route('dashboard.sync')}}" class="center-h btn btn-danger">Sincronizar usuarios</a>
+                                @role('administrator')
+                                    <a href="{{route('dashboard.sync')}}" class="center-h btn btn-danger">Sincronizar usuarios</a>
+                                @endrole
                             </div>
                         </div>
                     </div>
@@ -36,10 +40,10 @@
                         <div class="col-xl-6">
                             <div class="box-inner text-center">
                                 <img src="{{asset('assets/img/doc.png')}}" class="mb-3">
-                                <a href="{{route('test.results')}}">
-                                    <h4>Ver resultados</h4>
+                                <a href="{{route('users.edit',auth()->user()->id)}}">
+                                    <h4>Perfil</h4>
                                 </a>
-                                <p>Conoce cómo te fue</p>
+                                <p>Editar información</p>
                             </div>
                         </div>
                         <div class="col-xl-6">
@@ -73,4 +77,45 @@
 
 @push('js')
 {{ $dataTable->scripts(attributes: ['type' => 'module']) }}
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    $(document).ready(function(){
+        $('body').on('click','.btn-send-welcome', function(event){
+            event.preventDefault();
+
+            Swal.fire({
+                title: "Esta un momento",
+                text: "Estamos enviando el correo",
+                icon: "info"
+            });
+
+            let id = $(this).data('id');
+            let csrfToken = $('meta[name="csrf-token"]').attr('content');
+
+            // Preparar los datos de la solicitud
+            let data = {
+                id: id,
+                _token: csrfToken
+            };
+
+            $.ajax({
+                url: "{{ route('users.email.welcome') }}",
+                method: "POST", 
+                data: data,
+                success: function(response) {
+                    Swal.fire({
+                        position: "top-end",
+                        icon: "success",
+                        title: "Se ha enviado el correo",
+                        showConfirmButton: false,
+                        timer: 1500
+                    });
+                },
+                error: function(xhr) {
+                    console.error(xhr.responseText);
+                }
+            });
+        });
+    });
+</script>
 @endpush

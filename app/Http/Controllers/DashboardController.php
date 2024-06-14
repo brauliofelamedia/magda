@@ -45,8 +45,10 @@ class DashboardController extends Controller
     }
 
     public function welcome(UsersDataTable $dataTable){
-        $respondents = $this->getRespondents();
-        return $dataTable->render('dashboard.index',compact('respondents'));
+        if (auth()->user()->hasRole('respondent')) {
+            return redirect()->route('users.assessments',auth()->user()->account_id);
+        }
+        return $dataTable->render('dashboard.index');
     }
 
     public function superLink($emails,$idTemplate){

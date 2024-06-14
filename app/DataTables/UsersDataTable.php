@@ -26,11 +26,20 @@ class UsersDataTable extends DataTable
             ->addColumn('action', function($row){
                 $btn = '<a href="'.route('users.edit',$row->id).'" class="edit btn btn-info btn-sm">Editar</a>';
             $btn .= '<a href="'.route('users.assessments',$row->account_id).'" class="btn btn-warning btn-sm">Evaluaciones</a>';
-                $btn .= '<a href="#" class="btn btn-success btn-sm">Enviar correo</a>';
+                $btn .= '<a href="#" data-id="'.$row->id.'" class="btn btn-success btn-sm btn-send-welcome">Enviar correo</a>';
                 return $btn;
             })
             ->addColumn('role', function ($user) {
-                return $user->roles->pluck('name')->implode(', ');
+                $role = $user->roles->pluck('name')->implode(', ');
+                if($role == 'respondent'){
+                    $rol = 'Evaluado';
+                } elseif($role == 'institution'){
+                    $rol = 'Instituto';
+                } else {
+                    $rol = 'Administrador';
+                }
+
+                return $rol;
             })
             ->addColumn('created', function($row) {
                 return $row->created_at->format('d-m-Y');
@@ -44,7 +53,12 @@ class UsersDataTable extends DataTable
      */
     public function query(User $model): QueryBuilder
     {
-        return $model->newQuery()->role(['institution','respondent']);
+        if (auth()->user()->hasRole('administrator')) {
+            return $model->newQuery()->role(['institution','respondent','administrator']);
+        } elseif(auth()->user()->hasRole('institution')){
+            return $model->newQuery()->where('user_id',auth()->user()->id)->role(['respondent']);
+        }
+
     }
 
     /**

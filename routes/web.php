@@ -17,6 +17,11 @@ use Illuminate\Support\Facades\Route;
 | be assigned to the "web" middleware group. Make something great!
 |
 */
+
+Route::get('/home', function () {
+    return redirect()->route('dashboard.welcome');
+});
+
 Route::get('/',[DashboardController::class,'index'])->name('index');
 
 //Rutas protegidas
@@ -26,7 +31,9 @@ Route::prefix('dashboard')->middleware('auth')->group(function () {
 
     //Users
     Route::get('/assessments/{respondentId}', [UserController::class, 'getAssessment'])->name('users.assessments');
-    Route::post('/reportassessment', [UserController::class, 'getReportAssessment'])->name('users.report');
+    Route::post('/assessment/report', [UserController::class, 'getReportAssessmentUser'])->name('users.report');
+    Route::post('/assessments', [UserController::class, 'sendEmailEvaluate'])->name('users.sendEmail');
+    Route::post('/users/email/welcome', [UserController::class, 'sendEmailWelcome'])->name('users.email.welcome');
     Route::resource('users',UserController::class);
 
     //SuperLink

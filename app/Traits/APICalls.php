@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Http;
 
 trait APICalls
 {
+    //296 pagina
     public function getRespondents()
     {
         $config = Config::latest()->first();
@@ -68,6 +69,32 @@ trait APICalls
         }
     }
 
+    public function sendEmailEvaluation($assessmentId)
+    {
+        $config = Config::latest()->first();
+        try {
+            $authResponse = Http::withHeaders([
+                'Accept' => 'application/json',
+                'Authorization' => 'Bearer ' . $config->token,
+                'Content-Type' => 'application/json'
+            ])->post('https://api.gr8pi.com/api/v1/questionnaire-scheduling', [
+                'query' => 'mutation($input: InviteRespondentTakeAssessmentInput!) { inviteRespondentTakeAssessment(input: $input) { assessment { id } } }',
+                'variables' => [
+                    'input' => [
+                        'accountId' => env('MAGDA_USER_ID'),
+                        'assessmentId' => $assessmentId
+                    ]
+                ]
+            ]);
+
+            $assessments = $authResponse->json('data.inviteRespondentTakeAssessment.assessment.id');
+            return $assessments;
+        
+        } catch (\Exception $e) {
+            dd($e->getMessage());
+        }
+    }
+
     public function getAssessmentUser($respondentId)
     {
         $config = Config::latest()->first();
@@ -121,18 +148,10 @@ trait APICalls
                 'Authorization' => 'Bearer ' . $config->token,
                 'Content-Type' => 'application/json'
             ])->post('https://api.gr8pi.com/api/v1/questionnaire-scheduling', [
-                'query' => 'mutation($input: ReportWithAssessmentGenericInput!) {
-                            generateInterestsGraphReportData(input: $input) {
-                                orderedInterestsResults {
-                                    code
-                                    displayName
-                                    rawScore
-                                }
-                            }
-                        }',
+                'query' => 'mutation($input: ReportWithAssessmentGenericInput!) { generateInterestsGraphReportData(input: $input) { orderedInterestsResults {  code,displayName,rawScore }}}',
                 'variables' => [
                     'input' => [
-                        'account' => 243514,
+                        'account' => env('MAGDA_USER_ID'),
                         'assessment' => $respondentId,
                         'locale' => 'en-US',
                         'printerFriendly' => true

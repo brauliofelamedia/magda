@@ -7,25 +7,45 @@
     .mt-10 {
         margin-top: 70px!important;
     }
+    .info-modal {
+        background-color: #ececec;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 15px;
+    }
+
+    .modal-dialog {
+        max-width: 700px!important;
+        width: 100%!important;
+    }
+
+    .displayName {
+        font-weight: bold;
+        font-size: 17px;
+    }
+
+    .rawScore {
+        font-size: 21px;
+    }
 </style>
 @endpush
 
 @section('content')
-
-    
     @foreach($assesments as $assesment)
         <div class="modal fade" id="{{$assesment['node']['id']}}-Modal" tabindex="-1" aria-labelledby="{{$assesment['node']['id']}}-ModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-dialog-nobackdrop">
             <div class="modal-content">
                 <div class="modal-header">
-                <h1 class="modal-title fs-5" id="{{$assesment['node']['id']}}-ModalLabel">Resultados</h1>
+                <h1 class="modal-title fs-5" id="{{$assesment['node']['id']}}-ModalLabel">Resultados de intereses</h1>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    
+                    <div class="wait"><p class="text-center">Espera un momento...</p></div>
+                    <div id="data-container" class="row">
+                    </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="button" class="btn btn-secondary btn-clear" data-bs-dismiss="modal">Cerrar</button>
                 </div>
             </div>
             </div>
@@ -33,6 +53,7 @@
     @endforeach
 
     <div class="container" id="dashboard">
+        <meta name="csrf-token" content="{{ csrf_token() }}">
         @include('parts.user-top')
         <div class="row mt-10">
             <div class="col-12">
@@ -40,7 +61,15 @@
                     <div class="box-inner">
                         <div class="row">
                             <div class="col-xl-12">
-                                <h3 class="text-center">Evaluaciones de <strong>{{$user->name}}</strong></h3>
+                                @hasanyrole(['administrator','institution'])
+                                    <a href="{{route('dashboard.welcome')}}" class="btn btn-primary">Volver</a>
+                                @endhasanyrole
+                                @role('respondent')
+                                    <h3 class="text-center">Mis evaluaciones</h3>
+                                @endrole
+                                @hasanyrole(['administrator','institution'])
+                                    <h3 class="text-center">Evaluaciones de <strong>{{$user->name}}</strong></h3>
+                                @endhasanyrole
                                 <hr>
                                 <table class="table">
                                     <thead>
@@ -55,7 +84,6 @@
                                     </thead>
                                     <tbody>
                                         @foreach($assesments as $assesment)
-
                                             @php
                                                 $start = \Carbon\Carbon::parse($assesment['node']['startedOn']);
                                                 $submit = \Carbon\Carbon::parse($assesment['node']['submittedOn']);
@@ -67,15 +95,22 @@
                                                 <td>{{$start->format('d-m-Y')}}</td>
                                                 <td><strong>{{$assesment['node']['status']}}</strong></td>
                                                 <td>
-                                                    <div class="btn-group" role="group" aria-label="Basic example">
-                                                        <button type="button" class="btn @if($submit) disabled @else btn-primary @endif" @if($submit) disabled @endif>Evaluar</button>
-                                                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#{{$assesment['node']['id']}}-Modal">Resultados</button>
-                                                    </div>
+                                                    @if(!$assesment['node']['status'] == 'EXPIRED' OR !$assesment['node']['status'] == 'SUBMITTED')
+                                                        <a class="btn btn-primary click-send-email" data-assesment="{{$assesment['node']['id']}}" @if($assesment['node']['status'] != 'EXPIRED') @else disabled @endif>Solicitar evaluación</a>
+                                                    @elseif($assesment['node']['status'] == 'SUBMITTED')
+                                                        <a href="#" class="btn btn-info disabled" disabled>Finalizado</a>
+                                                    @else
+                                                        <a href="#" class="btn btn-danger disabled" disabled>Expirado</a>
+                                                    @endif
+                                                    @if($assesment['node']['status'] == 'FINISHED' OR $assesment['node']['status'] == 'SUBMITTED')
+                                                        <a class="btn btn-success click-assesment" data-report="{{$assesment['node']['id']}}" data-bs-toggle="modal" data-bs-target="#{{$assesment['node']['id']}}-Modal">Resultados</a>
+                                                    @endif
                                                 </td>
                                             </tr>
                                         @endforeach
                                     </tbody>
                                   </table>
+                                  <p class="text-center" style="font-size:14px;color:red;">Al solicitar la evaluación el sistema de enviará un correo para iniciar la evaluación, revisa tu <strong>bandeja de entrada</strong> o la <strong>carpeta de SPAM</strong>.</p>
                             </div>
                         </div>
                     </div>
@@ -86,4 +121,74 @@
 @endsection
 
 @push('js')
+<script>
+    $(document).ready(function(){
+        $('.btn-clear').on('click', function(){
+            $('#data-container').empty();
+            $('.wait').css('display','block');
+        });
+
+        //Ver resultados de la evaluación
+        $('.click-assesment').on('click', function(){
+
+            let id = $(this).data('report');
+            let csrfToken = $('meta[name="csrf-token"]').attr('content');
+
+            // Preparar los datos de la solicitud
+            let data = {
+                id: id,
+                _token: csrfToken
+            };
+
+            $.ajax({
+                url: "{{route('users.report')}}",
+                method: "POST",
+                data: data,
+                dataType: "json",
+                success: function(response) {
+                    if (response.success) {
+                        $.each(response.data, function(key, value) {
+                            const element = $(`<div class="col-md-4">`).html(`<div class="info-modal"><h5 class="text-center displayName">${value.displayName}</h5><p class="rawScore text-center">${value.rawScore}</p></div>`);
+                            $('#data-container').append(element);
+                            $('.wait').css('display','none');
+                        });
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error("Error:", status, error);
+                    alert("Error al generar el reporte. Inténtalo de nuevo más tarde.");
+                }
+            });
+        });
+
+        //Solicitar link de evaluación
+        $('.click-send-email').on('click', function(){
+
+            let id = $(this).data('assesment');
+            let csrfToken = $('meta[name="csrf-token"]').attr('content');
+
+            // Preparar los datos de la solicitud
+            let data = {
+                id: id,
+                _token: csrfToken
+            };
+
+            $.ajax({
+                url: "{{route('users.sendEmail')}}",
+                method: "POST",
+                data: data,
+                dataType: "json",
+                success: function(response) {
+                    if (response.success) {
+                        alert(response.success);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error("Error:", status, error);
+                    alert("Error al generar el reporte. Inténtalo de nuevo más tarde.");
+                }
+            });
+            });
+    });
+</script>
 @endpush

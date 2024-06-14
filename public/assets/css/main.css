@@ -634,6 +634,10 @@ p {
     width: 100%;
 }
 
+.btn:hover {
+    text-decoration: none!important;
+}
+
 .btn-big {
     font-size: 17px!important;
     font-weight: 700!important;
