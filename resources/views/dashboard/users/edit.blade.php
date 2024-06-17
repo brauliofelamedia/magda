@@ -55,6 +55,20 @@
                                                     @endforeach
                                                 </select>
                                             </div>
+                                            <div class="form-group">
+                                                <label for="role">Rol de usuario:</label>
+                                                <select name="role" id="role" class="form-control">
+                                                    <option value="">-- Selecciona el rol para el usuario --</option>
+                                                    @role('administrator')
+                                                    <option value="administrator">Administrator</option>
+                                                    <option value="institution">Institución</option>
+                                                    @endrole
+                                                    @anyhasrole('institution','administrator')
+                                                    <option value="coordinator">Coordinador</option>
+                                                    <option value="respondent">Evaluado</option>
+                                                    @endanyhasrole
+                                                </select>
+                                            </div>
                                             <hr>
                                             <h4>Cambiar contraseña</h4>
                                             <p>Si deseas cambiar la contraseña, necesitas rellenar la contraseña y confirmar la misma.</p>
@@ -73,6 +87,7 @@
                                                 </div>
                                             </div>
                                             <button type="submit" class="btn btn-primary btn-big btn-block">Guardar cambios</button><hr>
+                                            <a href="{{route('dashboard.welcome')}}" class="text-center btn btn-big btn-danger btn-block">Cancelar y volver</a>
                                         </form>
                                     </div>
                                 </div>

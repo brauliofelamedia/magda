@@ -32,6 +32,9 @@ Route::prefix('dashboard')->middleware('auth')->group(function () {
     //Users
     Route::get('/assessments/{respondentId}', [UserController::class, 'getAssessment'])->name('users.assessments');
     Route::post('/assessment/report', [UserController::class, 'getReportAssessmentUser'])->name('users.report');
+    Route::get('/assessment/evaluate/{id}', [UserController::class, 'evaluate'])->name('users.evaluate');
+    Route::get('/assessment/evaluate/{id}', [UserController::class, 'finish'])->name('evaluate.finish');
+    
     Route::post('/assessments', [UserController::class, 'sendEmailEvaluate'])->name('users.sendEmail');
     Route::post('/users/email/welcome', [UserController::class, 'sendEmailWelcome'])->name('users.email.welcome');
     Route::resource('users',UserController::class);

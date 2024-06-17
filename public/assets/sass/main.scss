@@ -330,7 +330,7 @@ h1,h2,h3,h4,h5,h6,p {
         .alga {
             position: absolute;
             z-index: 0;
-            bottom:100px;
+            //bottom:100px;
             left: 18%;
             animation-name: left-right-30;
             animation-duration: 5s;
@@ -340,7 +340,7 @@ h1,h2,h3,h4,h5,h6,p {
         .coral {
             position: absolute;
             z-index: 0;
-            bottom:60px;
+            //bottom:60px;
             right: 17%;
             animation-name: left-right;
             animation-duration: 6s;
@@ -350,7 +350,7 @@ h1,h2,h3,h4,h5,h6,p {
         .burbujas {
             position: absolute;
             z-index: 1;
-            top:-140px;
+            //top:-140px;
             right: 25%;
             animation-name: rotate-smooth;
             animation-duration: 30s;

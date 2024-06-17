@@ -79,7 +79,7 @@
                                         <th scope="col">Enviada</th>
                                         <th scope="col">Terminada</th>
                                         <th scope="col">Estatus</th>
-                                        <th scope="col" width="240">Acciones</th>
+                                        <th scope="col" width="350">Acciones</th>
                                       </tr>
                                     </thead>
                                     <tbody>
@@ -95,6 +95,7 @@
                                                 <td>{{$start->format('d-m-Y')}}</td>
                                                 <td><strong>{{$assesment['node']['status']}}</strong></td>
                                                 <td>
+                                                    <a href="{{route('users.evaluate')}}" class="btn btn-primary">Evaluar</a>
                                                     @if(!$assesment['node']['status'] == 'EXPIRED' OR !$assesment['node']['status'] == 'SUBMITTED')
                                                         <a class="btn btn-primary click-send-email" data-assesment="{{$assesment['node']['id']}}" @if($assesment['node']['status'] != 'EXPIRED') @else disabled @endif>Solicitar evaluación</a>
                                                     @elseif($assesment['node']['status'] == 'SUBMITTED')

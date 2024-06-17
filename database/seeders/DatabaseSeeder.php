@@ -16,6 +16,11 @@ class DatabaseSeeder extends Seeder
         $institution = Role::create([
             'name' => 'institution'
         ]);
+
+        $coordinator = Role::create([
+            'name' => 'coordinator'
+        ]);
+
         $respondent = Role::create([
             'name' => 'respondent'
         ]);

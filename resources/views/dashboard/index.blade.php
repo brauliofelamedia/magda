@@ -7,6 +7,18 @@
     .mt-10 {
         margin-top: 70px!important;
     }
+    .box .box-inner {
+        margin-top: 210px!important;
+    }
+    .alga {
+        top: 0 !important;
+        bottom: 0 !important;
+    }
+    .coral {
+        top: 0 !important;
+        bottom: 0 !important;
+    }
+</style>
 </style>
 @endpush
 
@@ -19,6 +31,10 @@
             <div class="col-12">
                 @include('parts.message')
                 <div class="box">
+                    <img src="{{asset('assets/img/octopus.png')}}" alt="" class="octopus">
+                    <img src="{{asset('assets/img/alga.png')}}" alt="" class="alga">
+                    <img src="{{asset('assets/img/burbujas.png')}}" alt="" class="burbujas">
+                    <img src="{{asset('assets/img/coral.png')}}" alt="" class="coral">
                     <div class="box-inner">
                         <div class="row">
                             <div class="col-xl-12">
@@ -37,7 +53,7 @@
             <div class="col-lg-12">
                 <div class="box-pink">
                     <div class="row">
-                        <div class="col-xl-6">
+                        <div class="col-xl-12">
                             <div class="box-inner text-center">
                                 <img src="{{asset('assets/img/doc.png')}}" class="mb-3">
                                 <a href="{{route('users.edit',auth()->user()->id)}}">
@@ -46,7 +62,7 @@
                                 <p>Editar información</p>
                             </div>
                         </div>
-                        <div class="col-xl-6">
+                        <div class="col-xl-6" style="display: none;">
                             <div class="box-inner text-center">
                                 <img src="{{asset('assets/img/configuration.png')}}" class="mb-3">
                                 <a href="{{route('test.settings')}}">

@@ -19,6 +19,24 @@ class UserController extends Controller
         $assesments = $this->getAssessmentUser($respondentId);
         return view('dashboard.users.assessments',compact('assesments','user'));
     }
+
+    public function evaluate($id)
+    {
+        if($id == 1){
+            return view('dashboard.users.evaluate');
+        } elseif($id == 2){
+            return view('dashboard.users.evaluate2');
+        } elseif($id == 3) {
+            return view('dashboard.users.evaluate3');
+        } else {
+            return view('dashboard.users.thanks');
+        }
+    }
+
+    public function finish()
+    {
+        return view('dashboard.users.finish');
+    }
     
     public function edit(string $id)
     {
@@ -69,6 +87,7 @@ class UserController extends Controller
         $user->name = $request->name;
         $user->email = $request->email;
         $user->user_id = $request->user_id;
+        $user->assignRole($request->role);
 
         if($request->password == $request->password_confirmation){
             $user->password = Hash::make($request->input('password'));
@@ -78,9 +97,6 @@ class UserController extends Controller
         return redirect()->route('dashboard.welcome')->with('success', 'Se han actualizado los datos correctamente.');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(string $id)
     {
         //

@@ -25,7 +25,7 @@ class UsersDataTable extends DataTable
         return (new EloquentDataTable($query))
             ->addColumn('action', function($row){
                 $btn = '<a href="'.route('users.edit',$row->id).'" class="edit btn btn-info btn-sm">Editar</a>';
-            $btn .= '<a href="'.route('users.assessments',$row->account_id).'" class="btn btn-warning btn-sm">Evaluaciones</a>';
+                $btn .= '<a href="'.route('users.assessments',$row->account_id).'" class="btn btn-warning btn-sm">Evaluaciones</a>';
                 $btn .= '<a href="#" data-id="'.$row->id.'" class="btn btn-success btn-sm btn-send-welcome">Enviar correo</a>';
                 return $btn;
             })
