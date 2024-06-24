@@ -56,7 +56,7 @@
                         <div class="col-xl-12">
                             <div class="box-inner text-center">
                                 <img src="{{asset('assets/img/doc.png')}}" class="mb-3">
-                                <a href="{{route('users.edit',auth()->user()->id)}}">
+                                <a href="{{route('users.edit',auth()->user()->uuid)}}">
                                     <h4>Perfil</h4>
                                 </a>
                                 <p>Editar información</p>

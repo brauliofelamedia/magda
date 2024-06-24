@@ -29,7 +29,7 @@
                                 <h3 class="text-center">Editar usuario</h3>
                                 <div class="row">
                                     <div class="col-10 offset-1">
-                                        <form action="{{route('users.update',$user->id)}}" method="post">
+                                        <form action="{{route('users.update',$user->uuid)}}" method="post">
                                             @csrf
                                             @method('PATCH')
                                             <div class="row">
@@ -42,7 +42,7 @@
                                                 <div class="col-md-6">
                                                     <div class="form-group">
                                                         <label for="email">Correo electrónico:</label>
-                                                        <input type="email" id="email" name="email" class="form-control" value="{{$user->email}}">
+                                                        <input type="email" id="email" name="email" class="form-control" value="{{$user->email}}" @if(Auth()->user()->hasRole('respondent')) readonly @endif>
                                                     </div>
                                                 </div>
                                             </div>
@@ -57,15 +57,15 @@
                                             </div>
                                             <div class="form-group">
                                                 <label for="role">Rol de usuario:</label>
-                                                <select name="role" id="role" class="form-control">
+                                                <select name="role" id="role" class="form-control" @if(Auth()->user()->id == $user->id) readonly @endif>
                                                     <option value="">-- Selecciona el rol para el usuario --</option>
                                                     @role('administrator')
-                                                    <option value="administrator">Administrator</option>
-                                                    <option value="institution">Institución</option>
+                                                    <option value="administrator" @if(Auth()->user()->hasRole('administrator')) selected @endif>Administrator</option>
+                                                    <option value="institution" @if(Auth()->user()->hasRole('institution')) selected @endif>Institución</option>
                                                     @endrole
                                                     @anyhasrole('institution','administrator')
-                                                    <option value="coordinator">Coordinador</option>
-                                                    <option value="respondent">Evaluado</option>
+                                                    <option value="coordinator" @if(Auth()->user()->hasRole('coordinator')) selected @endif>Coordinador</option>
+                                                    <option value="respondent" @if(Auth()->user()->hasRole('respondent')) selected @endif>Evaluado</option>
                                                     @endanyhasrole
                                                 </select>
                                             </div>

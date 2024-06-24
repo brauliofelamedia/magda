@@ -38,9 +38,9 @@ class UserController extends Controller
         return view('dashboard.users.finish');
     }
     
-    public function edit(string $id)
+    public function edit($uuid)
     {
-        $user = User::findOrFail($id);
+        $user = User::where('uuid',$uuid)->first();
         $institutes = User::role('institution')->get();
         return view('dashboard.users.edit',compact('user','institutes'));
     }
@@ -75,12 +75,12 @@ class UserController extends Controller
         ], 200); 
     }
 
-    public function update(Request $request, string $id)
+    public function update(Request $request,$uuid)
     {
-        $user = User::find($id);
+        $user = User::where('uuid',$uuid);
         $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,' . $id,
+            'email' => 'required|email|unique:users,email,' . $uuid,
             'password' => 'nullable|string|min:8|confirmed',
         ]);
 

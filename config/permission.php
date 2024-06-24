@@ -1,5 +1,8 @@
 <?php
 
+use App\Models\Permission;
+use App\Models\Role;
+
 return [
 
     'models' => [
@@ -13,7 +16,7 @@ return [
          * `Spatie\Permission\Contracts\Permission` contract.
          */
 
-        'permission' => Spatie\Permission\Models\Permission::class,
+        'permission' => Permission::class,
 
         /*
          * When using the "HasRoles" trait from this package, we need to know which
@@ -24,7 +27,7 @@ return [
          * `Spatie\Permission\Contracts\Role` contract.
          */
 
-        'role' => Spatie\Permission\Models\Role::class,
+        'role' => Role::class,
 
     ],
 
@@ -86,7 +89,7 @@ return [
          * that case, name this `model_uuid`.
          */
 
-        'model_morph_key' => 'model_id',
+        'model_morph_key' => 'model_uuid',
 
         /*
          * Change this if you want to use the teams feature and your related model's

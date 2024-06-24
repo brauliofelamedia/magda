@@ -32,11 +32,10 @@ class DashboardController extends Controller
                 $user->name = $respondent['node']['firstName'].' '.$respondent['node']['lastName'];
                 $user->email = $respondent['node']['email'];
                 $user->account_id = $respondent['node']['id'];
+                $user->platform = true;
                 $user->password = bcrypt('password');
                 $user->assignRole('respondent');
                 $user->save();
-            } else {
-                echo 'Ya se encuentran los usuarios';
             }
             
         }

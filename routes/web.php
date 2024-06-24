@@ -30,10 +30,10 @@ Route::prefix('dashboard')->middleware('auth')->group(function () {
     Route::get('/syncUsers', [DashboardController::class, 'syncUsers'])->name('dashboard.sync');
 
     //Users
-    Route::get('/assessments/{respondentId}', [UserController::class, 'getAssessment'])->name('users.assessments');
+    Route::get('/assessments/{respondentId?}', [UserController::class, 'getAssessment'])->name('users.assessments');
     Route::post('/assessment/report', [UserController::class, 'getReportAssessmentUser'])->name('users.report');
     Route::get('/assessment/evaluate/{id}', [UserController::class, 'evaluate'])->name('users.evaluate');
-    Route::get('/assessment/evaluate/{id}', [UserController::class, 'finish'])->name('evaluate.finish');
+    Route::get('/assessment/finish', [UserController::class, 'finish'])->name('evaluate.finish');
     
     Route::post('/assessments', [UserController::class, 'sendEmailEvaluate'])->name('users.sendEmail');
     Route::post('/users/email/welcome', [UserController::class, 'sendEmailWelcome'])->name('users.email.welcome');

@@ -18,7 +18,7 @@
                     </div>
                 </div>
                 <div class="col-xl-3 offset-xl-4">
-                    <img src="assets/img/octopus-2.png" class="f-right octopus b-block" alt="Octopus 2">
+                    <img src="{{asset('assets/img/octopus-2.png')}}" class="f-right octopus b-block" alt="Octopus 2">
                 </div>
             </div>
         </div>

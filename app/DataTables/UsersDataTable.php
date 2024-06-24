@@ -24,9 +24,13 @@ class UsersDataTable extends DataTable
     {
         return (new EloquentDataTable($query))
             ->addColumn('action', function($row){
-                $btn = '<a href="'.route('users.edit',$row->id).'" class="edit btn btn-info btn-sm">Editar</a>';
-                $btn .= '<a href="'.route('users.assessments',$row->account_id).'" class="btn btn-warning btn-sm">Evaluaciones</a>';
-                $btn .= '<a href="#" data-id="'.$row->id.'" class="btn btn-success btn-sm btn-send-welcome">Enviar correo</a>';
+                $user = auth()->user();
+                $btn = '<a href="'.route('users.edit',$row->uuid).'" class="edit btn btn-info btn-sm">Editar</a>';
+                if(!$row->hasAnyRole('administrator','institution','coordinator')){
+                    $btn .= '<a href="'.route('users.assessments',$row->account_id).'" class="btn btn-warning btn-sm">Evaluaciones</a>';
+                }
+                
+                $btn .= '<a href="#" data-id="'.$row->id.'" class="btn btn-success btn-sm btn-send-welcome">Enviar acceso</a>';
                 return $btn;
             })
             ->addColumn('role', function ($user) {
@@ -90,14 +94,14 @@ class UsersDataTable extends DataTable
     {
         return [
             Column::make('name')->title('Nombre'),
-            Column::make('email')->title('Correo'),
+            //Column::make('email')->title('Correo'),
             Column::make('role')->title('Rol'),
             Column::make('created')->title('Fecha'),
             Column::computed('action')
                 ->title('Acciones')
                 ->exportable(false)
                 ->printable(false)
-                ->width(260)
+                ->width(300)
                 ->addClass('text-center'),
         ];
     }
