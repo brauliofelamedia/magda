@@ -26,10 +26,9 @@ class UsersDataTable extends DataTable
             ->addColumn('action', function($row){
                 $user = auth()->user();
                 $btn = '<a href="'.route('users.edit',$row->uuid).'" class="edit btn btn-info btn-sm">Editar</a>';
-                if(!$row->hasAnyRole('administrator','institution','coordinator')){
+                if(!$row->hasRole('administrator','institution','coordinator')){
                     $btn .= '<a href="'.route('users.assessments',$row->account_id).'" class="btn btn-warning btn-sm">Evaluaciones</a>';
                 }
-                
                 $btn .= '<a href="#" data-id="'.$row->id.'" class="btn btn-success btn-sm btn-send-welcome">Enviar acceso</a>';
                 return $btn;
             })

@@ -31,26 +31,28 @@
 @endpush
 
 @section('content')
-    @foreach($assesments as $assesment)
-        <div class="modal fade" id="{{$assesment['node']['id']}}-Modal" tabindex="-1" aria-labelledby="{{$assesment['node']['id']}}-ModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-nobackdrop">
-            <div class="modal-content">
-                <div class="modal-header">
-                <h1 class="modal-title fs-5" id="{{$assesment['node']['id']}}-ModalLabel">Resultados de intereses</h1>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="wait"><p class="text-center">Espera un momento...</p></div>
-                    <div id="data-container" class="row">
+    @if($assesments)
+        @foreach($assesments as $assesment)
+            <div class="modal fade" id="{{$assesment['node']['id']}}-Modal" tabindex="-1" aria-labelledby="{{$assesment['node']['id']}}-ModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-nobackdrop">
+                <div class="modal-content">
+                    <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="{{$assesment['node']['id']}}-ModalLabel">Resultados de intereses</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="wait"><p class="text-center">Espera un momento...</p></div>
+                        <div id="data-container" class="row">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary btn-clear" data-bs-dismiss="modal">Cerrar</button>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary btn-clear" data-bs-dismiss="modal">Cerrar</button>
                 </div>
             </div>
-            </div>
-        </div>
-    @endforeach
+        @endforeach
+    @endif
 
     <div class="container" id="dashboard">
         <meta name="csrf-token" content="{{ csrf_token() }}">
@@ -71,6 +73,7 @@
                                     <h3 class="text-center">Evaluaciones de <strong>{{$user->name}}</strong></h3>
                                 @endhasanyrole
                                 <hr>
+                                @if(($assesments))
                                 <table class="table">
                                     <thead>
                                       <tr>
@@ -95,23 +98,54 @@
                                                 <td>{{$start->format('d-m-Y')}}</td>
                                                 <td><strong>{{$assesment['node']['status']}}</strong></td>
                                                 <td>
-                                                    <a href="{{route('users.evaluate',1)}}" class="btn btn-primary">Evaluar</a>
                                                     @if(!$assesment['node']['status'] == 'EXPIRED' OR !$assesment['node']['status'] == 'SUBMITTED')
                                                         <a class="btn btn-primary click-send-email" data-assesment="{{$assesment['node']['id']}}" @if($assesment['node']['status'] != 'EXPIRED') @else disabled @endif>Solicitar evaluación</a>
                                                     @elseif($assesment['node']['status'] == 'SUBMITTED')
-                                                        <a href="#" class="btn btn-info disabled" disabled>Finalizado</a>
+                                                        <a href="#" class="btn btn-info disabled" disabled>Contestado</a>
+                                                    @elseif($assesment['node']['status'] == 'NEW')
+                                                        <a class="btn btn-success" href="{{route('evaluate.start',[$assesment['node']['id'],$assesment['node']['token'],$assesment['node']['locale']])}}">Evaluar</a>
+                                                    @elseif($assesment['node']['status'] == 'STARTED')
+                                                        <a class="btn btn-success" href="{{route('users.evaluate',[$assesment['node']['id'],$assesment['node']['token'],$assesment['node']['locale']])}}">Continuar</a>
                                                     @else
                                                         <a href="#" class="btn btn-danger disabled" disabled>Expirado</a>
                                                     @endif
                                                     @if($assesment['node']['status'] == 'FINISHED' OR $assesment['node']['status'] == 'SUBMITTED')
-                                                        <a class="btn btn-success click-assesment" data-report="{{$assesment['node']['id']}}" data-bs-toggle="modal" data-bs-target="#{{$assesment['node']['id']}}-Modal">Resultados</a>
+                                                        <a class="btn btn-info click-assesment" data-report="{{$assesment['node']['id']}}" data-bs-toggle="modal" data-bs-target="#{{$assesment['node']['id']}}-Modal">Resultados</a>
                                                     @endif
                                                 </td>
                                             </tr>
                                         @endforeach
                                     </tbody>
-                                  </table>
-                                  <p class="text-center" style="font-size:14px;color:red;">Al solicitar la evaluación el sistema de enviará un correo para iniciar la evaluación, revisa tu <strong>bandeja de entrada</strong> o la <strong>carpeta de SPAM</strong>.</p>
+                                </table>
+                                @else
+                                 <p class="text-center">El usuario no tiene evaluaciones</p>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row mt-4">
+            <div class="col-lg-12">
+                <div class="box-pink">
+                    <div class="row">
+                        <div class="col-xl-12">
+                            <div class="box-inner text-center">
+                                <img src="{{asset('assets/img/doc.png')}}" class="mb-3">
+                                <a href="{{route('users.edit',auth()->user()->uuid)}}">
+                                    <h4>Perfil</h4>
+                                </a>
+                                <p>Editar información</p>
+                            </div>
+                        </div>
+                        <div class="col-xl-6" style="display: none;">
+                            <div class="box-inner text-center">
+                                <img src="{{asset('assets/img/configuration.png')}}" class="mb-3">
+                                <a href="{{route('test.settings')}}">
+                                    <h4>Ajustes</h4>
+                                </a>
+                                <p>Configuración</p>
                             </div>
                         </div>
                     </div>

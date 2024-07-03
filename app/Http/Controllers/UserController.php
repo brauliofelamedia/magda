@@ -20,17 +20,10 @@ class UserController extends Controller
         return view('dashboard.users.assessments',compact('assesments','user'));
     }
 
-    public function evaluate($id)
+    public function evaluate($id,$token,$lang)
     {
-        if($id == 1){
-            return view('dashboard.users.evaluate');
-        } elseif($id == 2){
-            return view('dashboard.users.evaluate2');
-        } elseif($id == 3) {
-            return view('dashboard.users.evaluate3');
-        } else {
-            return view('dashboard.users.thanks');
-        }
+        $assesment = $this->getDataAssessment($id,$token,$lang);
+        return view('dashboard.users.evaluate',compact('assesment'));
     }
 
     public function finish()
@@ -43,6 +36,11 @@ class UserController extends Controller
         $user = User::where('uuid',$uuid)->first();
         $institutes = User::role('institution')->get();
         return view('dashboard.users.edit',compact('user','institutes'));
+    }
+
+    public function startEvaluate($id,$token,$lang)
+    {
+        $this->startEvaluation($id,$token,$lang);
     }
 
     public function sendEmailEvaluate(Request $request)

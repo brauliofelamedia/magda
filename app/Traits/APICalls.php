@@ -69,6 +69,32 @@ trait APICalls
         }
     }
 
+    public function startEvaluation($id,$token,$lang)
+    {
+        $config = Config::latest()->first();
+        try {
+            $authResponse = Http::withHeaders([
+                'Accept'        => 'application/json',
+                'Authorization' => 'Bearer ' . $config->token,
+                'Content-Type'  => 'application/json'
+            ])->post('https://api.gr8pi.com/api/v1/questionnaire-scheduling', [
+                'query'     => 'mutation($input: AssessmentStartInput!) { assessment_start(input: $input) { id status } }',
+                'variables' => [
+                    'input' => [
+                        'id'       => $id,
+                        'token'    => $token,
+                        'language' => $lang
+                    ]
+                ]
+            ]);
+        
+        return redirect()->route('users.evaluate',[$id,$token,$lang]);
+
+        } catch (\Exception $e) {
+            dd($e->getMessage());
+        }
+    }
+
     public function sendEmailEvaluation($assessmentId)
     {
         $config = Config::latest()->first();
@@ -100,39 +126,125 @@ trait APICalls
         $config = Config::latest()->first();
         try {
             $authResponse = Http::withHeaders([
-                'Accept' => 'application/json',
+                'Accept'        => 'application/json',
                 'Authorization' => 'Bearer ' . $config->token,
-                'Content-Type' => 'application/json'
+                'Content-Type'  => 'application/json'
             ])->post('https://api.gr8pi.com/api/v1/questionnaire-scheduling', [
                 'query' => 'query($accountId: ID!, $respondentId: ID!) {
-                               account(id: $accountId) {
-                                   respondent(id: $respondentId) {
-                                       timeline {
-                                           edges {
-                                               node {
-                                                   ... on Assessment {
-                                                       id
-                                                       token
-                                                       locale
-                                                       startedOn
-                                                       submittedOn
-                                                       status
-                                                   }
-                                               }
-                                           }
-                                       }
-                                   }
-                               }
-                           }',
+                        account(id: $accountId) {
+                            respondent(id: $respondentId) {
+                                timeline {
+                                    edges {
+                                        node {
+                                            ... on Assessment {
+                                                id
+                                                token
+                                                locale
+                                                startedOn
+                                                submittedOn
+                                                status
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }',
                 'variables' => [
-                    'accountId' => 243576,
+                    'accountId'    => env('MAGDA_USER_ID'),
                     'respondentId' => $respondentId
                 ]
             ]);
-
+        
             $assessments = $authResponse->json('data.account.respondent.timeline.edges');
             return $assessments;
         
+        } catch (\Exception $e) {
+            dd($e->getMessage());
+        }
+    }
+
+    public function getDataAssessment($id,$token,$lang)
+    {
+        $config = Config::latest()->first();
+        try {
+            $authResponse = Http::withHeaders([
+                'Accept' => 'application/json',
+                'Authorization' => 'Bearer ' . $config->token,
+                'Content-Type' => 'application/json'
+            ])->post('https://api.gr8pi.com/api/v1/questionnaire-data-collection', [
+                'query' => 'query($input: AssessmentInput!) {
+                assessment(input: $input) {
+                    id
+                    content {
+                    behavior {
+                        id
+                        displayName
+                        instructions
+                        groups {
+                        name
+                        items {
+                            id
+                            text
+                            description
+                            answers {
+                            id
+                            text
+                            }
+                        }
+                        }
+                    }
+                    cognitive {
+                        id
+                        displayName
+                        instructions
+                        groups {
+                        name
+                        items {
+                            id
+                            text
+                            description
+                            answers {
+                            id
+                            text
+                            }
+                        }
+                        }
+                    }
+                    interests {
+                        id
+                        displayName
+                        instructions
+                        groups {
+                        name
+                        items {
+                            id
+                            text
+                            description
+                            answers {
+                            id
+                            text
+                            }
+                        }
+                        }
+                    }
+                    }
+                }
+                }',
+                'variables' => [
+                    'input' => [
+                        'id' => $id,
+                        'token' => $token,
+                        'language' => $lang
+                    ]
+                ]
+            ]);
+
+            //Apunta al contenido que incluye "behavior,cognitive,interests".
+            $assessmentData = $authResponse->json('data.assessment.content');
+
+            return $assessmentData; 
+
         } catch (\Exception $e) {
             dd($e->getMessage());
         }
