@@ -19,7 +19,6 @@ trait APICalls
             ]);
 
             $respondents = $authResponse->json('data.account.respondents.edges');
-            dd($respondents);
             return $respondents;
         
         } catch (\Exception $e) {
