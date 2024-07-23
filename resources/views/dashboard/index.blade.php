@@ -153,24 +153,37 @@
             <div class="col-lg-12">
                 <div class="box-pink">
                     <div class="row">
-                        <div class="col-xl-6">
-                            <div class="box-inner text-center">
-                                <img src="{{asset('assets/img/doc.png')}}" class="mb-3">
-                                <a href="{{route('users.edit',auth()->user()->uuid)}}">
-                                    <h4>Perfil</h4>
-                                </a>
-                                <p>Editar información</p>
+                        @role('administrator')
+                            <div class="col-xl-6">
+                                <div class="box-inner text-center">
+                                    <img src="{{asset('assets/img/doc.png')}}" class="mb-3">
+                                    <a href="{{route('users.edit',auth()->user()->uuid)}}">
+                                        <h4>Perfil</h4>
+                                    </a>
+                                    <p>Editar información</p>
+                                </div>
                             </div>
-                        </div>
-                        <div class="col-xl-6">
-                            <div class="box-inner text-center">
-                                <img src="{{asset('assets/img/configuration.png')}}" class="mb-3">
-                                <a href="#">
-                                    <h4>Ajustes</h4>
-                                </a>
-                                <p>Configuración</p>
+                            <div class="col-xl-6">
+                                <div class="box-inner text-center">
+                                    <img src="{{asset('assets/img/configuration.png')}}" class="mb-3">
+                                    <a href="#">
+                                        <h4>Ajustes</h4>
+                                    </a>
+                                    <p>Configuración</p>
+                                </div>
                             </div>
-                        </div>
+                        @endrole
+                        @hasanyrole(['respondent','coordinator','institution'])
+                            <div class="col-xl-12">
+                                <div class="box-inner text-center">
+                                    <img src="{{asset('assets/img/doc.png')}}" class="mb-3">
+                                    <a href="{{route('users.edit',auth()->user()->uuid)}}">
+                                        <h4>Perfil</h4>
+                                    </a>
+                                    <p>Editar información</p>
+                                </div>
+                            </div>
+                        @endhasanyrole
                     </div>
                 </div>
             </div>
