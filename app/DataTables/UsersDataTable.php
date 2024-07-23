@@ -27,9 +27,8 @@ class UsersDataTable extends DataTable
                 $user = auth()->user();
                 $btn = '<a href="'.route('users.edit',$row->uuid).'" class="edit btn btn-info btn-sm">Editar</a>';
                 if(!$row->hasRole('administrator','institution','coordinator')){
-                    $btn .= '<a href="'.route('users.assessments',$row->account_id).'" class="btn btn-warning btn-sm">Evaluaciones</a>';
+                    $btn .= '<a href="'.route('assessments.index',$row->account_id).'" class="btn btn-warning btn-sm">Evaluaciones</a>';
                 }
-                $btn .= '<a href="#" data-id="'.$row->id.'" class="btn btn-success btn-sm btn-send-welcome">Enviar acceso</a>';
                 return $btn;
             })
             ->addColumn('role', function ($user) {
@@ -57,11 +56,10 @@ class UsersDataTable extends DataTable
     public function query(User $model): QueryBuilder
     {
         if (auth()->user()->hasRole('administrator')) {
-            return $model->newQuery()->role(['institution','respondent','administrator']);
+            return $model->newQuery();
         } elseif(auth()->user()->hasRole('institution')){
             return $model->newQuery()->where('user_id',auth()->user()->id)->role(['respondent']);
         }
-
     }
 
     /**

@@ -1,6 +1,6 @@
 @extends('layouts.main')
 
-@section('title','Registrar una cuenta')
+@section('title','Inicia sesión')
 
 @push('css')
 @endpush
@@ -31,8 +31,8 @@
                             </span>
                         @enderror
                     </div>
-                    <button type="submit" href="#" class="btn bg-orange text-center b-block c-white fw-600">Iniciar sesión</button>
-                    <div class="row mt-2">
+                    <button type="submit" class="btn bg-orange text-center b-block c-white fw-600">Iniciar sesión</button>
+                    <div class="row mt-6">
                         <div class="col-md-6">
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" name="remember" id="remember" {{ old('remember') ? 'checked' : '' }}>
@@ -44,9 +44,8 @@
                                 <a href="{{ route('password.request') }}" class="f-right t-none">Olvide la contraseña</a>
                             </div>
                         @endif
-                        
                     </div>
-                    <div class="row mt-5">
+                    <div class="row mt-5" style="display: none;">
                         <div class="col">
                             <a href="{{route('register')}}" class="btn bg-transparent text-center b-block c-blue">Registrar una cuenta</a>
                         </div>

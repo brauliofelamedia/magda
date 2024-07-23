@@ -1,7 +1,9 @@
 <?php
 
 use App\Http\Controllers\ApiController;
+use App\Http\Controllers\AssessmentController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ReportController;
 use App\Http\Controllers\TestController;
 use App\Http\Controllers\TokenController;
 use App\Http\Controllers\UserController;
@@ -30,27 +32,24 @@ Route::prefix('dashboard')->middleware('auth')->group(function () {
     Route::get('/syncUsers', [DashboardController::class, 'syncUsers'])->name('dashboard.sync');
 
     //Users
-    Route::get('/assessments/{respondentId?}', [UserController::class, 'getAssessment'])->name('users.assessments');
-    Route::post('/assessment/report', [UserController::class, 'getReportAssessmentUser'])->name('users.report');
-    Route::get('/assessment/start/evaluate/{id}/{token}/{lang}', [UserController::class, 'start'])->name('evaluate.start');
-    Route::get('/assessment/evaluate/{id}/{token}/{lang}', [UserController::class, 'evaluate'])->name('users.evaluate');
-    Route::get('/assessment/evaluate', [UserController::class, 'finish'])->name('evaluate.finish');
-    
-    Route::post('/assessments', [UserController::class, 'sendEmailEvaluate'])->name('users.sendEmail');
     Route::post('/users/email/welcome', [UserController::class, 'sendEmailWelcome'])->name('users.email.welcome');
     Route::resource('users',UserController::class);
 
+    //Reports
+    Route::post('/reports/results', [ReportController::class, 'getReportAssessments'])->name('report.results');
+
+    //Assessments
+    Route::get('/assessment/{respondentId?}', [AssessmentController::class, 'getAssessments'])->name('assessments.index');
+    Route::get('/assessment/start/{id}/{token}/{lang}', [AssessmentController::class, 'startEvaluate'])->name('assessments.start');
+    Route::get('/assessment/continue/{id}/{token}/{lang}', [AssessmentController::class, 'continueEvaluate'])->name('assessments.continue');
+    Route::get('/assessment/new/{id}/{lang}', [AssessmentController::class, 'newEvaluation'])->name('assessments.new');
+    Route::post('/assessment/user/new', [AssessmentController::class, 'createNewUser'])->name('assessments.user.new');
+
     //SuperLink
     Route::get('/superlink/{email}/{idTemplate}', [DashboardController::class, 'superLink'])->name('dashboard.superlink');
-
     Route::get('getRespondents',[ApiController::class,'getRespondents'])->name('api.getRespondents');
 
-    //Pruebas
-    Route::get('/test/create', [TestController::class, 'create'])->name('test.create');
-    Route::get('/test/results', [TestController::class, 'viewResult'])->name('test.results');
-    Route::get('/test/settings', [TestController::class, 'settings'])->name('test.settings');
-
-    //Token
+    //Token test
     Route::get('getToken',[TokenController::class,'getToken'])->name('get.token');
     Route::get('expirationToken',[TokenController::class,'expirationToken'])->name('get.expirationToken');
     Route::get('refreshToken',[TokenController::class,'refreshToken'])->name('get.refreshToken');

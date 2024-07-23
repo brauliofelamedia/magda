@@ -1,6 +1,6 @@
 @extends('layouts.main')
 
-@section('title','Iniciar sesión')
+@section('title','Panel de administración')
 
 @push('css')
 <style>
@@ -18,11 +18,101 @@
         top: 0 !important;
         bottom: 0 !important;
     }
+    .form-control {
+        padding: 10px 23px!important;
+    }
 </style>
 </style>
 @endpush
 
 @section('content')
+
+    <!--Crear nuevo usuario -->
+    <div class="modal fade" id="newModal" tabindex="-1" aria-labelledby="newModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-nobackdrop">
+        <div class="modal-content">
+            <div class="modal-header">
+            <h1 class="modal-title fs-5" id="newModalLabel">Nueva usuario</h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form class="form" method="post" action="{{route('assessments.user.new')}}">
+                    @csrf
+                    <div class="row">
+                        <div class="col-xl-6">
+                            <div class="form-group">
+                                <label for="name">Nombre</label>
+                                <input type="text" id="name" name="name" class="form-control" required>
+                            </div>
+                        </div>
+                        <div class="col-xl-6">
+                            <div class="form-group">
+                                <label for="lastname">Apellidos</label>
+                                <input type="text" id="lastname" name="lastname" class="form-control" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xl-6">
+                            <div class="form-group">
+                                <label for="email">Correo electrónico</label>
+                                <input type="email" id="email" name="email" class="form-control" required>
+                            </div>
+                        </div>
+                        <div class="col-xl-6">
+                            <div class="form-group">
+                                <label for="locale">Idioma preferido</label>
+                                <select name="locale" id="locale" class="form-control" required>
+                                    @foreach ($locales as $locale => $language)
+                                        <option value="{{$locale}}">{{$language}}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xl-6">
+                            <div class="form-group">
+                                <label for="gender">Género</label>
+                                <select name="gender" id="gender" class="form-control" required>
+                                    <option value="M">Masculino</option>
+                                    <option value="F">Femenino</option>
+                                    <option value="N">No binario</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-xl-6">
+                            <div class="form-group">
+                                <label for="role">Rol</label>
+                                <select name="role" id="role" class="form-control" required>
+                                    @if(Auth::user()->hasRole('administrator'))
+                                        <option value="administrator">Administrador</option>
+                                        <option value="institution">Institutos</option>
+                                    @endif
+                                    @if(Auth::user()->hasRole('institution'))
+                                        <option value="coordinator">Coordinador</option>
+                                        <option value="respondent">Evaluado</option>
+                                    @else
+                                        <option value="respondent">Evaluado</option>
+                                    @endif
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Contraseña</label>
+                        <input type="password" id="password" name="password" class="form-control" required>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-success">Registrar usuario</button>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary btn-clear" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+        </div>
+    </div>
 
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <div class="container" id="dashboard">
@@ -40,9 +130,19 @@
                             <div class="col-xl-12">
                                 <h3 class="text-center">Usuarios</h3>
                                 {{ $dataTable->table() }}
-                                @role('administrator')
-                                    <a href="{{route('dashboard.sync')}}" class="center-h btn btn-danger">Sincronizar usuarios</a>
-                                @endrole
+                                <div class="text-center">
+                                    @hasrole(['administrator'])
+                                        <div class="btn-group text-center" role="group">
+                                            <a  href="{{route('dashboard.sync')}}" class="btn btn-warning">Sincronizar usuarios</a>
+                                            <a href="#" data-bs-toggle="modal" data-bs-target="#newModal" class="btn btn-success">Añadir usuario</a>
+                                        </div>
+                                    @endhasrole
+                                    @hasanyrole(['institution','coordinator'])
+                                        <div class="btn-group text-center" role="group">
+                                            <a href="#" data-bs-toggle="modal" data-bs-target="#newModal" class="btn btn-success">Añadir usuario</a>
+                                        </div>
+                                    @endhasanyrole
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -53,7 +153,7 @@
             <div class="col-lg-12">
                 <div class="box-pink">
                     <div class="row">
-                        <div class="col-xl-12">
+                        <div class="col-xl-6">
                             <div class="box-inner text-center">
                                 <img src="{{asset('assets/img/doc.png')}}" class="mb-3">
                                 <a href="{{route('users.edit',auth()->user()->uuid)}}">
@@ -62,10 +162,10 @@
                                 <p>Editar información</p>
                             </div>
                         </div>
-                        <div class="col-xl-6" style="display: none;">
+                        <div class="col-xl-6">
                             <div class="box-inner text-center">
                                 <img src="{{asset('assets/img/configuration.png')}}" class="mb-3">
-                                <a href="{{route('test.settings')}}">
+                                <a href="#">
                                     <h4>Ajustes</h4>
                                 </a>
                                 <p>Configuración</p>

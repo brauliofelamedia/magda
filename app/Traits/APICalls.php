@@ -2,10 +2,10 @@
 namespace App\Traits;
 use App\Models\Config;
 use Illuminate\Support\Facades\Http;
+use Carbon\Carbon;
 
 trait APICalls
 {
-    //296 pagina
     public function getRespondents()
     {
         $config = Config::latest()->first();
@@ -15,10 +15,11 @@ trait APICalls
                 'Authorization' => 'Bearer ' . $config->token,
                 'Content-Type' => 'application/json'
             ])->post('https://api.gr8pi.com/api/v1/questionnaire-scheduling', [
-                'query' => 'query { account(id: 243576) { respondents(first:100) { edges { node { id,firstName,lastName,email }}}}}',
+                'query' => 'query { account(id: 243576) { respondents(first:100) { edges { node { id,firstName,lastName,email,locale }}}}}',
             ]);
 
             $respondents = $authResponse->json('data.account.respondents.edges');
+            dd($respondents);
             return $respondents;
         
         } catch (\Exception $e) {
@@ -72,6 +73,7 @@ trait APICalls
     public function startEvaluation($id,$token,$lang)
     {
         $config = Config::latest()->first();
+        
         try {
             $authResponse = Http::withHeaders([
                 'Accept'        => 'application/json',
@@ -88,8 +90,59 @@ trait APICalls
                 ]
             ]);
         
-        return redirect()->route('users.evaluate',[$id,$token,$lang]);
+        return redirect()->route('assessments.continue',[$id,$token,$lang]);
 
+        } catch (\Exception $e) {
+            dd($e->getMessage());
+        }
+    }
+
+    public function createNewEvaluation($respondentId,$locale,array $emails)
+    {
+        $dateNow = Carbon::now();
+        $dateNextWeek = $dateNow->addWeek();
+
+        $config = Config::latest()->first();
+        try {
+            $authResponse = Http::withHeaders([
+                'Accept'        => 'application/json',
+                'Authorization' => 'Bearer ' . $config->token,
+                'Content-Type'  => 'application/json'
+            ])->post('https://api.gr8pi.com/api/v1/questionnaire-scheduling', [
+                'query'     => 'mutation($input: CreateAssessmentInput!) { createAssessment(input: $input) { assessment { id } }}',
+                'variables' => [
+                    'input' => [
+                        //Tu Talento Finder Intereses - 261966
+                        //Tu Talento Finder Full Version - 261967
+                        'assessmentTemplateId' => 261966,
+                        'respondentId'         => $respondentId,
+                        'accountId'           => env('MAGDA_USER_ID'),
+                        'locale'              => $locale,
+                        'expirationTime'      => $dateNextWeek,
+                        'subscribed'          => true,
+                        'assessmentOptions'    => [
+                            'sendReportsWhenAssessmentIsComplete' => true,
+                            'notificationEmails'                 => $emails,
+                            'reportTypes'                        => ['INDIVIDUAL', 'SUMMARY'],
+                            'reportPreferLocale'                 => $locale ,
+                            'jobProfileIdForSingleJobProfileReports' => "",
+                            'jobProfileIdsForMultipleJobProfileReports' => "",
+                            'sendingIndividualReport'             => true,
+                            'printerFriendlyReport'               => true
+                        ]
+                    ]
+                ]
+            ]);
+        
+            // Handle the response as needed (e.g., check for success, get the assessment ID)
+        
+            // For example:
+            $data = $authResponse->json();
+            $assessmentId = $data['data']['createAssessment']['assessment']['id'];
+        
+            // Redirect or perform other actions based on the response
+            // ...
+        
         } catch (\Exception $e) {
             dd($e->getMessage());
         }
@@ -250,10 +303,43 @@ trait APICalls
         }
     }
 
-    //Obtener el reporte de una evaluación
-    public function getReportAssessment($respondentId)
+    public function createUser($firstName,$lastName,$email,$gender,$locale)
     {
         $config = Config::latest()->first();
+        try {
+            $authResponse = Http::withHeaders([
+                'Accept'        => 'application/json',
+                'Authorization' => 'Bearer ' . $config->token,
+                'Content-Type'  => 'application/json'
+            ])->post('https://api.gr8pi.com/api/v1/questionnaire-scheduling', [
+                'query'     => 'mutation ($input: CreateRespondentInput!) { createRespondent(input: $input) { respondent { id }}}',
+                'variables' => [
+                    'input' => [
+                        'firstName'  => $firstName,
+                        'lastName'   => $lastName,
+                        'email'      => $email,
+                        'gender'     => $gender,
+                        'locale'     => $locale,
+                        'targetJobId' => null,
+                        'type'       => 'INTERNAL',
+                        'accountId'  => env('MAGDA_USER_ID'),
+                    ]
+                ]
+            ]);
+        
+            $userId = $authResponse->json('data.createRespondent.respondent.id');
+            return $userId;
+
+        } catch (\Exception $e) {
+            dd($e->getMessage());
+        }
+    }
+
+    //Obtener el reporte de una evaluación
+    public function getReportAssessment($respondentId,$locale)
+    {
+        $config = Config::latest()->first();
+
         try {
             $authResponse = Http::withHeaders([
                 'Accept' => 'application/json',
@@ -265,13 +351,41 @@ trait APICalls
                     'input' => [
                         'account' => env('MAGDA_USER_ID'),
                         'assessment' => $respondentId,
-                        'locale' => 'en-US',
+                        'locale' => $locale,
                         'printerFriendly' => true
                     ]
                 ]
             ]);
 
             $reports = $authResponse->json('data.generateInterestsGraphReportData.orderedInterestsResults');
+            return $reports;
+
+        } catch (\Exception $e) {
+            dd($e->getMessage());
+        }
+    }
+
+    public function getReportAssessmentPDF($respondentId,$locale)
+    {
+        $config = Config::latest()->first();
+        try {
+            $authResponse = Http::withHeaders([
+                'Accept' => 'application/json',
+                'Authorization' => 'Bearer ' . $config->token,
+                'Content-Type' => 'application/json'
+            ])->post('https://api.gr8pi.com/api/v1/questionnaire-scheduling', [
+                'query' => 'mutation($input: ReportWithAssessmentGenericInput!) { generateStudentInterestsReport(input: $input) { url }}',
+                'variables' => [
+                    'input' => [
+                        'account' => env('MAGDA_USER_ID'),
+                        'assessment' => $respondentId,
+                        'locale' => $locale,
+                        'printerFriendly' => true
+                    ]
+                ]
+            ]);
+
+            $reports = $authResponse->json('data.generateStudentInterestsReport.url');
             return $reports;
 
         } catch (\Exception $e) {
@@ -310,36 +424,7 @@ trait APICalls
         }
     }
 
-    public function generateReportIndividual($idEvaluation)
-    {
-        $config = Config::latest()->first();
-        try {
-            $authResponse = Http::withHeaders([
-                'Accept' => 'application/json',
-                'Authorization' => 'Bearer ' . $config->token,
-                'Content-Type' => 'application/json'
-            ])->post('https://api.gr8pi.com/api/v1/questionnaire-scheduling', [
-                'operationName' => 'generateIndividualReport',
-                'variables' => [
-                    'input' => [
-                        'account' => "243576",
-                        'assessment' => $idEvaluation,
-                        'locale' => "es-ES",
-                        'printerFriendly' => true
-                    ]
-                ],
-                'query' => 'mutation generateIndividualReport($input: ReportWithAssessmentGenericInput!) { generateIndividualReport(input: $input) { url } }'
-            ]);
-            
-            if ($authResponse->successful()) {
-                $responseData = $authResponse->json();
-                $reportUrl = $responseData['data']['generateIndividualReport']['url'];
-            }
-        } catch (\Exception $e) {
-            dd($e->getMessage());
-        }
-    }
-
+    //Reports
     public function sendSuperLink($emails,$idTemplate)
     {
         //261967 - Tu Talento Finder Full Version
