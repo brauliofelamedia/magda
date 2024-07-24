@@ -45,10 +45,15 @@ class DashboardController extends Controller
         return redirect()->back()->with('success','Se ha sincronizado los usuarios.');
     }
 
-    public function welcome(UsersDataTable $dataTable){
-        if (auth()->user()->hasRole('respondent')) {
+    public function welcome(){
+        if (auth()->user()->hasRole('administrator')) {
+            $users = User::get();
+        } elseif(auth()->user()->hasRole('institution')){
+            $users = User::where('user_id',auth()->user()->id)->role(['respondent'])->get();
+        } elseif(auth()->user()->hasRole('respondent')){
             return redirect()->route('assessments.index',auth()->user()->account_id);
         }
+
         $locales = [
             'fr-FR' => 'Francés (Francia)',
             'de-DE' => 'Alemán (Alemania)',
@@ -92,7 +97,7 @@ class DashboardController extends Controller
             'en-IE' => 'Inglés (Irlanda)'
         ];
         
-        return $dataTable->render('dashboard.index',compact('locales'));
+        return view('dashboard.index',compact('locales','users'));
     }
 
     public function superLink($emails,$idTemplate){

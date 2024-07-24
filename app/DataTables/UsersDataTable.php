@@ -90,15 +90,15 @@ class UsersDataTable extends DataTable
     public function getColumns(): array
     {
         return [
-            Column::make('name')->title('Nombre'),
-            //Column::make('email')->title('Correo'),
+            Column::make('name')->title('Nombre')->width(160),
             Column::make('role')->title('Rol'),
-            Column::make('created')->title('Fecha'),
+            Column::make('created')->title('Fecha')
+                ->width(90),
             Column::computed('action')
                 ->title('Acciones')
                 ->exportable(false)
                 ->printable(false)
-                ->width(300)
+                ->width(250)
                 ->addClass('text-center'),
         ];
     }

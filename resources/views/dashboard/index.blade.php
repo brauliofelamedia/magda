@@ -22,7 +22,6 @@
         padding: 10px 23px!important;
     }
 </style>
-</style>
 @endpush
 
 @section('content')
@@ -129,7 +128,47 @@
                         <div class="row">
                             <div class="col-xl-12">
                                 <h3 class="text-center">Usuarios</h3>
-                                {{ $dataTable->table() }}
+
+                                <div class="table-responsive">
+                                    <table class="table">
+                                        <thead>
+                                            <tr>
+                                                <td>Nombre</td>
+                                                <td class="hidden-media">Rol</td>
+                                                <td class="hidden-media">Fecha</td>
+                                                <td>Acciones</td>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach($users as $user)
+                                                <tr>
+                                                    <td>{{$user->name}}</td>
+                                                    <td class="hidden-media">
+                                                        @php
+                                                            $role = $user->roles->pluck('name')->implode(', ');
+                                                            if($role == 'respondent'){
+                                                                $rol = 'Evaluado';
+                                                            } elseif($role == 'institution'){
+                                                                $rol = 'Instituto';
+                                                            } else {
+                                                                $rol = 'Administrador';
+                                                            }
+                                                        @endphp
+                                                        {{$rol}}
+                                                    </td>
+                                                    <td class="hidden-media">{{$user->created_at->format('d-m-Y')}}</td>
+                                                    <td>
+                                                        <a href="{{route('users.edit',$user->uuid)}}" class="edit btn btn-info btn-sm">Editar</a>
+                                                        @if($user->hasRole('respondent'))
+                                                        <a href="{{route('assessments.index',$user->account_id)}}" class="btn btn-warning btn-sm">Evaluaciones</a>
+                                                        @endif
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
+                                
                                 <div class="text-center">
                                     @hasrole(['administrator'])
                                         <div class="btn-group text-center" role="group">
@@ -173,7 +212,7 @@
                                 </div>
                             </div>
                         @endrole
-                        @hasanyrole(['administrator'])
+                        @hasanyrole(['coordinator','respondent'])
                             <div class="col-xl-12">
                                 <div class="box-inner text-center">
                                     <img src="{{asset('assets/img/doc.png')}}" class="mb-3">
@@ -205,7 +244,6 @@
 @endsection
 
 @push('js')
-{{ $dataTable->scripts(attributes: ['type' => 'module']) }}
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     $(document).ready(function(){
