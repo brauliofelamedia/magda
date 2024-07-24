@@ -89,7 +89,11 @@ trait APICalls
                 ]
             ]);
 
-        return redirect()->route('assessments.continue',[$id,$token,$lang]);
+        $data = $authResponse->json();
+        $id_return = $data['data']['assessment_start']['id'];
+        return $id_return;
+
+        //return redirect()->route('assessments.continue',[$id,$token,$lang]);
 
         } catch (\Exception $e) {
             dd($e->getMessage());

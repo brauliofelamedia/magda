@@ -44,7 +44,8 @@ class AssessmentController extends Controller
 
     public function startEvaluate($id,$token,$lang)
     {
-        $this->startEvaluation($id,$token,$lang);
+        $id_return = $this->startEvaluation($id,$token,$lang);
+        return redirect()->route('assessments.continue',[$id_return,$token,$lang]);
     }
 
     public function createNewUser(Request $request)
