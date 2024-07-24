@@ -78,7 +78,7 @@ trait APICalls
                 'Accept'        => 'application/json',
                 'Authorization' => 'Bearer ' . $config->token,
                 'Content-Type'  => 'application/json'
-            ])->post('https://api.gr8pi.com/api/v1/questionnaire-scheduling', [
+            ])->post('https://api.gr8pi.com/api/v1/questionnaire-data-collection', [
                 'query'     => 'mutation($input: AssessmentStartInput!) { assessment_start(input: $input) { id status } }',
                 'variables' => [
                     'input' => [
@@ -88,7 +88,7 @@ trait APICalls
                     ]
                 ]
             ]);
-        
+
         return redirect()->route('assessments.continue',[$id,$token,$lang]);
 
         } catch (\Exception $e) {

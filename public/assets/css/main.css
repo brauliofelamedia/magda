@@ -660,3 +660,46 @@ p {
     position: relative;
     transform: translate(-50%, 0);
 }
+
+
+/*MEDIA QUERIES*/
+@media only screen and (max-width:480px){
+    #dashboard .box .octopus {
+        top: -20px;
+        left: 50%;
+        width: 250px;
+    }
+
+    #dashboard .box .coral {
+        width: 190px;
+        left: 0;
+        top: 70px !important;
+    }
+
+    #dashboard .box .alga {
+        left: inherit;
+        right: 61px;
+        width: 100px!important;
+        top: 130px!important;
+    }
+
+    #dashboard .box .burbujas {
+        top: -70px;
+        right: 25%;
+        width: 80px;
+    }
+
+    .notification-icon {
+        top: 50%;
+        transform: translate(0, -50%);
+        position: relative;
+    }
+
+    #dashboard .box .box-inner {
+        padding: 20px;
+    }
+
+    #dashboard .box {
+        padding: 10px;
+    }
+}

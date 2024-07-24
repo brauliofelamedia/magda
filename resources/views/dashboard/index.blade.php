@@ -173,7 +173,7 @@
                                 </div>
                             </div>
                         @endrole
-                        @hasanyrole(['respondent','coordinator','institution'])
+                        @hasanyrole(['administrator'])
                             <div class="col-xl-12">
                                 <div class="box-inner text-center">
                                     <img src="{{asset('assets/img/doc.png')}}" class="mb-3">
