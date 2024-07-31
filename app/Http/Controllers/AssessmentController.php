@@ -19,18 +19,37 @@ class AssessmentController extends Controller
         return view('dashboard.assessments.index',compact('assesments','user'));
     }
 
-    public function continueEvaluate($id,$token,$lang)
-    {
-        $assesment = $this->getDataAssessment($id,$token,$lang);
-        return view('dashboard.users.evaluate',compact('assesment'));
-    }
-
     public function newEvaluation($respondentId, $locale)
     {
         $email = User::where('account_id',$respondentId)->first();
-        $this->createNewEvaluation($respondentId,$locale,array($email));
+        $id_return = $this->createNewEvaluation($respondentId,$locale,array($email));
+        $assesment = $this->getAssesment($id_return);
+        return $this->startEvaluate($assesment['id'],$assesment['token'],$locale);
+    }
 
-        return redirect()->back()->with('success','Se ha creado correctamente la evaluación.');
+    public function startEvaluate($id,$token,$lang)
+    {
+        $id_return = $this->startEvaluation($id,$token,$lang);
+        return redirect()->route('assessments.continue',[$id,$id_return,$token,$lang]);
+    }
+
+    public function updateAnswersAssessment(Request $request)
+    {
+        $this->updateAnswers($request->id,$request->token,$request->responses);
+        $this->closeAssessment($request->id,$request->token);
+        
+        return response()->json([
+            'success' => 'Se recibio correctamente la data.',
+            'token' => $request->token,
+            'id' => $request->id,
+            'responses'=> $request->responses
+        ], 200);
+    }
+
+    public function continueEvaluate($userId,$id,$token,$lang)
+    {
+        $assesment = $this->getDataAssessment($id,$token,$lang);
+        return view('dashboard.users.evaluate',compact('assesment'));
     }
 
     public function sendEmailEvaluate(Request $request)
@@ -42,10 +61,10 @@ class AssessmentController extends Controller
         ], 200); 
     }
 
-    public function startEvaluate($id,$token,$lang)
+    public function close($id,$token)
     {
-        $id_return = $this->startEvaluation($id,$token,$lang);
-        return redirect()->route('assessments.continue',[$id_return,$token,$lang]);
+        $data = $this->closeAssessment($id,$token);
+        dd($data);
     }
 
     public function createNewUser(Request $request)

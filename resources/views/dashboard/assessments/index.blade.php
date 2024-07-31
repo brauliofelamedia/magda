@@ -88,6 +88,9 @@
 
     <div class="container" id="dashboard">
         <meta name="csrf-token" content="{{ csrf_token() }}">
+        @php
+            $id = request()->route('respondentId');
+        @endphp
         @include('parts.user-top')
         <div class="row mt-10">
             <div class="col-12">
@@ -129,15 +132,13 @@
                                                     <td>
                                                         @if(!$assesment['node']['status'] == 'EXPIRED' OR !$assesment['node']['status'] == 'SUBMITTED')
                                                             <a class="btn btn-primary click-send-email" data-assesment="{{$assesment['node']['id']}}" @if($assesment['node']['status'] != 'EXPIRED') @else disabled @endif>Solicitar evaluación</a>
-                                                        @elseif($assesment['node']['status'] == 'NEW' OR $assesment['node']['status'] == 'INVITED')
-                                                            <a class="btn btn-success" href="{{route('assessments.start',[$assesment['node']['id'],$assesment['node']['token'],$assesment['node']['locale']])}}">Iniciar</a>
                                                         @elseif($assesment['node']['status'] == 'STARTED')
-                                                            <a class="btn btn-primary" href="{{route('assessments.continue',[$assesment['node']['id'],$assesment['node']['token'],$assesment['node']['locale']])}}">Continuar</a>
+                                                            <a class="btn btn-primary" href="{{route('assessments.continue',[$id,$assesment['node']['id'],$assesment['node']['token'],$assesment['node']['locale']])}}">Continuar</a>
                                                         @elseif($assesment['node']['status'] == 'EXPIRED')
                                                             <a class="btn btn-danger btn-disabled btn-xs" href="#" disabled>Caducado</a>
                                                         @endif
                                                         @if($assesment['node']['status'] == 'FINISHED' OR $assesment['node']['status'] == 'SUBMITTED')
-                                                            <a class="btn btn-info click-assesment" data-locale="{{$assesment['node']['locale']}}" data-report="{{$assesment['node']['id']}}" data-bs-toggle="modal" data-bs-target="#{{$assesment['node']['id']}}-Modal">Resultados</a>
+                                                            <a class="btn btn-success click-assesment" data-locale="{{$assesment['node']['locale']}}" data-report="{{$assesment['node']['id']}}" data-bs-toggle="modal" data-bs-target="#{{$assesment['node']['id']}}-Modal">Resultados</a>
                                                         @endif
                                                     </td>
                                                 </tr>

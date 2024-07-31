@@ -127,7 +127,7 @@ trait APICalls
                             'sendReportsWhenAssessmentIsComplete' => true,
                             'notificationEmails'                 => $emails,
                             'reportTypes'                        => ['INDIVIDUAL', 'SUMMARY'],
-                            'reportPreferLocale'                 => $locale ,
+                            'reportPreferLocale'                 => $locale,
                             'jobProfileIdForSingleJobProfileReports' => "",
                             'jobProfileIdsForMultipleJobProfileReports' => "",
                             'sendingIndividualReport'             => true,
@@ -136,15 +136,9 @@ trait APICalls
                     ]
                 ]
             ]);
-        
-            // Handle the response as needed (e.g., check for success, get the assessment ID)
-        
-            // For example:
+
             $data = $authResponse->json();
-            $assessmentId = $data['data']['createAssessment']['assessment']['id'];
-        
-            // Redirect or perform other actions based on the response
-            // ...
+            return $data['data']['createAssessment']['assessment']['id'];
         
         } catch (\Exception $e) {
             dd($e->getMessage());
@@ -174,6 +168,109 @@ trait APICalls
         
         } catch (\Exception $e) {
             dd($e->getMessage());
+        }
+    }
+
+    public function getAssesment($assessmentId)
+    {
+        $config = Config::latest()->first();
+        try {
+            $authResponse = Http::withHeaders([
+                'Accept' => 'application/json',
+                'Authorization' => 'Bearer ' . $config->token,
+                'Content-Type' => 'application/json'
+            ])->post('https://api.gr8pi.com/api/v1/questionnaire-scheduling', [
+                'query' => '
+                    query getAssessmentDetails($assessmentId: ID!, $accountId: ID!) {
+                        account(id: $accountId) {
+                            assessment(id: $assessmentId) {
+                                id
+                                token
+                                status
+                                template {
+                                    id
+                                    title
+                                    behaviorDimensions
+                                    cognitiveDimensions
+                                    interestsDimensions
+                                    inviteTemplateId
+                                    thankYouTemplateId
+                                }
+                            }
+                        }
+                    }
+                ',
+                'variables' => [
+                    'assessmentId' => $assessmentId,
+                    'accountId' => env('MAGDA_USER_ID'),
+                ]
+            ]);
+        
+            $assessment = $authResponse->json('data.account.assessment');
+            return $assessment;
+        
+        } catch (\Exception $e) {
+            dd($e->getMessage());
+        }
+    }
+
+    public function closeAssessment($assessmentId,$token)
+    {
+        $config = Config::latest()->first();
+        try {
+            $authResponse = Http::withHeaders([
+              'Accept' => 'application/json',
+              'Authorization' => 'Bearer ' . $config->token,
+              'Content-Type' => 'application/json'
+            ])->post('https://api.gr8pi.com/api/v1/questionnaire-data-collection', [
+              'query' => '
+                mutation($input: SubmitAnswersInput!) {
+                  assessment_submitAnswers(input: $input)
+                }
+              ',
+              'variables' => [
+                'input' => [
+                  'id' => $assessmentId,
+                  'token' => $token
+                ]
+              ]
+            ]);
+            $data = $authResponse->json('data');
+            return $data;
+          
+        } catch (\Exception $e) {
+            return $e->getMessage();
+        }
+        
+    }
+
+    public function updateAnswers($assessmentId,$token,$responses)
+    {
+        $config = Config::latest()->first();
+        try {
+            $authResponse = Http::withHeaders([
+                'Accept' => 'application/json',
+                'Authorization' => 'Bearer ' . $config->token,
+                'Content-Type' => 'application/json'
+            ])->post('https://api.gr8pi.com/api/v1/questionnaire-data-collection', [
+                'query' => '
+                    mutation($input: SubmitAnswersInput!) {
+                        assessment_submitAnswers(input: $input)
+                    }
+                ',
+                'variables' => [
+                    'input' => [
+                        'id' => $assessmentId,
+                        'token' => $token,
+                        'answers' => $responses
+                    ]
+                ]
+            ]);
+            $data = $authResponse->json('data');
+            return $data;
+
+        } catch (\Exception $e) {
+            return $e->getMessage();
         }
     }
 

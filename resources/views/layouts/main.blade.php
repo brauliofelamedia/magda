@@ -10,7 +10,7 @@
     </div>
     
     @yield('content')
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="{{asset('assets/js/main.js')}}"></script>
     @stack('js')
     <script>

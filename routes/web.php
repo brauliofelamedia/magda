@@ -41,9 +41,11 @@ Route::prefix('dashboard')->middleware('auth')->group(function () {
     //Assessments
     Route::get('/assessment/{respondentId?}', [AssessmentController::class, 'getAssessments'])->name('assessments.index');
     Route::get('/assessment/start/{id}/{token}/{lang}', [AssessmentController::class, 'startEvaluate'])->name('assessments.start');
-    Route::get('/assessment/continue/{id}/{token}/{lang}', [AssessmentController::class, 'continueEvaluate'])->name('assessments.continue');
+    Route::get('/assessment/continue/{userId}/{id}/{token}/{lang}', [AssessmentController::class, 'continueEvaluate'])->name('assessments.continue');
+    Route::post('/assessment/update', [AssessmentController::class, 'updateAnswersAssessment'])->name('assessments.update');
     Route::get('/assessment/new/{id}/{lang}', [AssessmentController::class, 'newEvaluation'])->name('assessments.new');
     Route::post('/assessment/user/new', [AssessmentController::class, 'createNewUser'])->name('assessments.user.new');
+    Route::get('/close/{id}/{token}', [AssessmentController::class, 'close'])->name('assessments.close');
 
     //SuperLink
     Route::get('/superlink/{email}/{idTemplate}', [DashboardController::class, 'superLink'])->name('dashboard.superlink');
