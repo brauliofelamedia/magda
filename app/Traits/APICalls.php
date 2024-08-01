@@ -214,28 +214,25 @@ trait APICalls
         }
     }
 
-    public function closeAssessment($assessmentId,$token)
+    public function closeAnswers($assessmentId,$token)
     {
         $config = Config::latest()->first();
         try {
             $authResponse = Http::withHeaders([
-              'Accept' => 'application/json',
-              'Authorization' => 'Bearer ' . $config->token,
-              'Content-Type' => 'application/json'
+                'Accept' => 'application/json',
+                'Authorization' => 'Bearer ' . $config->token,
+                'Content-Type' => 'application/json'
             ])->post('https://api.gr8pi.com/api/v1/questionnaire-data-collection', [
-              'query' => '
-                mutation($input: SubmitAnswersInput!) {
-                  assessment_submitAnswers(input: $input)
-                }
-              ',
-              'variables' => [
-                'input' => [
-                  'id' => $assessmentId,
-                  'token' => $token
+                'query'=> 'mutation($input: AssessmentSubmitInput!){ assessment_submit(input: $input) {id}}',
+                "variables" => [
+                    "input" => [
+                        "id"=> $assessmentId,
+                        "token" => $token
+                    ]
                 ]
-              ]
             ]);
-            $data = $authResponse->json('data');
+
+            $data = $authResponse->json('data.assessment_submit.id');
             return $data;
           
         } catch (\Exception $e) {

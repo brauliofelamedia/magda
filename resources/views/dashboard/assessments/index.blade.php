@@ -73,9 +73,9 @@
                     </div>
                     <div class="modal-body">
                         <div class="wait"><p class="text-center">Espera un momento...</p></div>
-                        <div id="data-container" class="row">
+                        <div class="row data-container">
                         </div>
-                        <a href="#" class="btn btn-info btn-center" id="download-pdf" style="display: none;" download target="_blank">Descargar en PDF</a>
+                        <a href="#" class="btn btn-info btn-center download-pdf" style="display: none;" download target="_blank">Descargar en PDF</a>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary btn-clear" data-bs-dismiss="modal">Cerrar</button>
@@ -191,12 +191,14 @@
 <script>
     $(document).ready(function(){
         $('.btn-clear').on('click', function(){
-            $('#data-container').empty();
+            $('.data-container').empty();
             $('.wait').css('display','block');
         });
 
         //Ver resultados de la evaluación
         $('.click-assesment').on('click', function(){
+
+            $('.download-pdf').removeClass('view');
 
             let id = $(this).data('report');
             let locale = $(this).data('locale');
@@ -218,14 +220,16 @@
                     console.log(response);
                     if (response.success) {
                         $.each(response.data, function(key, value) {
+
                             const element = $(`<div class="col-md-4">`).html(`<div class="info-modal"><h5 class="text-center displayName">${value.displayName}</h5><p class="rawScore text-center">${value.rawScore}</p></div>`);
-                            $('#data-container').append(element);
+                            $('.data-container').append(element);
                             $('.wait').css('display','none');
+                            
                         });
 
                         //Rellenar boton de descarga
-                        $('#download-pdf').attr("href", response.data2);
-                        $('#download-pdf').addClass('view');
+                        $('.download-pdf').attr("href", response.data2);
+                        $('.download-pdf').addClass('view');
                     }
                 },
                 error: function(xhr, status, error) {

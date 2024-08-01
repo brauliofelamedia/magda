@@ -24,32 +24,38 @@ class AssessmentController extends Controller
         $email = User::where('account_id',$respondentId)->first();
         $id_return = $this->createNewEvaluation($respondentId,$locale,array($email));
         $assesment = $this->getAssesment($id_return);
-        return $this->startEvaluate($assesment['id'],$assesment['token'],$locale);
+        return $this->startEvaluate($respondentId,$assesment['id'],$assesment['token'],$locale);
     }
 
-    public function startEvaluate($id,$token,$lang)
+    public function startEvaluate($respondentId,$id,$token,$lang)
     {
         $id_return = $this->startEvaluation($id,$token,$lang);
-        return redirect()->route('assessments.continue',[$id,$id_return,$token,$lang]);
+        return redirect()->route('assessments.continue',[$respondentId,$id_return,$token,$lang]);
     }
 
     public function updateAnswersAssessment(Request $request)
     {
-        $this->updateAnswers($request->id,$request->token,$request->responses);
-        $this->closeAssessment($request->id,$request->token);
-        
+        $data = $this->updateAnswers($request->id,$request->token,$request->responses);
+
         return response()->json([
-            'success' => 'Se recibio correctamente la data.',
-            'token' => $request->token,
-            'id' => $request->id,
-            'responses'=> $request->responses
+            'success' => 'Se recibio correctamente la respuesta.',
+            'data' => $data,
+        ], 200);
+    }
+
+    public function closeAssessment(Request $request)
+    {
+        $close = $this->closeAnswers($request->id,$request->token);
+        return response()->json([
+            'success' => 'Se cerro correctamente la evaluación.',
+            'data'=> $close
         ], 200);
     }
 
     public function continueEvaluate($userId,$id,$token,$lang)
     {
-        $assesment = $this->getDataAssessment($id,$token,$lang);
-        return view('dashboard.users.evaluate',compact('assesment'));
+        $assesments = $this->getDataAssessment($id,$token,$lang);
+        return view('dashboard.users.evaluate',compact('assesments'));
     }
 
     public function sendEmailEvaluate(Request $request)
@@ -59,12 +65,6 @@ class AssessmentController extends Controller
             'success' => 'Se ha enviado correctamente el correo para hacer la evaluación, revisa tu bandeja de entrada / SPAM.',
             'data' => $data,
         ], 200); 
-    }
-
-    public function close($id,$token)
-    {
-        $data = $this->closeAssessment($id,$token);
-        dd($data);
     }
 
     public function createNewUser(Request $request)

@@ -45,7 +45,9 @@ Route::prefix('dashboard')->middleware('auth')->group(function () {
     Route::post('/assessment/update', [AssessmentController::class, 'updateAnswersAssessment'])->name('assessments.update');
     Route::get('/assessment/new/{id}/{lang}', [AssessmentController::class, 'newEvaluation'])->name('assessments.new');
     Route::post('/assessment/user/new', [AssessmentController::class, 'createNewUser'])->name('assessments.user.new');
-    Route::get('/close/{id}/{token}', [AssessmentController::class, 'close'])->name('assessments.close');
+    Route::post('/assessment/close', [AssessmentController::class, 'closeAssessment'])->name('assessments.close');
+
+    Route::get('/assessment/closetest/{id}/{token}', [AssessmentController::class, 'closeAssessment'])->name('assessments.closetest');
 
     //SuperLink
     Route::get('/superlink/{email}/{idTemplate}', [DashboardController::class, 'superLink'])->name('dashboard.superlink');
