@@ -46,6 +46,10 @@
             font-size: 15px;
         }
 
+        .octopus {
+            display: none;
+        }
+
         #result .box-pink, #test1 .box-pink, #test2 .box-pink, #test3 .box-pink {
             padding: 30px;
             padding-bottom: 0;
