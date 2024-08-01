@@ -36,7 +36,7 @@ class DashboardController extends Controller
                 $user->platform = true;
                 $user->password = bcrypt('password');
                 $user->assignRole('respondent');
-                $user->user_id = 2;
+                $user->user_id = 4;
                 $user->save();
             }
             
