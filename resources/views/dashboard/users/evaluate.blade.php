@@ -36,6 +36,40 @@
         border: 0;
         padding: 0;
     }
+
+    @media only screen and (max-width:768px){
+        #result h2, #test1 h2, #test2 h2, #test3 h2 {
+            font-size: 21px;
+        }
+
+        #result p, #test1 p, #test2 p, #test3 p {
+            font-size: 15px;
+        }
+
+        #result .box-pink, #test1 .box-pink, #test2 .box-pink, #test3 .box-pink {
+            padding: 30px;
+            padding-bottom: 0;
+        }
+    }
+
+    @media only screen and (max-width:480px){
+        #result .box-pink, #test1 .box-pink, #test2 .box-pink, #test3 .box-pink {
+            padding: 30px;
+            padding-bottom: 0;
+        }
+
+        .octopus {
+            display: none;
+        }
+
+        #result h2, #test1 h2, #test2 h2, #test3 h2 {
+            font-size: 25px;
+        }
+
+        #result p, #test1 p, #test2 p, #test3 p {
+            font-size: 16px;
+        }
+    }
 </style>
 @endpush
 
@@ -43,15 +77,15 @@
 
 <div class="container" id="test1">
     <div class="row">
-        <div class="col-xl-11 col-sm-9">
+        <div class="col-xl-11">
             <div class="row">
-                <div class="col-xl-10">
+                <div class="col-xl-10 col-md-8">
                     <div class="vertical-align">
                         <h2 class="fw-700 c-orange">{{$assesments['interests']['displayName']}}</h2>
                         <p>{{$assesments['interests']['instructions']}}</p>
                     </div>
                 </div>
-                <div class="col-xl-2">
+                <div class="col-xl-2 col-md-4">
                     <img src="{{asset('assets/img/octopus-1.png')}}" class="f-right octopus b-block" alt="Octopus">
                 </div>
             </div>
@@ -62,7 +96,7 @@
             <div class="box-pink">
                 <div class="row">
 
-                    <div class="col-lg-8 offset-2">
+                    <div class="col-lg-8 offset-lg-2">
 
                         <div class="step-app" id="steps">
                             @php
