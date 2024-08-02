@@ -36,11 +36,19 @@ class AssessmentController extends Controller
     public function updateAnswersAssessment(Request $request)
     {
         $data = $this->updateAnswers($request->id,$request->token,$request->responses);
-
         return response()->json([
             'success' => 'Se recibio correctamente la respuesta.',
             'data' => $data,
         ], 200);
+    }
+
+    public function finish($id)
+    {
+        $locale = 'es-PR';
+        $items = $this->getReportAssessment($id,$locale);
+        $reportPDF = $this->getReportAssessmentPDF($id,$locale);
+        $user = Auth()->user();
+        return view('dashboard.users.finish',compact('items','reportPDF','user'));
     }
 
     public function closeAssessment(Request $request)

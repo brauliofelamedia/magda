@@ -234,8 +234,8 @@
                             allowOutsideClick: false
                         });
                         setTimeout(function() {
-                            var id = '{{$userId}}';
-                            var routeUrl = "{{ route('assessments.index', ':id') }}";
+                            var id = '{{$id}}';
+                            var routeUrl = "{{ route('assessments.finish', ':id') }}";
                             routeUrl = routeUrl.replace(':id', id);
                             window.location.href = routeUrl;
                         }, 2000);
