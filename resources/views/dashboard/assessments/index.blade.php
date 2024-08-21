@@ -42,50 +42,6 @@
 @endpush
 
 @section('content')
-    <!--Crear nueva evaluación -->
-    <div class="modal fade" id="newModal" tabindex="-1" aria-labelledby="newModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-nobackdrop">
-        <div class="modal-content">
-            <div class="modal-header">
-            <h1 class="modal-title fs-5" id="newModalLabel">Nueva evaluación</h1>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <div class="form">
-                    
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary btn-clear" data-bs-dismiss="modal">Cerrar</button>
-            </div>
-        </div>
-        </div>
-    </div>
-
-    @if($assesments)
-        @foreach($assesments as $assesment)
-            <div class="modal fade" id="{{$assesment['node']['id']}}-Modal" tabindex="-1" aria-labelledby="{{$assesment['node']['id']}}-ModalLabel" aria-hidden="true">
-                <div class="modal-dialog modal-dialog-nobackdrop">
-                <div class="modal-content">
-                    <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="{{$assesment['node']['id']}}-ModalLabel">Resultados de intereses</h1>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="wait"><p class="text-center">Espera un momento...</p></div>
-                        <div class="row data-container">
-                        </div>
-                        <a href="#" class="btn btn-info btn-center download-pdf" style="display: none;" download target="_blank">Descargar en PDF</a>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary btn-clear" data-bs-dismiss="modal">Cerrar</button>
-                    </div>
-                </div>
-                </div>
-            </div>
-        @endforeach
-    @endif
-
     <div class="container" id="dashboard">
         <meta name="csrf-token" content="{{ csrf_token() }}">
         @php
@@ -138,7 +94,7 @@
                                                             <a class="btn btn-danger btn-disabled btn-xs" href="#" disabled>Caducado</a>
                                                         @endif
                                                         @if($assesment['node']['status'] == 'FINISHED' OR $assesment['node']['status'] == 'SUBMITTED')
-                                                            <a class="btn btn-success click-assesment" data-locale="{{$assesment['node']['locale']}}" data-report="{{$assesment['node']['id']}}" data-bs-toggle="modal" data-bs-target="#{{$assesment['node']['id']}}-Modal">Resultados</a>
+                                                            <a class="btn btn-success" href="{{route('assessments.finish',$assesment['node']['id'])}}">Resultados</a>
                                                         @endif
                                                     </td>
                                                 </tr>
