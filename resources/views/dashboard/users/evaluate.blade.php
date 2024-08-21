@@ -127,9 +127,13 @@
                                             <h4 class="text-center">{{$assesments['interests']['groups'][0]['items'][$key]['text']}}</h4><br>
 
                                             @foreach($assesments['interests']['groups'][0]['items'][$key]['answers'] as $key => $answer)
+                                                @php
+                                                    $original = $answer['text'];
+                                                    $new_string = str_replace("probablemente", "probable", $original);
+                                                @endphp
                                                 <div class="form-check ps-0 q-box step" data-item-id="{{$asses['id']}}">
                                                     <input class="form-check-input question__input answer" name="radio-{{$asses['id']}}" data-answer-id="{{$answer['id']}}" type="radio" id="{{$answer['id']}}">
-                                                    <label class="form-check-label question__label step-btn" data-step-action="next" for="{{$answer['id']}}">{{$answer['text']}}</label>
+                                                    <label class="form-check-label question__label step-btn" data-step-action="next" for="{{$answer['id']}}">{{$new_string}}</label>
                                                 </div>
                                             @endforeach
 
