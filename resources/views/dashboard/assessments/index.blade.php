@@ -197,7 +197,7 @@
 
         //Ver resultados de la evaluación
         $('.click-assesment').on('click', function(){
-
+            $('.data-container').empty();
             $('.download-pdf').removeClass('view');
 
             let id = $(this).data('report');
