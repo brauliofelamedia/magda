@@ -7,11 +7,16 @@
     .mt-10 {
         margin-top: 70px!important;
     }
+    
     .info-modal {
         background-color: #ececec;
         border-radius: 10px;
         padding: 20px;
         margin-bottom: 15px;
+    }
+
+    .box {
+        padding-top: 230px!important;
     }
 
     .modal-dialog {
@@ -38,6 +43,17 @@
         width: 170px;
         margin: 0 auto;
     }
+
+    .octopuss {
+        position: absolute;
+        top: -100px;
+        margin: 0 auto;
+        width: 750px;
+        text-align: center;
+        display: block;
+        left: 50%;
+        transform: translate(-50%, 0);
+    }
 </style>
 @endpush
 
@@ -51,6 +67,7 @@
         <div class="row mt-10">
             <div class="col-12">
                 <div class="box">
+                    <img src="{{asset('assets/img/test.png')}}" alt="Octopus" class="img-fluid octopuss">
                     <div class="box-inner">
                         <div class="row">
                             <div class="col-xl-12">

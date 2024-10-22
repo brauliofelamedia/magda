@@ -12,6 +12,31 @@
     p {
         font-size: 16px!important;
     }
+
+    .box {
+        padding-top: 230px!important;
+    }
+
+    .avatar-preview {
+        height: 130px;
+        width: 130px;
+        border-radius: 50%;
+        margin-bottom: 20px;
+        border: 4px solid #0DC863;
+        background-size: cover;
+        background-position: center;
+    }
+
+    .octopuss {
+        position: absolute;
+        top: -150px;
+        margin: 0 auto;
+        width: 750px;
+        text-align: center;
+        display: block;
+        left: 50%;
+        transform: translate(-50%, 0);
+    }
 </style>
 @endpush
 
@@ -23,15 +48,24 @@
             @include('parts.message')
             <div class="col-12">
                 <div class="box">
+                    <img src="{{asset('assets/img/edit.png')}}" alt="Octopus" class="img-fluid octopuss">
                     <div class="box-inner">
                         <div class="row">
                             <div class="col-xl-12">
                                 <h3 class="text-center">Editar usuario</h3>
                                 <div class="row">
                                     <div class="col-10 offset-1">
-                                        <form action="{{route('users.update',$user->uuid)}}" method="post">
+                                        <form action="{{route('users.update',$user->uuid)}}" method="post" enctype="multipart/form-data">
                                             @csrf
                                             @method('PATCH')
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <div class="avatar-preview" style="background-image: url('{{ $user->avatar_url }}')"></div>
+                                                        <input type="file" name="avatar">
+                                                    </div>
+                                                </div>
+                                            </div>
                                             <div class="row">
                                                 <div class="col-md-6">
                                                     <div class="form-group">

@@ -7,9 +7,11 @@
     .mt-10 {
         margin-top: 70px!important;
     }
-    .box .box-inner {
-        margin-top: 210px!important;
+
+    .box {
+        padding-top: 230px!important;
     }
+
     .alga {
         top: 0 !important;
         bottom: 0 !important;
@@ -129,45 +131,7 @@
                             <div class="col-xl-12">
                                 <h3 class="text-center">Usuarios</h3>
 
-                                <div class="table-responsive">
-                                    <table class="table">
-                                        <thead>
-                                            <tr>
-                                                <td>Nombre</td>
-                                                <td class="hidden-media">Rol</td>
-                                                <td class="hidden-media">Fecha</td>
-                                                <td>Acciones</td>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            @foreach($users as $user)
-                                                <tr>
-                                                    <td>{{$user->name}}</td>
-                                                    <td class="hidden-media">
-                                                        @php
-                                                            $role = $user->roles->pluck('name')->implode(', ');
-                                                            if($role == 'respondent'){
-                                                                $rol = 'Evaluado';
-                                                            } elseif($role == 'institution'){
-                                                                $rol = 'Instituto';
-                                                            } else {
-                                                                $rol = 'Administrador';
-                                                            }
-                                                        @endphp
-                                                        {{$rol}}
-                                                    </td>
-                                                    <td class="hidden-media">{{$user->created_at->format('d-m-Y')}}</td>
-                                                    <td>
-                                                        <a href="{{route('users.edit',$user->uuid)}}" class="edit btn btn-info btn-sm">Editar</a>
-                                                        @if($user->hasRole('respondent'))
-                                                        <a href="{{route('assessments.index',$user->account_id)}}" class="btn btn-warning btn-sm">Evaluaciones</a>
-                                                        @endif
-                                                    </td>
-                                                </tr>
-                                            @endforeach
-                                        </tbody>
-                                    </table>
-                                </div>
+                                {{ $dataTable->table() }}
                                 
                                 <div class="text-center">
                                     @hasrole(['administrator'])
@@ -244,45 +208,10 @@
 @endsection
 
 @push('js')
+{{ $dataTable->scripts(attributes: ['type' => 'module']) }}
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     $(document).ready(function(){
-        $('body').on('click','.btn-send-welcome', function(event){
-            event.preventDefault();
-
-            Swal.fire({
-                title: "Esta un momento",
-                text: "Estamos enviando el correo",
-                icon: "info"
-            });
-
-            let id = $(this).data('id');
-            let csrfToken = $('meta[name="csrf-token"]').attr('content');
-
-            // Preparar los datos de la solicitud
-            let data = {
-                id: id,
-                _token: csrfToken
-            };
-
-            $.ajax({
-                url: "{{ route('users.email.welcome') }}",
-                method: "POST", 
-                data: data,
-                success: function(response) {
-                    Swal.fire({
-                        position: "top-end",
-                        icon: "success",
-                        title: "Se ha enviado el correo",
-                        showConfirmButton: false,
-                        timer: 1500
-                    });
-                },
-                error: function(xhr) {
-                    console.error(xhr.responseText);
-                }
-            });
-        });
     });
 </script>
 @endpush

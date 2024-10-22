@@ -4,6 +4,7 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
@@ -51,5 +52,19 @@ class User extends Authenticatable
         static::creating(function ($model) {
             $model->uuid = Str::uuid();
         });
+    }
+
+    public function institution()
+    {
+        return $this->hasOne(User::class,'id','user_id');
+    }
+
+    public function getAvatarUrlAttribute()
+    {
+        if (!$this->avatar) {
+            return asset('images/default.png');
+        }
+
+        return asset('storage/' . $this->avatar);
     }
 }

@@ -9,7 +9,7 @@
     <div class="container" id="login">
         <div class="row">
             <div class="col-12 mb-4">
-                <img src="{{asset('assets/img/login.png')}}" alt="Login" class="c-auto img">
+                <img src="{{asset('assets/img/forgot.png')}}" alt="Login" class="c-auto img">
                 <h2 class="text-center fw-700 c-blue">Reiniciar contraseña</h2>
             </div>
             <div class="col-md-4 offset-md-4">
