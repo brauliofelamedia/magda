@@ -119,7 +119,7 @@ trait APICalls
                         //Tu Talento Finder Full Version - 261967
                         'assessmentTemplateId' => 261966,
                         'respondentId'         => $respondentId,
-                        'accountId'           => env('MAGDA_USER_ID'),
+                        'accountId'           => 243576,
                         'locale'              => $locale,
                         'expirationTime'      => $dateNextWeek,
                         'subscribed'          => true,
@@ -157,7 +157,7 @@ trait APICalls
                 'query' => 'mutation($input: InviteRespondentTakeAssessmentInput!) { inviteRespondentTakeAssessment(input: $input) { assessment { id } } }',
                 'variables' => [
                     'input' => [
-                        'accountId' => env('MAGDA_USER_ID'),
+                        'accountId' => 243576,
                         'assessmentId' => $assessmentId
                     ]
                 ]
@@ -202,7 +202,7 @@ trait APICalls
                 ',
                 'variables' => [
                     'assessmentId' => $assessmentId,
-                    'accountId' => env('MAGDA_USER_ID'),
+                    'accountId' => 243576,
                 ]
             ]);
         
@@ -301,7 +301,7 @@ trait APICalls
                         }
                     }',
                 'variables' => [
-                    'accountId'    => env('MAGDA_USER_ID'),
+                    'accountId'    => 243576,
                     'respondentId' => $respondentId
                 ]
             ]);
@@ -419,7 +419,7 @@ trait APICalls
                         'locale'     => $locale,
                         'targetJobId' => null,
                         'type'       => 'INTERNAL',
-                        'accountId'  => env('MAGDA_USER_ID'),
+                        'accountId'  => 243576,
                     ]
                 ]
             ]);
@@ -446,7 +446,7 @@ trait APICalls
                 'query' => 'mutation($input: ReportWithAssessmentGenericInput!) { generateInterestsGraphReportData(input: $input) { orderedInterestsResults {  code,displayName,rawScore }}}',
                 'variables' => [
                     'input' => [
-                        'account' => env('MAGDA_USER_ID'),
+                        'account' => 243576,
                         'assessment' => $respondentId,
                         'locale' => $locale,
                         'printerFriendly' => true
@@ -474,7 +474,7 @@ trait APICalls
                 'query' => 'mutation($input: ReportWithAssessmentGenericInput!) { generateStudentInterestsReport(input: $input) { url }}',
                 'variables' => [
                     'input' => [
-                        'account' => env('MAGDA_USER_ID'),
+                        'account' => 243576,
                         'assessment' => $respondentId,
                         'locale' => $locale,
                         'printerFriendly' => true

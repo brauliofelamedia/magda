@@ -3,6 +3,8 @@
 @section('title','Panel de administración')
 
 @push('css')
+<link rel="stylesheet" href="https://cdn.datatables.net/2.1.8/css/dataTables.bootstrap5.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/responsive/3.0.3/css/responsive.bootstrap5.css">
 <style>
     .mt-10 {
         margin-top: 70px!important;
@@ -156,45 +158,6 @@
             <div class="col-lg-12">
                 <div class="box-pink">
                     <div class="row">
-                        @role('administrator')
-                            <div class="col-xl-6">
-                                <div class="box-inner text-center">
-                                    <img src="{{asset('assets/img/doc.png')}}" class="mb-3">
-                                    <a href="{{route('users.edit',auth()->user()->uuid)}}">
-                                        <h4>Perfil</h4>
-                                    </a>
-                                    <p>Editar información</p>
-                                </div>
-                            </div>
-                            <div class="col-xl-6">
-                                <div class="box-inner text-center">
-                                    <img src="{{asset('assets/img/configuration.png')}}" class="mb-3">
-                                    <a href="#">
-                                        <h4>Ajustes</h4>
-                                    </a>
-                                    <p>Configuración</p>
-                                </div>
-                            </div>
-                        @endrole
-                        @hasanyrole(['coordinator','respondent'])
-                            <div class="col-xl-12">
-                                <div class="box-inner text-center">
-                                    <img src="{{asset('assets/img/doc.png')}}" class="mb-3">
-                                    <a href="{{route('users.edit',auth()->user()->uuid)}}">
-                                        <h4>Perfil</h4>
-                                    </a>
-                                    <p>Editar información</p>
-                                </div>
-                            </div>
-                        @endhasanyrole
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="row mt-4">
-            <div class="col-lg-12">
-                <div class="box-pink">
-                    <div class="row">
                         <div class="col-xl-12">
                             <div class="box-inner">
                             <img src="{{asset('assets/img/logo-blue.png')}}" alt="{{env('APP_NAME')}}" class="text-center logo">
@@ -209,9 +172,16 @@
 
 @push('js')
 {{ $dataTable->scripts(attributes: ['type' => 'module']) }}
+<script src="https://cdn.datatables.net/2.1.8/js/dataTables.bootstrap5.js"></script>
+<script src="https://cdn.datatables.net/responsive/3.0.3/js/dataTables.responsive.js"></script>
+<script src="https://cdn.datatables.net/responsive/3.0.3/js/responsive.bootstrap5.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-    $(document).ready(function(){
+    var table = new DataTable('#users-table', {
+        responsive: true,
+        language: {
+            url: '//cdn.datatables.net/plug-ins/2.1.8/i18n/es-ES.json',
+        },
     });
 </script>
 @endpush

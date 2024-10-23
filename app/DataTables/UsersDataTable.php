@@ -25,7 +25,7 @@ class UsersDataTable extends DataTable
         return (new EloquentDataTable($query))
             ->addColumn('action', function($row){
                 $user = auth()->user();
-                $btn = '<a href="'.route('users.edit',$row->uuid).'" class="edit btn blue btn-sm">Editar perfil</a>';
+                $btn = '<a href="'.route('users.edit',$row->uuid).'" class="edit btn btn-blue btn-sm">Editar perfil</a>';
                 if(!$row->hasRole('administrator','institution','coordinator')){
                     $btn .= '<a href="'.route('assessments.index',$row->account_id).'" class="btn btn-warning btn-sm">Evaluaciones</a>';
                 }
@@ -92,8 +92,7 @@ class UsersDataTable extends DataTable
         return [
             Column::make('name')->title('Nombre')->width(160),
             Column::make('role')->title('Rol'),
-            Column::make('created')->title('Fecha')
-                ->width(90),
+            //Column::make('created')->title('Fecha')->width(90),
             Column::computed('action')
                 ->title('Acciones')
                 ->exportable(false)

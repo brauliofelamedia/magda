@@ -10,8 +10,8 @@ class TokenController extends Controller
     public function getToken(){
 
         //Datos para iniciar sesión
-        $username = env('GR8PI_USERNAME');
-        $password = env('GR8PI_PASSWORD');
+        $username = 'jorge@felamedia.com';
+        $password = 'F3l@s0sa2024.';
 
         try {
             //Obtenemos el token

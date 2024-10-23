@@ -30,6 +30,7 @@ Route::get('/',[DashboardController::class,'index'])->name('index');
 Route::prefix('dashboard')->middleware('auth')->group(function () {
     Route::get('/', [DashboardController::class, 'welcome'])->name('dashboard.welcome');
     Route::get('/syncUsers', [DashboardController::class, 'syncUsers'])->name('dashboard.sync');
+    Route::post('remove-notification', [DashboardController::class, 'remove_notification'])->name('dashboard.remove.notification');
 
     //Users
     Route::post('/users/email/welcome', [UserController::class, 'sendEmailWelcome'])->name('users.email.welcome');

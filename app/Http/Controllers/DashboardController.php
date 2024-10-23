@@ -6,6 +6,7 @@ use App\DataTables\UsersDataTable;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Traits\APICalls;
+use App\Models\Notification;
 use App\Models\User;
 
 class DashboardController extends Controller
@@ -47,11 +48,22 @@ class DashboardController extends Controller
 
     public function welcome(UsersDataTable $dataTable){
         $locales = config('languages.locales');
-        
         if(auth()->user()->hasRole('respondent')){
             return redirect()->route('assessments.index',auth()->user()->account_id);
         } else {
             return $dataTable->render('dashboard.index', compact('locales'));
+        }
+    }
+
+    public function remove_notification(Request $request)
+    {
+        if($request->remove == true){
+            $users = User::where('user_id',Auth::user()->id)->get();
+            $userIds = $users->pluck('id')->toArray();
+            $notification = Notification::whereIn('user_id', $userIds)
+                            ->where('status', false)
+                            ->update(['status' => true]);
+            return redirect()->back()->with('success', 'Se han eliminado las notificaciones');
         }
     }
 

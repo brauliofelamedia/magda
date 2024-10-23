@@ -8,5 +8,6 @@
   <meta name="csrf-token" content="{{ csrf_token() }}">
   @stack('css')
   @vite(['resources/sass/main.scss','resources/sass/app.scss', 'resources/js/app.js'])
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
 </head>
 <body class="bg-pink">

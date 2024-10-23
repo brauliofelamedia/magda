@@ -54,6 +54,30 @@
         left: 50%;
         transform: translate(-50%, 0);
     }
+
+    /*Móviles*/
+    @media (max-width: 575px) {
+        .box {
+            padding-top: 100px !important;
+        }
+
+        .octopuss {
+            width: 80%;
+            top: -40px;
+        }
+    }
+
+    /*Tablets*/
+    @media (min-width: 768px) {
+    }
+
+    /*Laptops*/
+    @media (min-width: 992px) {
+    }
+
+    /*Desktop*/
+    @media (min-width: 1200px) {
+    }
 </style>
 @endpush
 
@@ -106,9 +130,9 @@
                                                         @if(!$assesment['node']['status'] == 'EXPIRED' OR !$assesment['node']['status'] == 'SUBMITTED')
                                                             <a class="btn btn-primary click-send-email" data-assesment="{{$assesment['node']['id']}}" @if($assesment['node']['status'] != 'EXPIRED') @else disabled @endif>Solicitar evaluación</a>
                                                         @elseif($assesment['node']['status'] == 'STARTED')
-                                                            <a class="btn btn-primary" href="{{route('assessments.continue',[$id,$assesment['node']['id'],$assesment['node']['token'],$assesment['node']['locale']])}}">Continuar</a>
+                                                            <a class="btn btn-continue" href="{{route('assessments.continue',[$id,$assesment['node']['id'],$assesment['node']['token'],$assesment['node']['locale']])}}">Continuar</a>
                                                         @elseif($assesment['node']['status'] == 'EXPIRED')
-                                                            <a class="btn btn-danger btn-disabled btn-xs" href="#" disabled>Caducado</a>
+                                                            <a class="btn btn-danger btn-disabled btn-caducade btn-xs" href="#" disabled>Caducado</a>
                                                         @endif
                                                         @if($assesment['node']['status'] == 'FINISHED' OR $assesment['node']['status'] == 'SUBMITTED')
                                                             <a class="btn btn-success" href="{{route('assessments.finish',$assesment['node']['id'])}}">Resultados</a>
@@ -123,7 +147,8 @@
                                  <p class="text-center">El usuario no tiene evaluaciones</p>
                                 @endif
                                 <div class="text-center">
-                                    <a href="{{route('assessments.new',[$user->account_id,$user->lang])}}" class="btn btn-success btn-xl">Crear evaluación</a>
+                                    <a href="{{route('assessments.new',[$user->account_id,$user->lang])}}" class="btn btn-create" style="margin-bottom: 10px;">Crear evaluación</a><br>
+                                    <a href="{{route('dashboard.welcome')}}" class="text-center btn btn-danger">Regresar</a>
                                 </div>
                             </div>
                         </div>
@@ -136,21 +161,8 @@
                 <div class="box-pink">
                     <div class="row">
                         <div class="col-xl-12">
-                            <div class="box-inner text-center">
-                                <img src="{{asset('assets/img/doc.png')}}" class="mb-3">
-                                <a href="{{route('users.edit',auth()->user()->uuid)}}">
-                                    <h4>Perfil</h4>
-                                </a>
-                                <p>Editar información</p>
-                            </div>
-                        </div>
-                        <div class="col-xl-6" style="display: none;">
-                            <div class="box-inner text-center">
-                                <img src="{{asset('assets/img/configuration.png')}}" class="mb-3">
-                                <a href="#">
-                                    <h4>Ajustes</h4>
-                                </a>
-                                <p>Configuración</p>
+                            <div class="box-inner">
+                            <img src="{{asset('assets/img/logo-blue.png')}}" alt="{{env('APP_NAME')}}" class="text-center logo">
                             </div>
                         </div>
                     </div>

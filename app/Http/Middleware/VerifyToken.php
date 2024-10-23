@@ -13,7 +13,6 @@ class VerifyToken
     public function handle(Request $request, Closure $next): Response
     {
         $config = Config::first();
-        
         //Revisamos si hay token y refresh en $config
         if(!$config->token && !$config->refreshToken){
             $this->getToken();
@@ -26,8 +25,8 @@ class VerifyToken
 
     private function getToken(){
         //Datos para iniciar sesión
-        $username = env('GR8PI_USERNAME');
-        $password = env('GR8PI_PASSWORD');
+        $username = 'jorge@felamedia.com';
+        $password = 'F3l@s0sa2024.';
 
         try {
             //Obtenemos el token

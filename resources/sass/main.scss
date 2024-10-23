@@ -104,6 +104,145 @@ h1,h2,h3,h4,h5,h6,p {
 }
 
 //Utilities
+tr td {
+    text-align: center;
+}
+
+#result,
+#test1,
+#test2,
+#test3 {
+    padding: 30px
+}
+
+#result .octopus,
+#test1 .octopus,
+#test2 .octopus,
+#test3 .octopus {
+    -webkit-animation-name: left-right;
+    animation-name: left-right;
+    -webkit-animation-duration: 2s;
+    animation-duration: 2s;
+    -webkit-animation-iteration-count: infinite;
+    animation-iteration-count: infinite
+}
+
+#result h2,
+#test1 h2,
+#test2 h2,
+#test3 h2 {
+    font-size: 40px;
+    line-height: 40px;
+    margin-bottom: 20px
+}
+
+#result p,
+#test1 p,
+#test2 p,
+#test3 p {
+    font-size: 18px;
+    line-height: 20px
+}
+
+#result .box-pink,
+#test1 .box-pink,
+#test2 .box-pink,
+#test3 .box-pink {
+    background-color: #FEEFEC;
+    padding: 40px;
+    position: relative;
+    border-radius: 50px
+}
+
+#result .box-pink .form-check-input,
+#test1 .box-pink .form-check-input,
+#test2 .box-pink .form-check-input,
+#test3 .box-pink .form-check-input {
+    display: none
+}
+
+#result .box-pink .form-check-input:checked+label,
+#test1 .box-pink .form-check-input:checked+label,
+#test2 .box-pink .form-check-input:checked+label,
+#test3 .box-pink .form-check-input:checked+label {
+    background-color: #033A60;
+    color: #ffffff
+}
+
+#result .box-pink .form-check label,
+#test1 .box-pink .form-check label,
+#test2 .box-pink .form-check label,
+#test3 .box-pink .form-check label {
+    width: 100%;
+    background-color: white;
+    font-weight: 600;
+    border-radius: 20px;
+    padding: 25px 30px;
+    -webkit-box-shadow: 0 0 12px rgba(1, 1, 1, 0.2);
+    box-shadow: 0 0 12px rgba(1, 1, 1, 0.2);
+    margin-bottom: 20px;
+    text-align: center;
+    font-weight: 600;
+    font-size: 18px
+}
+
+#result .box-pink .form-check label:hover,
+#test1 .box-pink .form-check label:hover,
+#test2 .box-pink .form-check label:hover,
+#test3 .box-pink .form-check label:hover {
+    background-color: #033A60;
+    color: #ffffff;
+    cursor: pointer
+}
+
+#result .box-pink .form-check-input,
+#test1 .box-pink .form-check-input,
+#test2 .box-pink .form-check-input,
+#test3 .box-pink .form-check-input {
+    float: inherit;
+    margin-left: 0
+}
+
+#result .box-pink h4,
+#test1 .box-pink h4,
+#test2 .box-pink h4,
+#test3 .box-pink h4 {
+    font-weight: 600
+}
+
+#result .box-pink p,
+#test1 .box-pink p,
+#test2 .box-pink p,
+#test3 .box-pink p {
+    font-size: 18px
+}
+
+#result .box-pink .logo,
+#test1 .box-pink .logo,
+#test2 .box-pink .logo,
+#test3 .box-pink .logo {
+    margin: 0 auto;
+    display: block
+}
+
+#result .box-pink .box-inner,
+#test1 .box-pink .box-inner,
+#test2 .box-pink .box-inner,
+#test3 .box-pink .box-inner {
+    background-color: #ffffff;
+    padding: 30px;
+    border-radius: 40px;
+    -webkit-box-shadow: 0 5px 12px rgba(1, 1, 1, 0.2);
+    box-shadow: 0 5px 12px rgba(1, 1, 1, 0.2);
+    position: relative;
+    z-index: 2
+}
+
+#test1 .box-pink,
+#test3 .box-pink {
+    background-color: #ffffff
+}
+
 .t {
     &-none {
         text-decoration: none;
@@ -411,6 +550,58 @@ h1,h2,h3,h4,h5,h6,p {
     width: 100%;
 }
 
+.btn-create {
+    background: #0DC863;
+    color: white;
+
+    &:hover {
+        background: #0DC863;
+        color: white;
+    }
+}
+
+.btn {
+    font-size: 14px;
+}
+
+.btn-continue {
+    background: #FFB743;
+
+    &:hover {
+        background: #FFB743;
+    }
+}
+
+.btn-caducade {
+    background: #F74219;
+
+    &:hover {
+        background: #F74219;
+    }
+}
+
+.btn-success {
+    background: #F74219;
+    color: white;
+    border: 0;
+
+    &:hover {
+        background: #F74219;
+        color: white;
+    }
+}
+
+.btn-blue {
+    background: #033A60;
+    color: white;
+    margin-right: 6px;
+
+    &:hover {
+        background: #033A60;
+        color: white;
+    }
+}
+
 .btn-outline {
     border: 0;
     border-radius: 10px;
@@ -448,6 +639,73 @@ h1,h2,h3,h4,h5,h6,p {
 
 #users-table {
     width: 100%;
+}
+
+//Header
+.block-submenu-notify {
+    &:hover .sub-menuu {
+        display: block;
+        background-color: white;
+        position: absolute;
+        right: 100%;
+        width: 300px;
+        right: 0;
+
+        span {
+            top: 50%;
+            transform: translate(0,-50%);
+        }
+
+        .pic {
+            width: 60px;
+            height: 60px;
+            background-repeat: no-repeat;
+            background-size: cover;
+            border-radius: 50%;
+            border: 1px solid black;
+        }
+        
+        li {
+            padding: 10px;
+            margin: 0;
+            background: #FEEFEC;
+            font-size: 14px;
+            text-align: left;
+            line-height: 1.2em;
+        }
+    }
+}
+
+.circle-notify {
+    background-color: #f55936;
+    border-radius: 50%;
+    width: 80px;
+    height: 80px;
+    position: relative;
+    top:50%;
+    transform: translate(0,-50%);
+    cursor: pointer;
+
+    &:hover {
+        background-color: #f04d29;
+    }
+
+    i {
+        top: 50%;
+        left: 50%;
+        position: absolute;
+        transform: translate(-50%,-50%);
+        color: white;
+    }
+
+    .notify-active {
+        width: 20px;
+        height: 20px;
+        background: #0DC863;
+        border-radius: 50%;
+        position: absolute;
+        top: 5px;
+    }
 }
 
 /*MEDIA QUERIES*/
@@ -516,7 +774,87 @@ h1,h2,h3,h4,h5,h6,p {
     }
 }
 
+.sub-menuu {
+    position: absolute;
+    right: 0;
+    padding: 13px;
+    z-index: 2;
+    border-radius: 10px;
+    list-style-type: none;
+    display: none;
+
+    li {
+        background: #FEEFEC;
+        border-radius: 5px;
+        padding: 10px;
+        margin-bottom: 8px !important;
+
+        &:last-child {
+            margin-bottom: 0!important;
+            background:transparent!important;
+            padding: 0!important;
+
+            button {
+                width: 100%;
+                padding: 10px;
+                background-color: #F74219;
+                color: white;
+                border: 0;
+                font-weight: bold;
+                font-size: 13px;
+                border-radius: 5px;
+
+                &:hover {
+                    background-color: #d63511;
+                }
+            }
+        }
+    }
+}
+
+//DATATABLES
+td {
+    font-size: 15px;
+}
+
+tr th {
+    color: #F74219 !important;
+    font-weight: bold;
+    text-align: center;
+}
+
 @media only screen and (max-width:768px){
+
+    .circle-notify .notify-active {
+        width: 15px;
+        height: 15px;
+        top: 0;
+    }
+
+    .login a {
+        text-align: center;
+        float: inherit;
+        display: block;
+    }
+
+    .circle-notify {
+        height: 50px;
+        width: 50px;
+    }
+
+    #dashboard .box-pink {
+        padding: 0;
+    }
+
+    //DATATABLES
+    /*#users-table tr th:nth-child(2),#users-table tr td:nth-child(2) {
+        display: none;
+    }
+
+    #users-table tr th:nth-child(3),#users-table tr td:nth-child(3) {
+        display: none;
+    }*/
+
     #dashboard .box .octopus {
         top: -90px;
         left: 50%;
@@ -567,7 +905,7 @@ h1,h2,h3,h4,h5,h6,p {
     
 
     .btn-danger {
-        font-size: 10px;
+        font-size: 15px;
     }
 
     .hidden-media {
@@ -577,7 +915,7 @@ h1,h2,h3,h4,h5,h6,p {
 
 @media only screen and (max-width:480px){
     .btn-danger {
-        font-size: 10px;
+        font-size: 15px;
     }
 
     #navbar {
@@ -632,7 +970,16 @@ h1,h2,h3,h4,h5,h6,p {
     }
 
     #dashboard .avatar {
-        height: 70px;
+        height: 50px;
+        width: 50px;
+    }
+
+    #dashboard .avatar.floating.people {
+        margin-left: 18px;
+    }
+
+    .vertical-align p {
+        font-size: 13px !important;
     }
 
     .name {

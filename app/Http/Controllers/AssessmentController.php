@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Assessment;
+use App\Models\Notification;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Traits\APICalls;
@@ -54,6 +55,13 @@ class AssessmentController extends Controller
     public function closeAssessment(Request $request)
     {
         $close = $this->closeAnswers($request->id,$request->token);
+
+        //Generar una notificación
+        $notify = new Notification();
+        $notify->user_id = Auth::user()->id;
+        $notify->info = '';
+        $notify->save();
+
         return response()->json([
             'success' => 'Se cerro correctamente la evaluación.',
             'data'=> $close

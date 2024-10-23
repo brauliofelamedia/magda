@@ -37,6 +37,30 @@
         left: 50%;
         transform: translate(-50%, 0);
     }
+
+    /*Móviles*/
+    @media (max-width: 575px) {
+        .box {
+            padding-top: 100px !important;
+        }
+
+        .octopuss {
+            width: 80%;
+            top: -40px;
+        }
+    }
+
+    /*Tablets*/
+    @media (min-width: 768px) {
+    }
+
+    /*Laptops*/
+    @media (min-width: 992px) {
+    }
+
+    /*Desktop*/
+    @media (min-width: 1200px) {
+    }
 </style>
 @endpush
 
@@ -44,7 +68,7 @@
 
     <div class="container" id="dashboard">
         @include('parts.user-top')
-        <div class="row mt-10">
+        <div class="row mt-5">
             @include('parts.message')
             <div class="col-12">
                 <div class="box">
@@ -54,7 +78,7 @@
                             <div class="col-xl-12">
                                 <h3 class="text-center">Editar usuario</h3>
                                 <div class="row">
-                                    <div class="col-10 offset-1">
+                                    <div class="col-12">
                                         <form action="{{route('users.update',$user->uuid)}}" method="post" enctype="multipart/form-data">
                                             @csrf
                                             @method('PATCH')
@@ -124,8 +148,8 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                            <button type="submit" class="btn btn-primary btn-big btn-block">Guardar cambios</button><hr>
-                                            <a href="{{route('dashboard.welcome')}}" class="text-center btn btn-big btn-danger btn-block">Cancelar y volver</a>
+                                            <button type="submit" class="btn btn-primary btn-big btn-block" style="background: #0DC863;border:0;margin-bottom:5px;">Guardar cambios</button>
+                                            <a href="{{route('dashboard.welcome')}}" class="text-center btn btn-big btn-danger btn-block">Regresar</a>
                                         </form>
                                     </div>
                                 </div>
