@@ -41,7 +41,7 @@
     #octopus {
         position: absolute;
         left: 30px;
-        width: 170px;
+        width: 290px;
         bottom: 30px;
     }
 
@@ -50,7 +50,7 @@
         #octopus {
             position: absolute;
             width: 170px;
-            top: -100px;
+            top: -20px;
             left: inherit;
             right: 0;
         }
@@ -111,7 +111,7 @@
                     </div>
                 </div>
                 <div class="col-xl-2 col-md-4" style="display: none;">
-                    <img src="{{asset('assets/img/octopus-1.png')}}" class="f-right octopus b-block" alt="Octopus">
+                    <img src="{{asset('assets/img/detail.png')}}" class="f-right octopus b-block" alt="Octopus">
                 </div>
             </div>
         </div>
@@ -165,7 +165,7 @@
                         </div>
                         <div class="hidden" id="step-loader" style="background-image:url('{{asset('assets/img/loader.gif')}}')"></div>
 
-                        <img src="{{asset('assets/img/octopus-1.png')}}" id="octopus"class="animate__animated octopus" alt="Octopus">
+                        <img src="{{asset('assets/img/detail.png')}}" id="octopus"class="animate__animated octopus" alt="Octopus">
                     </div>
                         
                 </div>
@@ -281,18 +281,27 @@
     //Animation class random
     $(document).ready(function() {
         $('.step-btn').click(function() {
+            const img = ['https://magda.local/assets/img/edit.png','https://magda.local/assets/img/finish.png','https://magda.local/assets/img/detail.png'];
             const clases = ['animate__bounce', 'animate__fadeInUpBig', 'animate__fadeInLeftBig', 'animate__fadeInBottomRight', 'animate__fadeInTopRight', 'animate__jello', 'animate__jello', 'animate__heartBeat', 'animate__rubberBand', 'animate__swing'];
+
             const indiceAleatorio = Math.floor(Math.random() * clases.length);
+            const imgAleatorio = Math.floor(Math.random() * img.length);
+
             const claseAleatoria = clases[indiceAleatorio];
+            const imgAleatoria = img[imgAleatorio];
 
             const elemento = $('#octopus');
+
             function anadirClase() {
                 elemento.addClass('octopus');
             }
 
-            $('#octopus').removeClass();
-            $('#octopus').addClass('animate__animated');
-            $('#octopus').addClass(claseAleatoria);
+            //Cambiar fotos
+            elemento.attr('src',imgAleatoria);
+
+            elemento.removeClass();
+            elemento.addClass('animate__animated');
+            elemento.addClass(claseAleatoria);
             setTimeout(anadirClase, 2000);
         });
     });
