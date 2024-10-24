@@ -20,6 +20,11 @@ class AssessmentController extends Controller
         return view('dashboard.assessments.index',compact('assesments','user'));
     }
 
+    public function welcome()
+    {
+        return view('assessments.welcome');
+    }
+
     public function newEvaluation($respondentId, $locale)
     {
         $email = User::where('account_id',$respondentId)->first();

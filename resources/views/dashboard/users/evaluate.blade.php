@@ -5,6 +5,7 @@
 @push('css')
 <link href="https://cdn.jsdelivr.net/npm/jquery.steps@1.1.4/dist/jquery-steps.min.css" rel="stylesheet" type="text/css" />
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.12.3/dist/sweetalert2.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
 <style>
     .step-tab-panel {
         display: none;
@@ -37,17 +38,29 @@
         padding: 0;
     }
 
+    #octopus {
+        position: absolute;
+        left: 30px;
+        width: 170px;
+        bottom: 30px;
+    }
+
     @media only screen and (max-width:768px){
+
+        #octopus {
+            position: absolute;
+            width: 170px;
+            top: -100px;
+            left: inherit;
+            right: 0;
+        }
+
         #result h2, #test1 h2, #test2 h2, #test3 h2 {
             font-size: 21px;
         }
 
         #result p, #test1 p, #test2 p, #test3 p {
             font-size: 15px;
-        }
-
-        .octopus {
-            display: none;
         }
 
         #result .box-pink, #test1 .box-pink, #test2 .box-pink, #test3 .box-pink {
@@ -57,6 +70,14 @@
     }
 
     @media only screen and (max-width:480px){
+
+        #octopus {
+            width: 130px;
+            top: -70px;
+            left: inherit;
+            right: 0;
+        }
+        
         #result .box-pink, #test1 .box-pink, #test2 .box-pink, #test3 .box-pink {
             padding: 30px;
             padding-bottom: 0;
@@ -83,13 +104,13 @@
     <div class="row">
         <div class="col-xl-11">
             <div class="row">
-                <div class="col-xl-10 col-md-8">
+                <div class="col-xl-12 col-md-8">
                     <div class="vertical-align">
                         <h2 class="fw-700 c-orange">{{$assesments['interests']['displayName']}}</h2>
                         <p>{{$assesments['interests']['instructions']}}</p>
                     </div>
                 </div>
-                <div class="col-xl-2 col-md-4">
+                <div class="col-xl-2 col-md-4" style="display: none;">
                     <img src="{{asset('assets/img/octopus-1.png')}}" class="f-right octopus b-block" alt="Octopus">
                 </div>
             </div>
@@ -143,6 +164,8 @@
                             </div>
                         </div>
                         <div class="hidden" id="step-loader" style="background-image:url('{{asset('assets/img/loader.gif')}}')"></div>
+
+                        <img src="{{asset('assets/img/octopus-1.png')}}" id="octopus"class="animate__animated octopus" alt="Octopus">
                     </div>
                         
                 </div>
@@ -254,5 +277,24 @@
     });
 
     steps_api = steps.data('plugin_Steps');
+
+    //Animation class random
+    $(document).ready(function() {
+        $('.step-btn').click(function() {
+            const clases = ['animate__bounce', 'animate__fadeInUpBig', 'animate__fadeInLeftBig', 'animate__fadeInBottomRight', 'animate__fadeInTopRight', 'animate__jello', 'animate__jello', 'animate__heartBeat', 'animate__rubberBand', 'animate__swing'];
+            const indiceAleatorio = Math.floor(Math.random() * clases.length);
+            const claseAleatoria = clases[indiceAleatorio];
+
+            const elemento = $('#octopus');
+            function anadirClase() {
+                elemento.addClass('octopus');
+            }
+
+            $('#octopus').removeClass();
+            $('#octopus').addClass('animate__animated');
+            $('#octopus').addClass(claseAleatoria);
+            setTimeout(anadirClase, 2000);
+        });
+    });
 </script>
 @endpush

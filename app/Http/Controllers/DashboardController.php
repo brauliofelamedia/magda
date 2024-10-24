@@ -49,7 +49,7 @@ class DashboardController extends Controller
     public function welcome(UsersDataTable $dataTable){
         $locales = config('languages.locales');
         if(auth()->user()->hasRole('respondent')){
-            return redirect()->route('assessments.index',auth()->user()->account_id);
+            return view('dashboard.assessments.welcome');
         } else {
             return $dataTable->render('dashboard.index', compact('locales'));
         }

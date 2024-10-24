@@ -41,6 +41,7 @@ Route::prefix('dashboard')->middleware('auth')->group(function () {
 
     //Assessments
     Route::get('/assessment/{respondentId?}', [AssessmentController::class, 'getAssessments'])->name('assessments.index');
+    Route::get('/assessment/welcome', [AssessmentController::class, 'welcome'])->name('assessments.welcome');
     Route::get('/assessment/start/{id}/{token}/{lang}', [AssessmentController::class, 'startEvaluate'])->name('assessments.start');
     Route::get('/assessment/continue/{userId}/{id}/{token}/{lang}', [AssessmentController::class, 'continueEvaluate'])->name('assessments.continue');
     Route::post('/assessment/update', [AssessmentController::class, 'updateAnswersAssessment'])->name('assessments.update');

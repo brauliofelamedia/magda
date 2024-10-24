@@ -55,6 +55,32 @@
         transform: translate(-50%, 0);
     }
 
+    .btn-primary {
+        background: #f55936;
+        border: 0;
+        padding: 12px 25px;
+        border-radius: 12px;
+        font-weight: bold;
+        font-size: 16px!important;
+    }
+
+    .btn-primary:hover {
+        background: #c93918;
+    }
+
+    .btn-secondary {
+        background: #033a60;
+        border: 0;
+        padding: 12px 25px;
+        font-weight: bold;
+        border-radius: 12px;
+        font-size: 16px!important;
+    }
+
+    .btn-secondary:hover {
+        background: #024f85;
+    }
+
     /*Móviles*/
     @media (max-width: 575px) {
         .box {
@@ -65,18 +91,6 @@
             width: 80%;
             top: -40px;
         }
-    }
-
-    /*Tablets*/
-    @media (min-width: 768px) {
-    }
-
-    /*Laptops*/
-    @media (min-width: 992px) {
-    }
-
-    /*Desktop*/
-    @media (min-width: 1200px) {
     }
 </style>
 @endpush
@@ -147,8 +161,8 @@
                                  <p class="text-center">El usuario no tiene evaluaciones</p>
                                 @endif
                                 <div class="text-center">
-                                    <a href="{{route('assessments.new',[$user->account_id,$user->lang])}}" class="btn btn-create" style="margin-bottom: 10px;">Crear evaluación</a><br>
-                                    <a href="{{route('dashboard.welcome')}}" class="text-center btn btn-danger">Regresar</a>
+                                    <a href="{{route('assessments.new',[Auth::user()->account_id,Auth::user()->lang])}}" class="btn btn-primary">Iniciar Nueva Evaluación</a>
+                                    <a href="{{route('dashboard.welcome')}}" class="btn btn-secondary">Regresar</a>
                                 </div>
                             </div>
                         </div>
