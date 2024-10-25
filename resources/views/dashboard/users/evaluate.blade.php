@@ -281,7 +281,10 @@
     //Animation class random
     $(document).ready(function() {
         $('.step-btn').click(function() {
-            const img = ['https://magda.local/assets/img/edit.png','https://magda.local/assets/img/finish.png','https://magda.local/assets/img/detail.png'];
+            var img1 = "{{ asset('assets/img/edit.png') }}";
+            var img2 = "{{ asset('assets/img/finish.png') }}";
+            var img3 = "{{ asset('assets/img/detail.png') }}";
+            const img = [img1,img2,img3];
             const clases = ['animate__bounce', 'animate__fadeInUpBig', 'animate__fadeInLeftBig', 'animate__fadeInBottomRight', 'animate__fadeInTopRight', 'animate__jello', 'animate__jello', 'animate__heartBeat', 'animate__rubberBand', 'animate__swing'];
 
             const indiceAleatorio = Math.floor(Math.random() * clases.length);
