@@ -109,9 +109,6 @@
                     <div class="box-inner">
                         <div class="row">
                             <div class="col-xl-12">
-                                @hasanyrole(['administrator','institution'])
-                                    <a href="{{route('dashboard.welcome')}}" class="btn btn-primary">Volver</a>
-                                @endhasanyrole
                                 @role('respondent')
                                     <h3 class="text-center">Mis evaluaciones</h3>
                                 @endrole
@@ -161,8 +158,12 @@
                                  <p class="text-center">El usuario no tiene evaluaciones</p>
                                 @endif
                                 <div class="text-center">
-                                    <a href="{{route('assessments.new',[Auth::user()->account_id,Auth::user()->lang])}}" class="btn btn-primary">Iniciar Nueva Evaluación</a>
-                                    <a href="{{route('dashboard.welcome')}}" class="btn btn-secondary">Regresar</a>
+                                    @hasrole('respondent')
+                                        <a href="{{route('assessments.new',[Auth::user()->account_id,Auth::user()->lang])}}" class="btn btn-primary">Iniciar Nueva Evaluación</a>
+                                        <a href="{{route('dashboard.welcome')}}" class="btn btn-secondary">Regresar</a>
+                                    @else
+                                        <a href="{{route('dashboard.welcome')}}" class="btn btn-secondary">Regresar</a>
+                                    @endhasrole
                                 </div>
                             </div>
                         </div>

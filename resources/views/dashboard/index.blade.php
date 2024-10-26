@@ -25,6 +25,18 @@
     .form-control {
         padding: 10px 23px!important;
     }
+
+    .btn-disabled {
+        background-color: #dfdfdf;
+        color: black;
+        cursor: not-allowed;
+    }
+
+    .btn-disabled:hover {
+        background-color: #dfdfdf!important;
+        color: black!important;
+        cursor: not-allowed;
+    }
 </style>
 @endpush
 

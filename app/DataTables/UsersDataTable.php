@@ -27,7 +27,11 @@ class UsersDataTable extends DataTable
                 $user = auth()->user();
                 $btn = '<a href="'.route('users.edit',$row->uuid).'" class="edit btn btn-blue btn-sm">Editar perfil</a>';
                 if(!$row->hasRole('administrator','institution','coordinator')){
-                    $btn .= '<a href="'.route('assessments.index',$row->account_id).'" class="btn btn-warning btn-sm">Evaluaciones</a>';
+                    if(!empty($row->account_id)){
+                        $btn .= '<a href="'.route('assessments.index',$row->account_id).'" class="btn btn-warning btn-sm">Evaluaciones</a>';   
+                    } else {
+                        $btn .= '<a href="#" class="btn btn-disabled btn-sm" disabled>Evaluaciones</a>';   
+                    }
                 }
                 return $btn;
             })
