@@ -911,6 +911,10 @@ tr th {
     .hidden-media {
         display: none;
     }
+
+    .logo {
+        width: 140px!important;
+    }
 }
 
 @media only screen and (max-width:480px){
@@ -992,9 +996,5 @@ tr th {
 
     .login a {
         margin-top: 50px;
-    }
-
-    #dashboard .box-pink .logo {
-        width: 123px!important;
     }
 }
