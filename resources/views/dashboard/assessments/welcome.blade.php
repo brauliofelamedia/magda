@@ -110,9 +110,21 @@
             padding-top: 100px !important;
         }
 
+        .box-inner {
+            padding: 30px !important;
+        }
+
         .octopuss {
             width: 80%;
             top: -40px;
+        }
+
+        .btn {
+            width:100%;
+        }
+
+        .btn-primary {
+            margin-bottom: 10px;
         }
     }
 </style>

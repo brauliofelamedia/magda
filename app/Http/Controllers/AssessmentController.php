@@ -91,7 +91,9 @@ class AssessmentController extends Controller
     public function createNewUser(Request $request)
     {
         //Creamos el usuario en la plataforma
+        //dd($request->all());
         $account_id = $this->createUser($request->name,$request->lastname,$request->email,$request->gender,$request->locale);
+        dd($account_id);
 
         if($account_id){
             //Creamos el usuario en la base de datos
@@ -102,14 +104,22 @@ class AssessmentController extends Controller
             $user->lang = $request->locale;
             $user->password = bcrypt($request->password);
             $user->account_id = $account_id;
-            $user->user_id = Auth::user()->id;
             $user->assignRole($request->role);
             $user->save();
 
+            if($request->name_institution && $request->role == 'institution'){
+                $user->user_id = Auth::user()->id;
+                $user->save();
+            }
+
+            if($request->name_institution){
+                $user->name_institution = $request->name_institution;
+                $user->save();
+            }
+
             return redirect()->back()->with('success','Se ha creado el usuario correctamente.');
-        }
-         else {
-            return redirect()->back()->with('error','Ha ocurrido un error al dar de alta al usuario.');
+        } else {
+            return redirect()->back()->with('error','Ha ocurrido un error al dar de alta al usuario');
          }
         
     }

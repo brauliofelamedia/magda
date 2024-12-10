@@ -46,13 +46,18 @@ class DashboardController extends Controller
         return redirect()->back()->with('success','Se ha sincronizado los usuarios.');
     }
 
-    public function welcome(UsersDataTable $dataTable){
+    public function welcome(){
         $locales = config('languages.locales');
-        if(auth()->user()->hasRole('respondent')){
+
+        if(Auth::user()->hasRole('administrator')){
+            $users = User::all();
+        } else if(Auth::user()->hasRole('institution')){
+            $users = User::where('user_id',auth()->user()->id)->role(['respondent']);
+        } else if(Auth::user()->hasRole('respondent')){
             return view('dashboard.assessments.welcome');
-        } else {
-            return $dataTable->render('dashboard.index', compact('locales'));
         }
+
+        return view('dashboard.index',compact('users','locales'));
     }
 
     public function remove_notification(Request $request)

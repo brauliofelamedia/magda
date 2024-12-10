@@ -418,13 +418,14 @@ trait APICalls
                         'gender'     => $gender,
                         'locale'     => $locale,
                         'targetJobId' => null,
-                        'type'       => 'INTERNAL',
+                        'type'       => 'EXTERNAL',
                         'accountId'  => 243576,
                     ]
                 ]
             ]);
-        
-            $userId = $authResponse->json('data.createRespondent.respondent.id');
+
+            //$userId = $authResponse->json('data.createRespondent.respondent.id');
+            $userId = $authResponse->json('data.createRespondent.respondent');
             return $userId;
 
         } catch (\Exception $e) {

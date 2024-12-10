@@ -32,9 +32,14 @@ class UserController extends Controller
         ]);
 
         $user->name = $request->name;
-        //$user->email = $request->email;
+        $user->email = $request->email;
         $user->user_id = $request->user_id;
         $user->assignRole($request->role);
+
+        if($request->name_institution){
+            $user->name_institution = $request->name_institution;
+            $user->save();
+        }
 
 
         if($request->avatar){

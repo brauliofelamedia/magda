@@ -22,8 +22,13 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'name',
+        'last_name',
+        'lang',
         'email',
+        'account_id',
+        'platform',
         'password',
+        'user_id'
     ];
 
     /**
@@ -57,6 +62,42 @@ class User extends Authenticatable
     public function institution()
     {
         return $this->hasOne(User::class,'id','user_id');
+    }
+
+    public function getFullNameAttribute()
+    {
+        if($this->name_institution){
+            return $this->name_institution;
+        } else {
+            return $this->name.' '.$this->last_name;
+        }
+    }
+
+    public function getEmailCutAttribute()
+    {
+        if(strlen($this->email) > 20){
+            return substr($this->email,0,25).'...';
+        } else {
+            return $this->email;
+        }
+
+    }
+
+    public function getRolAttribute()
+    {
+        foreach ($this->getRoleNames() as $role){
+            $rol = $role;   
+        }
+
+        if($rol == 'respondent'){
+            return 'Evaluado';
+        } else if($rol == 'institution'){
+            return 'Institución';
+        } else if($rol == 'administrator'){
+            return 'Admin';
+        } else if($rol == 'coordinator'){
+            return 'Coordinador';
+        }
     }
 
     public function getAvatarUrlAttribute()

@@ -3,6 +3,7 @@
 @section('title','Panel de administración')
 
 @push('css')
+<link rel="stylesheet" href="//cdn.datatables.net/2.1.8/css/dataTables.dataTables.min.css">
 <link rel="stylesheet" href="https://cdn.datatables.net/2.1.8/css/dataTables.bootstrap5.css">
 <link rel="stylesheet" href="https://cdn.datatables.net/responsive/3.0.3/css/responsive.bootstrap5.css">
 <style>
@@ -37,6 +38,42 @@
         color: black!important;
         cursor: not-allowed;
     }
+
+    h5 {
+        font-weight: bold;
+        color: #f74219;
+    }
+
+    label {
+        font-weight: bold;
+        color: #033a60;
+    }
+
+    tr > td {
+        text-align: left!important;
+    }
+
+    tr th::nth-child(2){
+        display: none!important;
+    }
+
+    th span {
+        color: white;
+        font-weight: 500;
+    }
+
+    th {
+        background: #f74219 !important;
+    }
+
+    .dt-paging-button.current {
+        background-color: #ffc107 !important;
+        color: white !important;
+    }
+
+    .first, .last {
+        display: none !important;
+    }
 </style>
 @endpush
 
@@ -47,48 +84,41 @@
         <div class="modal-dialog modal-lg modal-dialog-nobackdrop">
         <div class="modal-content">
             <div class="modal-header">
-            <h1 class="modal-title fs-5" id="newModalLabel">Nueva usuario</h1>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <h1 class="modal-title fs-5" id="newModalLabel">Nuevo usuario</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <form class="form" method="post" action="{{route('assessments.user.new')}}">
                     @csrf
+                    <div class="row" id="institution_name" style="display: none;">
+                        <div class="col-xl-12">
+                            <div class="form-group">
+                                <label for="name">Nombre de la institución:</label>
+                                <input type="text" id="name_institution" name="name_institution" class="form-control" autocomplete="off">
+                            </div>
+                        </div>
+                    </div>
                     <div class="row">
+                        <div class="col-xl-12" id="legal_representative" style="display: none;">
+                            <h5>Representante legal:</h5>
+                        </div>
                         <div class="col-xl-6">
                             <div class="form-group">
-                                <label for="name">Nombre</label>
-                                <input type="text" id="name" name="name" class="form-control" required>
+                                <label for="name">Nombre:</label>
+                                <input type="text" id="name" name="name" class="form-control" autocomplete="off" required>
                             </div>
                         </div>
                         <div class="col-xl-6">
                             <div class="form-group">
-                                <label for="lastname">Apellidos</label>
-                                <input type="text" id="lastname" name="lastname" class="form-control" required>
+                                <label for="lastname">Apellidos:</label>
+                                <input type="text" id="lastname" name="lastname" class="form-control" autocomplete="off" required>
                             </div>
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-xl-6">
                             <div class="form-group">
-                                <label for="email">Correo electrónico</label>
-                                <input type="email" id="email" name="email" class="form-control" required>
-                            </div>
-                        </div>
-                        <div class="col-xl-6">
-                            <div class="form-group">
-                                <label for="locale">Idioma preferido</label>
-                                <select name="locale" id="locale" class="form-control" required>
-                                    @foreach ($locales as $locale => $language)
-                                        <option value="{{$locale}}">{{$language}}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-xl-6">
-                            <div class="form-group">
-                                <label for="gender">Género</label>
+                                <label for="gender">Género:</label>
                                 <select name="gender" id="gender" class="form-control" required>
                                     <option value="M">Masculino</option>
                                     <option value="F">Femenino</option>
@@ -98,11 +128,29 @@
                         </div>
                         <div class="col-xl-6">
                             <div class="form-group">
-                                <label for="role">Rol</label>
+                                <label for="email">Correo electrónico:</label>
+                                <input type="email" id="email" name="email" class="form-control" autocomplete="off" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xl-6">
+                            <div class="form-group">
+                                <label for="locale">Idioma preferido:</label>
+                                <select name="locale" id="locale" class="form-control" required>
+                                    @foreach ($locales as $locale => $language)
+                                        <option value="{{$locale}}">{{$language}}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-xl-6">
+                            <div class="form-group">
+                                <label for="role">Rol:</label>
                                 <select name="role" id="role" class="form-control" required>
                                     @if(Auth::user()->hasRole('administrator'))
                                         <option value="administrator">Administrador</option>
-                                        <option value="institution">Institutos</option>
+                                        <option value="institution">Institución</option>
                                     @endif
                                     @if(Auth::user()->hasRole('institution'))
                                         <option value="coordinator">Coordinador</option>
@@ -115,8 +163,8 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="password">Contraseña</label>
-                        <input type="password" id="password" name="password" class="form-control" required>
+                        <label for="password">Contraseña:</label>
+                        <input type="password" id="password" name="password" class="form-control" autocomplete="off" required>
                     </div>
                     
                     <button type="submit" class="btn btn-success">Registrar usuario</button>
@@ -145,7 +193,35 @@
                             <div class="col-xl-12">
                                 <h3 class="text-center">Usuarios</h3>
 
-                                {{ $dataTable->table() }}
+                                <table id="users-table" class="table table-striped responsive nowrap" style="width:100%">
+                                    <thead>
+                                        <tr>
+                                            <th>Nombre</th>
+                                            <th>Correo</th>
+                                            <th>Rol</th>
+                                            <th>#</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach ($users as $user)
+                                            <tr>
+                                                <td>{{ $user->fullname }}</td>
+                                                <td>{{ $user->emailCut }}</td>
+                                                <td>{{ $user->rol }}</td>
+                                                <td>
+                                                    <a href="{{route('users.edit',$user->uuid)}}" class="edit btn btn-blue btn-sm">Editar perfil</a>
+                                                    @if(Auth::user()->hasRole(['administrator','institution','coordinator']))
+                                                        @if(!empty($user->account_id))
+                                                            <a href="{{route('assessments.index',$user->account_id)}}" class="btn btn-warning btn-sm">Evaluaciones</a>
+                                                        @else
+                                                            <a href="#" class="btn btn-disabled btn-sm" disabled>Evaluaciones</a>
+                                                        @endif
+                                                    @endif
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
                                 
                                 <div class="text-center">
                                     @hasrole(['administrator'])
@@ -183,17 +259,33 @@
 @endsection
 
 @push('js')
-{{ $dataTable->scripts(attributes: ['type' => 'module']) }}
-<script src="https://cdn.datatables.net/2.1.8/js/dataTables.bootstrap5.js"></script>
+<script src="//cdn.datatables.net/2.1.8/js/dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/responsive/3.0.3/js/dataTables.responsive.js"></script>
 <script src="https://cdn.datatables.net/responsive/3.0.3/js/responsive.bootstrap5.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script>
-    var table = new DataTable('#users-table', {
+     new DataTable('#users-table', {
         responsive: true,
         language: {
-            url: '//cdn.datatables.net/plug-ins/2.1.8/i18n/es-ES.json',
-        },
+            url: 'https://cdn.datatables.net/plug-ins/1.11.5/i18n/es-ES.json'
+        }
+    });
+
+    $(document).ready(function() {        
+        $('#role').change(function() {
+            var role = $(this).val();
+            var inputInstitution = $('#institution_name');
+            var legalTitle = $('#legal_representative');
+            
+            if(role == 'institution'){
+                inputInstitution.show()
+                legalTitle.show();
+            } else {
+                legalTitle.hide();
+                inputInstitution.hide()
+            }
+        });
     });
 </script>
 @endpush

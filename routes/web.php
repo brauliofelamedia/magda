@@ -8,6 +8,7 @@ use App\Http\Controllers\TestController;
 use App\Http\Controllers\TokenController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Artisan;
 
 /*
 |--------------------------------------------------------------------------
@@ -31,6 +32,21 @@ Route::prefix('dashboard')->middleware('auth')->group(function () {
     Route::get('/', [DashboardController::class, 'welcome'])->name('dashboard.welcome');
     Route::get('/syncUsers', [DashboardController::class, 'syncUsers'])->name('dashboard.sync');
     Route::post('remove-notification', [DashboardController::class, 'remove_notification'])->name('dashboard.remove.notification');
+
+    //Tools
+    Route::get('/migrate', function(){
+        Artisan::call('migrate');
+        return response()->json(['message' => 'Migraciones ejecutadas correctamente.']);
+    });
+
+    //Limpia todos los tipos de caché
+    Route::get('/clean', function(){
+        Artisan::call('cache:clear');
+        Artisan::call('config:clear');
+        Artisan::call('route:clear');
+        Artisan::call('view:clear');
+        return response()->json(['message' => 'Se han limpiado todas las caches.']);
+    });
 
     //Users
     Route::post('/users/email/welcome', [UserController::class, 'sendEmailWelcome'])->name('users.email.welcome');
