@@ -102,6 +102,33 @@
                         <div class="col-xl-12" id="legal_representative" style="display: none;">
                             <h5>Representante legal:</h5>
                         </div>
+                        <div class="col-xl-12">
+                            <div class="form-group">
+                                <label for="role">Rol:</label>
+                                <select name="role" id="role" class="form-control" required>
+                                    @if(Auth::user()->hasRole('administrator'))
+                                        <option value="administrator">Administrador</option>
+                                        <option value="institution">Institución</option>
+                                    @endif
+                                    @if(Auth::user()->hasRole('institution'))
+                                        <option value="coordinator">Coordinador</option>
+                                        <option value="respondent">Evaluado</option>
+                                    @else
+                                        <option value="respondent">Evaluado</option>
+                                    @endif
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-xl-12" id="institution">
+                            <div class="form-group">
+                                <label for="name">Selecciona una institución:</label>
+                                <select name="user_id" class="form-control">
+                                    @foreach($institutions as $institution)
+                                        <option value="{{$institution->id}}">{{$institution->name_institution}}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
                         <div class="col-xl-6">
                             <div class="form-group">
                                 <label for="name">Nombre:</label>
@@ -146,27 +173,13 @@
                         </div>
                         <div class="col-xl-6">
                             <div class="form-group">
-                                <label for="role">Rol:</label>
-                                <select name="role" id="role" class="form-control" required>
-                                    @if(Auth::user()->hasRole('administrator'))
-                                        <option value="administrator">Administrador</option>
-                                        <option value="institution">Institución</option>
-                                    @endif
-                                    @if(Auth::user()->hasRole('institution'))
-                                        <option value="coordinator">Coordinador</option>
-                                        <option value="respondent">Evaluado</option>
-                                    @else
-                                        <option value="respondent">Evaluado</option>
-                                    @endif
-                                </select>
+                                <label for="password">Contraseña:</label>
+                                <input type="password" id="password" name="password" class="form-control" autocomplete="off">
                             </div>
+                            <p>Si se deja en blanco, se generará una contraseña aleatoria.</p>
                         </div>
                     </div>
-                    <div class="form-group">
-                        <label for="password">Contraseña:</label>
-                        <input type="password" id="password" name="password" class="form-control" autocomplete="off" required>
-                    </div>
-                    
+
                     <button type="submit" class="btn btn-success">Registrar usuario</button>
                 </form>
             </div>
@@ -222,15 +235,14 @@
                                         @endforeach
                                     </tbody>
                                 </table>
-                                
+
                                 <div class="text-center">
                                     @hasrole(['administrator'])
                                         <div class="btn-group text-center" role="group">
                                             <a  href="{{route('dashboard.sync')}}" class="btn btn-warning">Sincronizar usuarios</a>
-                                            <a href="#" data-bs-toggle="modal" data-bs-target="#newModal" class="btn btn-success">Añadir usuario</a>
                                         </div>
                                     @endhasrole
-                                    @hasanyrole(['institution','coordinator'])
+                                    @hasanyrole(['administrator','institution'])
                                         <div class="btn-group text-center" role="group">
                                             <a href="#" data-bs-toggle="modal" data-bs-target="#newModal" class="btn btn-success">Añadir usuario</a>
                                         </div>
@@ -272,16 +284,26 @@
         }
     });
 
-    $(document).ready(function() {        
+    $(document).ready(function() {
+        var institution = $('#institution');
+        institution.hide();
+
         $('#role').change(function() {
             var role = $(this).val();
             var inputInstitution = $('#institution_name');
+
             var legalTitle = $('#legal_representative');
-            
+
             if(role == 'institution'){
                 inputInstitution.show()
                 legalTitle.show();
+                institution.hide();
+            } else if(role == 'respondent'){
+                legalTitle.hide();
+                inputInstitution.hide()
+                institution.show();
             } else {
+                institution.show();
                 legalTitle.hide();
                 inputInstitution.hide()
             }

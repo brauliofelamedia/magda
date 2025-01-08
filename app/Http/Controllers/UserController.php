@@ -10,11 +10,12 @@ use Illuminate\Support\Facades\Mail;
 use App\Mail\Welcome;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Auth;
-
+use Illuminate\Support\Str;
+use App\Mail\resetPassword;
 class UserController extends Controller
 {
     use APICalls;
-    
+
     public function edit($uuid)
     {
         $user = User::where('uuid',$uuid)->first();
@@ -41,12 +42,11 @@ class UserController extends Controller
             $user->save();
         }
 
-
         if($request->avatar){
             $request->validate([
                 'avatar' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
             ]);
-        
+
             if ($request->hasFile('avatar')) {
                 $imagePath = $request->file('avatar')->store('avatars', 'public');
                 $user->avatar = $imagePath;
@@ -56,7 +56,7 @@ class UserController extends Controller
         if($request->password == $request->password_confirmation){
             $user->password = Hash::make($request->input('password'));
         }
-        
+
         $user->save();
         return redirect()->route('users.edit',$uuid)->with('success', 'Se han actualizado los datos correctamente.');
     }
@@ -66,10 +66,25 @@ class UserController extends Controller
         $user = User::find($request->id);
 
         Mail::to($user->email)->send(new Welcome($user));
-        
+
         return response()->json([
             'success' => 'Se ha enviado el correo',
             'data' => $user
-        ], 200); 
+        ], 200);
+    }
+
+    public function resetPassword(Request $request)
+    {
+        $user = User::where('email',$request->email)->first();
+
+        if($user){
+            $passwordRandom = Str::random(8);
+            $user->password = Hash::make($passwordRandom);
+            $user->save();
+
+            Mail::to($user->email)->send(new resetPassword($user,$passwordRandom));
+        }
+
+        return redirect()->back()->with('success', 'Si el correo coincide con nuestro registro, se te enviara una contraseña.');
     }
 }

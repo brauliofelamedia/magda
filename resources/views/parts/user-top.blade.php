@@ -15,7 +15,7 @@
                     <div class="col-md-7 col-sm-7 col-xs-6 col-8">
                         <div class="vertical-align">
                             <p>Bienvenido👋🏻</p>
-                            <h4 class="name c-orange fw-700">{{Auth()->user()->fullname}}</h4>
+                            <h5 class="name c-orange fw-700">{{Auth()->user()->fullname}}</h5>
                             <form action="{{route('logout')}}" method="POST" style="display: none;">
                                 @csrf
                                 <button type="submit" class="btn btn-danger btn-logout">Cerrar sesión</button>

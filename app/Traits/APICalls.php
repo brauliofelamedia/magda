@@ -20,7 +20,7 @@ trait APICalls
 
             $respondents = $authResponse->json('data.account.respondents.edges');
             return $respondents;
-        
+
         } catch (\Exception $e) {
             dd($e->getMessage());
         }
@@ -35,35 +35,35 @@ trait APICalls
                 'Authorization' => 'Bearer ' . $config->token,
                 'Content-Type' => 'application/json'
             ])->post('https://api.gr8pi.com/api/v1/questionnaire-scheduling', [
-                'query' => '{ 
-                    account(id: 243576) { 
-                        respondents(first: 100, after: "CURSOR") { 
-                            edges { 
-                                node { 
-                                    id 
-                                    firstName 
-                                    lastName 
-                                    email 
+                'query' => '{
+                    account(id: 243576) {
+                        respondents(first: 100, after: "CURSOR") {
+                            edges {
+                                node {
+                                    id
+                                    firstName
+                                    lastName
+                                    email
                                 }
-                                cursor 
+                                cursor
                             }
-                            pageInfo { 
-                                startCursor 
-                                endCursor 
-                                hasPreviousPage 
-                                hasNextPage 
+                            pageInfo {
+                                startCursor
+                                endCursor
+                                hasPreviousPage
+                                hasNextPage
                             }
                             totalCount
                             indexFrom
                             indexTo
-                        } 
-                    } 
+                        }
+                    }
                 }'
             ]);
 
             $respondents = $authResponse->json('data.account.respondents.edges');
             return $respondents;
-        
+
         } catch (\Exception $e) {
             dd($e->getMessage());
         }
@@ -72,7 +72,7 @@ trait APICalls
     public function startEvaluation($id,$token,$lang)
     {
         $config = Config::latest()->first();
-        
+
         try {
             $authResponse = Http::withHeaders([
                 'Accept'        => 'application/json',
@@ -139,7 +139,7 @@ trait APICalls
 
             $data = $authResponse->json();
             return $data['data']['createAssessment']['assessment']['id'];
-        
+
         } catch (\Exception $e) {
             dd($e->getMessage());
         }
@@ -165,7 +165,7 @@ trait APICalls
 
             $assessments = $authResponse->json('data.inviteRespondentTakeAssessment.assessment.id');
             return $assessments;
-        
+
         } catch (\Exception $e) {
             dd($e->getMessage());
         }
@@ -205,10 +205,10 @@ trait APICalls
                     'accountId' => 243576,
                 ]
             ]);
-        
+
             $assessment = $authResponse->json('data.account.assessment');
             return $assessment;
-        
+
         } catch (\Exception $e) {
             dd($e->getMessage());
         }
@@ -234,11 +234,11 @@ trait APICalls
 
             $data = $authResponse->json('data.assessment_submit.id');
             return $data;
-          
+
         } catch (\Exception $e) {
             return $e->getMessage();
         }
-        
+
     }
 
     public function updateAnswers($assessmentId,$token,$responses)
@@ -305,10 +305,10 @@ trait APICalls
                     'respondentId' => $respondentId
                 ]
             ]);
-        
+
             $assessments = $authResponse->json('data.account.respondent.timeline.edges');
             return $assessments;
-        
+
         } catch (\Exception $e) {
             dd($e->getMessage());
         }
@@ -393,7 +393,7 @@ trait APICalls
             //Apunta al contenido que incluye "behavior,cognitive,interests".
             $assessmentData = $authResponse->json('data.assessment.content');
 
-            return $assessmentData; 
+            return $assessmentData;
 
         } catch (\Exception $e) {
             dd($e->getMessage());
@@ -424,12 +424,18 @@ trait APICalls
                 ]
             ]);
 
-            //$userId = $authResponse->json('data.createRespondent.respondent.id');
-            $userId = $authResponse->json('data.createRespondent.respondent');
-            return $userId;
+            $data = $authResponse->json();
+            $userId = $authResponse->json('data.createRespondent.respondent.id');
+            $errors = $authResponse->json('errors');
+
+            /*$data = [
+                'errors' => $errors[0]['message'],
+                'userId' => $userId
+            ];*/
+            return $data;
 
         } catch (\Exception $e) {
-            dd($e->getMessage());
+            return $e->getMessage();
         }
     }
 
@@ -500,23 +506,23 @@ trait APICalls
                 'Authorization' => 'Bearer ' . $config->token,
                 'Content-Type' => 'application/json'
             ])->post('https://api.gr8pi.com/api/v1/questionnaire-scheduling', [
-                'query' => '{ 
-                    account(id: 243576) { 
-                        assessmentTemplates { 
-                            edges { 
-                                node { 
+                'query' => '{
+                    account(id: 243576) {
+                        assessmentTemplates {
+                            edges {
+                                node {
                                     id
-                                    title 
-                                } 
-                            } 
-                        } 
-                    } 
+                                    title
+                                }
+                            }
+                        }
+                    }
                 }'
             ]);
 
             $respondents = $authResponse->json('data.account.respondents.edges');
             return $respondents;
-        
+
         } catch (\Exception $e) {
             dd($e->getMessage());
         }
@@ -537,8 +543,8 @@ trait APICalls
                 'operationName' => 'createSuperLink',
                 'variables' => [
                     'input' => [
-                        'name' => 'Nombre del Superlink', 
-                        'description' => 'Descripción del Superlink', 
+                        'name' => 'Nombre del Superlink',
+                        'description' => 'Descripción del Superlink',
                         'notes' => 'Notas adicionales (opcional)',
                         'assessmentTemplateId' => $idTemplate,
                         'accountId' => '243576',
@@ -590,7 +596,7 @@ trait APICalls
                 $responseData = $authResponse->json();
                 $scheduleId = $responseData['data']['scheduleQuestionnaire']['id'];
             }
-        
+
         } catch (\Exception $e) {
             dd($e->getMessage());
         }

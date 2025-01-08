@@ -13,7 +13,12 @@
                 <h2 class="text-center fw-700 c-blue">Reiniciar contraseña</h2>
             </div>
             <div class="col-md-4 offset-md-4">
-                <form action="{{ route('login') }}" class="login" method="POST">
+                @if (session('success'))
+                    <div class="alert alert-success">
+                        {{ session('success') }}
+                    </div>
+                @endif
+                <form action="{{ route('users.password.reset') }}" class="login" method="POST">
                     @csrf
                     <div class="form-group">
                         <input type="text" name="email" class="form-control @error('email') is-invalid @enderror" placeholder="Correo electrónico" value="{{ old('email') }}" required autocomplete="email" autofocus>

@@ -96,7 +96,7 @@
                                                 </div>
                                             </div>
                                             <div class="row">
-                                                @if(Auth::user()->hasRole('institution'))
+                                                @if($user->hasRole('institution'))
                                                     <div class="row" id="institution_name">
                                                         <div class="col-xl-12">
                                                             <div class="form-group">
@@ -122,31 +122,32 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                            @hasanyrole('administrator|coordinator')
-                                                <div class="form-group">
-                                                    <label for="user_id">Asignar a un instituto:</label>
-                                                    <select name="user_id" id="user_id" class="form-control">
-                                                        <option value="">-- Selecciona a quien sera asignado el usuario --</option>
-                                                        @foreach($institutes as $institute)
-                                                            <option value="{{$institute->id}}" @if($institute->id == $user->user_id) selected @endif>{{$institute->name}}</option>
-                                                        @endforeach
-                                                    </select>
-                                                </div>
-                                            @endhasanyrole
+                                            @if(!$user->hasRole('institution'))
+                                                @hasanyrole('administrator|coordinator')
+                                                    <div class="form-group">
+                                                        <label for="user_id">Asignar a un instituto:</label>
+                                                        <select name="user_id" id="user_id" class="form-control">
+                                                            <option value="">-- Selecciona a quien sera asignado el usuario --</option>
+                                                            @foreach($institutes as $institute)
+                                                                <option value="{{$institute->id}}" @if($institute->id == $user->user_id) selected @endif>{{$institute->name_institution}}</option>
+                                                            @endforeach
+                                                        </select>
+                                                    </div>
+                                                @endhasanyrole
+                                            @endif
                                             @hasanyrole('institution|administrator|coordinator')
                                                 <div class="form-group">
                                                     <label for="role">Rol de usuario:</label>
                                                     <select name="role" id="role" class="form-control" @if(Auth()->user()->id == $user->id) readonly @endif>
-                                                        <option value="">-- Selecciona el rol para el usuario --</option>
                                                         @role('administrator')
-                                                            <option value="administrator" @if(Auth()->user()->hasRole('administrator')) selected @endif>Administrator</option>
-                                                            <option value="coordinator" @if(Auth()->user()->hasRole('coordinator')) selected @endif>Coordinador</option>
-                                                            <option value="institution" @if(Auth()->user()->hasRole('institution')) selected @endif>Institución</option>
-                                                            <option value="respondent" @if(Auth()->user()->hasRole('respondent')) selected @endif>Evaluado</option>
+                                                            <option value="">-- Selecciona el rol para el usuario --</option>
+                                                            <option value="administrator" @if(Auth()->user()->id != $user->id && $user->hasRole('administrator')) selected @endif>Administrator</option>
+                                                            <option value="coordinator" @if(Auth()->user()->id != $user->id && $user->hasRole('coordinator')) selected @endif>Coordinador</option>
+                                                            <option value="institution" @if(Auth()->user()->id != $user->id && $user->hasRole('institution')) selected @endif>Institución</option>
+                                                            <option value="respondent" @if(Auth()->user()->id != $user->id && $user->hasRole('respondent')) selected @endif>Evaluado</option>
                                                         @endrole
                                                         @role('institution')
-                                                            <option value="coordinator" @if(Auth()->user()->hasRole('coordinator')) selected @endif>Coordinador</option>
-                                                            <option value="respondent" @if(Auth()->user()->hasRole('respondent')) selected @endif>Evaluado</option>
+                                                            <option value="institution" @if(Auth()->user()->hasRole('institution')) selected @endif>Institución</option>
                                                         @endrole
                                                         @role('respondent')
                                                             <option value="respondent" @if(Auth()->user()->hasRole('respondent')) selected @endif>Evaluado</option>
@@ -176,7 +177,7 @@
                                         </form>
                                     </div>
                                 </div>
-                                
+
                             </div>
                         </div>
                     </div>

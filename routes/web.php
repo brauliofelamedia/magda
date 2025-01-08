@@ -28,6 +28,8 @@ Route::get('/home', function () {
 Route::get('/',[DashboardController::class,'index'])->name('index');
 
 //Rutas protegidas
+Route::post('users/reset', [UserController::class, 'resetPassword'])->name('users.password.reset');
+
 Route::prefix('dashboard')->middleware('auth')->group(function () {
     Route::get('/', [DashboardController::class, 'welcome'])->name('dashboard.welcome');
     Route::get('/syncUsers', [DashboardController::class, 'syncUsers'])->name('dashboard.sync');
@@ -49,7 +51,7 @@ Route::prefix('dashboard')->middleware('auth')->group(function () {
     });
 
     //Users
-    Route::post('/users/email/welcome', [UserController::class, 'sendEmailWelcome'])->name('users.email.welcome');
+    Route::post('users/email/welcome', [UserController::class, 'sendEmailWelcome'])->name('users.email.welcome');
     Route::resource('users',UserController::class);
 
     //Reports

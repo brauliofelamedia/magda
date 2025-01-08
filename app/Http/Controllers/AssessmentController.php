@@ -2,13 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\SendCreateUser;
 use App\Models\Assessment;
 use App\Models\Notification;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Traits\APICalls;
 use Illuminate\Support\Facades\Auth;
-
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Mail;
 class AssessmentController extends Controller
 {
     use APICalls;
@@ -85,31 +87,40 @@ class AssessmentController extends Controller
         return response()->json([
             'success' => 'Se ha enviado correctamente el correo para hacer la evaluación, revisa tu bandeja de entrada / SPAM.',
             'data' => $data,
-        ], 200); 
+        ], 200);
     }
 
     public function createNewUser(Request $request)
     {
         //Creamos el usuario en la plataforma
-        //dd($request->all());
-        $account_id = $this->createUser($request->name,$request->lastname,$request->email,$request->gender,$request->locale);
-        dd($account_id);
-
-        if($account_id){
+        $data = $this->createUser($request->name,$request->lastname,$request->email,$request->gender,$request->locale);
+        if($data['data']['createRespondent']){
             //Creamos el usuario en la base de datos
             $user = new User();
             $user->name = $request->name;
             $user->last_name = $request->lastname;
             $user->email = $request->email;
             $user->lang = $request->locale;
+            $user->user_id = $request->user_id;
+            $user->account_id = $data['data']['createRespondent']['respondent']['id'];
             $user->password = bcrypt($request->password);
-            $user->account_id = $account_id;
             $user->assignRole($request->role);
             $user->save();
 
-            if($request->name_institution && $request->role == 'institution'){
-                $user->user_id = Auth::user()->id;
+            //Generate password / Save passwords
+            if($request->password){
+
+                $user->password = bcrypt($request->password);
                 $user->save();
+                Mail::to($user->email)->send(new SendCreateUser($user,$request->password));
+
+            } else {
+
+                $passwordRandom = Str::random(10);
+                $user->password = bcrypt($passwordRandom);
+                $user->save();
+
+                Mail::to($user->email)->send(new SendCreateUser($user,$passwordRandom));
             }
 
             if($request->name_institution){
@@ -119,8 +130,9 @@ class AssessmentController extends Controller
 
             return redirect()->back()->with('success','Se ha creado el usuario correctamente.');
         } else {
-            return redirect()->back()->with('error','Ha ocurrido un error al dar de alta al usuario');
+
+            return redirect()->back()->with('error',$data['errors'][0]['message']);
          }
-        
+
     }
 }

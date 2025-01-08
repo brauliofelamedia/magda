@@ -8,7 +8,7 @@ use Ramsey\Uuid\Uuid;
 return new class extends Migration
 {
     public $incrementing = false;
-    protected $primaryKey = 'uuid'; 
+    protected $primaryKey = 'uuid';
 
     public function up(): void
     {

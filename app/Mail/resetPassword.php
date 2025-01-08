@@ -9,38 +9,33 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class Welcome extends Mailable
+class resetPassword extends Mailable
 {
     use Queueable, SerializesModels;
-    public $user;
 
-    public function __construct($user)
+    public function __construct(private $user, private $password)
     {
-        $this->user = $user;
     }
 
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Te compartimos los accesos a nuestra plataforma',
+            subject: 'Reinicio de contraseña',
         );
     }
 
-    /**
-     * Get the message content definition.
-     */
     public function content(): Content
     {
         return new Content(
-            view: 'emails.welcome',
+            view: 'emails.reset',
+            with: [
+                'name' => $this->user->name,
+                'email' => $this->user->email,
+                'password' => $this->password,
+            ],
         );
     }
 
-    /**
-     * Get the attachments for the message.
-     *
-     * @return array<int, \Illuminate\Mail\Mailables\Attachment>
-     */
     public function attachments(): array
     {
         return [];

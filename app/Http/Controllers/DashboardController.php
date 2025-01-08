@@ -40,7 +40,7 @@ class DashboardController extends Controller
                 $user->user_id = 4;
                 $user->save();
             }
-            
+
         }
 
         return redirect()->back()->with('success','Se ha sincronizado los usuarios.');
@@ -48,16 +48,19 @@ class DashboardController extends Controller
 
     public function welcome(){
         $locales = config('languages.locales');
+        $institutions = User::whereHas('roles', function ($query) {
+            $query->where('name', 'institution');
+        })->get();
 
         if(Auth::user()->hasRole('administrator')){
             $users = User::all();
         } else if(Auth::user()->hasRole('institution')){
-            $users = User::where('user_id',auth()->user()->id)->role(['respondent']);
+            $users = User::where('user_id',Auth::user()->id)->role(['respondent'])->get();
         } else if(Auth::user()->hasRole('respondent')){
             return view('dashboard.assessments.welcome');
         }
 
-        return view('dashboard.index',compact('users','locales'));
+        return view('dashboard.index',compact('users','locales','institutions'));
     }
 
     public function remove_notification(Request $request)
