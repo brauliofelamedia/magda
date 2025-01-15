@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\AssignEvaluate;
 use App\Mail\SendCreateUser;
 use App\Models\Assessment;
 use App\Models\Notification;
@@ -38,7 +39,17 @@ class AssessmentController extends Controller
     public function startEvaluate($respondentId,$id,$token,$lang)
     {
         $id_return = $this->startEvaluation($id,$token,$lang);
-        return redirect()->route('assessments.continue',[$respondentId,$id_return,$token,$lang]);
+
+        //Get user
+        $user = User::where('account_id',$respondentId)->first();
+        $url = route('assessments.continue',[$respondentId,$id_return,$token,$lang]);
+
+        if(Auth::user()->hasRole('institution')){
+            Mail::to($user->email)->send(new AssignEvaluate($user,$url));
+            return redirect()->route('assessments.index',$respondentId);
+        } else {
+            return redirect()->route('assessments.continue',[$respondentId,$id_return,$token,$lang]);
+        }
     }
 
     public function updateAnswersAssessment(Request $request)

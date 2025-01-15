@@ -7,7 +7,7 @@
     .mt-10 {
         margin-top: 70px!important;
     }
-    
+
     .info-modal {
         background-color: #ececec;
         border-radius: 10px;
@@ -117,54 +117,57 @@
                                 @endhasanyrole
                                 <hr>
                                 @if(($assesments))
-                                <div class="table-responsive">
-                                    <table class="table">
-                                        <thead>
-                                        <tr>
-                                            <th scope="col" class="hidden-media">#</th>
-                                            <th scope="col" class="hidden-media">Iniciada</th>
-                                            <th scope="col">Estatus</th>
-                                            <th scope="col">Acciones</th>
-                                        </tr>
-                                        </thead>
-                                        <tbody>
-                                            @foreach($assesments as $assesment)
-                                                @php
-                                                    $start = \Carbon\Carbon::parse($assesment['node']['startedOn']);
-                                                    $submit = \Carbon\Carbon::parse($assesment['node']['submittedOn']);
-                                                @endphp
-                                                <tr>
-                                                    <th class="hidden-media" scope="row">{{$assesment['node']['id']}}</th>
-                                                    <td class="hidden-media">{{$start->format('d-m-Y')}}</td>
-                                                    <td><strong>{{$assesment['node']['status']}}</strong></td>
-                                                    <td>
-                                                        @if(!$assesment['node']['status'] == 'EXPIRED' OR !$assesment['node']['status'] == 'SUBMITTED')
-                                                            <a class="btn btn-primary click-send-email" data-assesment="{{$assesment['node']['id']}}" @if($assesment['node']['status'] != 'EXPIRED') @else disabled @endif>Solicitar evaluación</a>
-                                                        @elseif($assesment['node']['status'] == 'STARTED')
-                                                            <a class="btn btn-continue" href="{{route('assessments.continue',[$id,$assesment['node']['id'],$assesment['node']['token'],$assesment['node']['locale']])}}">Continuar</a>
-                                                        @elseif($assesment['node']['status'] == 'EXPIRED')
-                                                            <a class="btn btn-danger btn-disabled btn-caducade btn-xs" href="#" disabled>Caducado</a>
-                                                        @endif
-                                                        @if($assesment['node']['status'] == 'FINISHED' OR $assesment['node']['status'] == 'SUBMITTED')
-                                                            <a class="btn btn-success" href="{{route('assessments.finish',$assesment['node']['id'])}}">Resultados</a>
-                                                        @endif
-                                                    </td>
-                                                </tr>
-                                            @endforeach
-                                        </tbody>
-                                    </table>
-                                </div>
+                                    <div class="table-responsive">
+                                        <table class="table">
+                                            <thead>
+                                            <tr>
+                                                <th scope="col" class="hidden-media">#</th>
+                                                <th scope="col" class="hidden-media">Iniciada</th>
+                                                <th scope="col">Estatus</th>
+                                                <th scope="col">Acciones</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach($assesments as $assesment)
+                                                    @php
+                                                        $start = \Carbon\Carbon::parse($assesment['node']['startedOn']);
+                                                        $submit = \Carbon\Carbon::parse($assesment['node']['submittedOn']);
+                                                    @endphp
+                                                    <tr>
+                                                        <th class="hidden-media" scope="row">{{$assesment['node']['id']}}</th>
+                                                        <td class="hidden-media">{{$start->format('d-m-Y')}}</td>
+                                                        <td><strong>{{$assesment['node']['status']}}</strong></td>
+                                                        <td>
+                                                            @if(!$assesment['node']['status'] == 'EXPIRED' OR !$assesment['node']['status'] == 'SUBMITTED')
+                                                                <a class="btn btn-primary click-send-email" data-assesment="{{$assesment['node']['id']}}" @if($assesment['node']['status'] != 'EXPIRED') @else disabled @endif>Solicitar evaluación</a>
+                                                            @elseif($assesment['node']['status'] == 'STARTED')
+                                                                <a class="btn btn-continue" href="{{route('assessments.continue',[$id,$assesment['node']['id'],$assesment['node']['token'],$assesment['node']['locale']])}}">Continuar</a>
+                                                            @elseif($assesment['node']['status'] == 'EXPIRED')
+                                                                <a class="btn btn-danger btn-disabled btn-caducade btn-xs" href="#" disabled>Caducado</a>
+                                                            @endif
+                                                            @if($assesment['node']['status'] == 'FINISHED' OR $assesment['node']['status'] == 'SUBMITTED')
+                                                                <a class="btn btn-success" href="{{route('assessments.finish',$assesment['node']['id'])}}">Resultados</a>
+                                                            @endif
+                                                        </td>
+                                                    </tr>
+                                                @endforeach
+                                            </tbody>
+                                        </table>
+                                    </div>
                                 @else
-                                 <p class="text-center">El usuario no tiene evaluaciones</p>
+                                    <p class="text-center">El usuario no tiene evaluaciones</p>
                                 @endif
-                                <div class="text-center">
-                                    @hasrole('respondent')
-                                        <a href="{{route('assessments.new',[Auth::user()->account_id,Auth::user()->lang])}}" class="btn btn-primary">Iniciar Nueva Evaluación</a>
-                                        <a href="{{route('dashboard.welcome')}}" class="btn btn-secondary">Regresar</a>
-                                    @else
-                                        <a href="{{route('dashboard.welcome')}}" class="btn btn-secondary">Regresar</a>
-                                    @endhasrole
-                                </div>
+                                    <div class="text-center">
+                                        @hasrole('respondent')
+                                            <a href="{{route('assessments.new',[Auth::user()->account_id,Auth::user()->lang])}}" class="btn btn-primary">Iniciar nueva evaluación</a>
+                                            <a href="{{route('dashboard.welcome')}}" class="btn btn-secondary">Regresar</a>
+                                        @elseif('institution')
+                                            <a href="{{route('assessments.new',[$user->account_id,Auth::user()->lang])}}" class="btn btn-primary">Asignar una evaluación</a>
+                                            <a href="{{route('dashboard.welcome')}}" class="btn btn-secondary">Regresar</a>
+                                        @else
+                                            <a href="{{route('dashboard.welcome')}}" class="btn btn-secondary">Regresar</a>
+                                        @endhasrole
+                                    </div>
                             </div>
                         </div>
                     </div>
@@ -224,7 +227,7 @@
                             const element = $(`<div class="col-md-4">`).html(`<div class="info-modal"><h5 class="text-center displayName">${value.displayName}</h5><p class="rawScore text-center">${value.rawScore}</p></div>`);
                             $('.data-container').append(element);
                             $('.wait').css('display','none');
-                            
+
                         });
 
                         //Rellenar boton de descarga

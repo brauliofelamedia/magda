@@ -47,6 +47,7 @@ class DashboardController extends Controller
     }
 
     public function welcome(){
+        //dd(Auth::user()->roles);
         $locales = config('languages.locales');
         $institutions = User::whereHas('roles', function ($query) {
             $query->where('name', 'institution');
@@ -56,6 +57,7 @@ class DashboardController extends Controller
             $users = User::all();
         } else if(Auth::user()->hasRole('institution')){
             $users = User::where('user_id',Auth::user()->id)->role(['respondent'])->get();
+
         } else if(Auth::user()->hasRole('respondent')){
             return view('dashboard.assessments.welcome');
         }

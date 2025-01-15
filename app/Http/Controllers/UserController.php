@@ -35,7 +35,7 @@ class UserController extends Controller
         $user->name = $request->name;
         $user->email = $request->email;
         $user->user_id = $request->user_id;
-        $user->assignRole($request->role);
+        $user->syncRoles($request->role);
 
         if($request->name_institution){
             $user->name_institution = $request->name_institution;
