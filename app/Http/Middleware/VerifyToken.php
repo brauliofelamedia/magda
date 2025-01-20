@@ -44,13 +44,13 @@ class VerifyToken
             ]);
 
             $token = $authResponse->json('data.generateToken');
-            
+
             //Guardamos el token en tabla
-            $config = Config::updateOrCreate(
-                ['token' => $token['token']],
-                ['refreshToken' => $token['refreshToken']]
-            );
-            
+            $config = Config::first();
+            $config->token = $token['token'];
+            $config->refreshToken = $token['refreshToken'];
+            $config->save();
+
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
