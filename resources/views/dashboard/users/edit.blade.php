@@ -109,13 +109,19 @@
                                                         <h5>Representante legal:</h5>
                                                     </div>
                                                 @endif
-                                                <div class="col-md-6">
+                                                <div class="col-lg-4">
                                                     <div class="form-group">
                                                         <label for="name">Nombre:</label>
                                                         <input type="text" id="name" name="name" class="form-control" value="{{$user->name}}" autocomplete="false">
                                                     </div>
                                                 </div>
-                                                <div class="col-md-6">
+                                                <div class="col-lg-4">
+                                                    <div class="form-group">
+                                                        <label for="last_name">Apellidos:</label>
+                                                        <input type="text" id="last_name" name="last_name" class="form-control" value="{{$user->last_name}}" autocomplete="false">
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-4">
                                                     <div class="form-group">
                                                         <label for="email">Correo electrónico:</label>
                                                         <input type="email" id="email" name="email" class="form-control" value="{{$user->email}}" @if(Auth()->user()->hasRole('respondent')) readonly @endif>

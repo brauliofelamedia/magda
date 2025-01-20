@@ -33,6 +33,7 @@ class UserController extends Controller
         ]);
 
         $user->name = $request->name;
+        $user->last_name = $request->last_name;
         $user->email = $request->email;
         $user->user_id = $request->user_id;
         $user->syncRoles($request->role);
