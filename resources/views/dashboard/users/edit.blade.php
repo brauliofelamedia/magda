@@ -147,10 +147,10 @@
                                                     <select name="role" id="role" class="form-control" @if(Auth()->user()->id == $user->id) readonly @endif>
                                                         @role('administrator')
                                                             <option value="">-- Selecciona el rol para el usuario --</option>
-                                                            <option value="administrator" @if(Auth()->user()->id != $user->id && $user->hasRole('administrator')) selected @endif>Administrator</option>
-                                                            <option value="coordinator" @if(Auth()->user()->id != $user->id && $user->hasRole('coordinator')) selected @endif>Coordinador</option>
-                                                            <option value="institution" @if(Auth()->user()->id != $user->id && $user->hasRole('institution')) selected @endif>Institución</option>
-                                                            <option value="respondent" @if(Auth()->user()->id != $user->id && $user->hasRole('respondent')) selected @endif>Evaluado</option>
+                                                            <option value="administrator" @if($user->hasRole('administrator')) selected @endif>Administrator</option>
+                                                            <option value="coordinator" @if($user->hasRole('coordinator')) selected @endif>Coordinador</option>
+                                                            <option value="institution" @if($user->hasRole('institution')) selected @endif>Institución</option>
+                                                            <option value="respondent" @if($user->id && $user->hasRole('respondent')) selected @endif>Evaluado</option>
                                                         @endrole
                                                         @role('institution')
                                                             <option value="institution" @if(Auth()->user()->hasRole('institution')) selected @endif>Institución</option>
