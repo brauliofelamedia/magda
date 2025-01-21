@@ -82,10 +82,13 @@ class UserController extends Controller
             $passwordRandom = Str::random(8);
             $user->password = Hash::make($passwordRandom);
             $user->save();
-
             Mail::to($user->email)->send(new resetPassword($user,$passwordRandom));
         }
 
-        return redirect()->back()->with('success', 'Si el correo coincide con nuestro registro, se te enviara una contraseña.');
+        if($request->type == 'reset_admin'){
+            return redirect()->back()->with('success', 'Se ha enviado correctamente el correo de invitación.');
+        } else {
+            return redirect()->back()->with('success', 'Si el correo coincide con nuestro registro, se te enviara una contraseña.');
+        }
     }
 }

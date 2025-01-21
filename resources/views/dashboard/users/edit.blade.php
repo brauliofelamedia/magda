@@ -9,6 +9,17 @@
         font-size: 16px;
     }
 
+    .btn-invitate {
+        background-color: #023862;
+        color: white;
+        margin: 15px 0;
+    }
+
+    .btn-invitate:hover {
+        color: white;
+        background-color: #02487e;
+    }
+
     p {
         font-size: 16px!important;
     }
@@ -181,6 +192,15 @@
                                             <button type="submit" class="btn btn-primary btn-big btn-block" style="background: #0DC863;border:0;margin-bottom:5px;">Guardar cambios</button>
                                             <a href="{{route('dashboard.welcome')}}" class="text-center btn btn-big btn-danger btn-block">Regresar</a>
                                         </form>
+                                        @hasrole('administrator')
+                                            <form action="{{route('users.password.reset')}}" id="send-email-form" method="post">
+                                                @csrf
+                                                <input type="hidden" name="email" value="{{$user->email}}">
+                                                <input type="hidden" name="type" value="reset_admin">
+                                                <a class="btn btn-xs btn-invitate send-email"><i class="fas fa-envelope"></i> Reenviar correo de invitación</a>
+                                                <button type="submit" style="display: none;"></button>
+                                            </form>
+                                        @endhasrole
                                     </div>
                                 </div>
 
@@ -207,4 +227,29 @@
 @endsection
 
 @push('js')
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    $(document).ready(function(){
+        $('.send-email').on('click', function(){
+            Swal.fire({
+                title: "¿Estas seguro?",
+                text: "Se enviará un correo de acceso al usuario y se reiniciará la contraseña.",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "¡Si, estoy seguro!"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $('#send-email-form').submit();
+                    Swal.fire({
+                        title: "Envió exitoso",
+                        text: "Espera un momento...",
+                        icon: "success"
+                    });
+                }
+            });
+        });
+    });
+</script>
 @endpush
