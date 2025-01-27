@@ -243,9 +243,10 @@
                 if (result.isConfirmed) {
                     $('#send-email-form').submit();
                     Swal.fire({
-                        title: "Envió exitoso",
+                        title: "Enviando",
                         text: "Espera un momento...",
-                        icon: "success"
+                        icon: "warning",
+                        showConfirmButton: false,
                     });
                 }
             });

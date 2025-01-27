@@ -85,6 +85,7 @@ class User extends Authenticatable
 
     public function getRolAttribute()
     {
+        $rol = '';
         foreach ($this->getRoleNames() as $role){
             $rol = $role;
         }

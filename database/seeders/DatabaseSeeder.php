@@ -34,19 +34,19 @@ class DatabaseSeeder extends Seeder
 
         $config = new Config();
         $config->save();
-        
+
         $user = new User();
         $user->name = 'Braulio Miramontes';
         $user->email = 'braulio@felamedia.com';
         $user->password = bcrypt('password');
-        $user->assignRole('administrator'); 
+        $user->assignRole('administrator');
         $user->save();
 
         $user = new User();
         $user->name = 'Jorge Fela';
         $user->email = 'jorge@felamedia.com';
         $user->password = bcrypt('password');
-        $user->assignRole('administrator'); 
+        $user->assignRole('administrator');
         $user->save();
 
         $user = new User();
@@ -60,7 +60,7 @@ class DatabaseSeeder extends Seeder
         $user->name = 'Institution';
         $user->email = 'institution@example.com';
         $user->password = bcrypt('password');
-        $user->assignRole('institution'); 
+        $user->assignRole('institution');
         $user->save();
 
     }

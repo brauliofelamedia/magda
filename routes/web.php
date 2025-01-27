@@ -33,6 +33,8 @@ Route::post('users/reset', [UserController::class, 'resetPassword'])->name('user
 Route::prefix('dashboard')->middleware('auth')->group(function () {
     Route::get('/', [DashboardController::class, 'welcome'])->name('dashboard.welcome');
     Route::get('/syncUsers', [DashboardController::class, 'syncUsers'])->name('dashboard.sync');
+    Route::get('/import', [DashboardController::class, 'import'])->name('dashboard.import');
+    Route::post('/import/process', [DashboardController::class, 'import_process'])->name('dashboard.process.import');
     Route::post('remove-notification', [DashboardController::class, 'remove_notification'])->name('dashboard.remove.notification');
 
     //Tools

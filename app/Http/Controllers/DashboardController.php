@@ -3,11 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\DataTables\UsersDataTable;
+use App\Imports\UsersImport;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Traits\APICalls;
 use App\Models\Notification;
 use App\Models\User;
+use Maatwebsite\Excel\Facades\Excel;
 
 class DashboardController extends Controller
 {
@@ -63,6 +65,17 @@ class DashboardController extends Controller
         }
 
         return view('dashboard.index',compact('users','locales','institutions'));
+    }
+
+    public function import()
+    {
+        return view('dashboard.import');
+    }
+
+    public function import_process(Request $request)
+    {
+        Excel::import(new UsersImport, $request->file('file'));
+        return redirect()->back()->with('success', 'Se ha importado correctamente los usuarios.');
     }
 
     public function remove_notification(Request $request)

@@ -7,7 +7,7 @@
     .mt-10 {
         margin-top: 70px!important;
     }
-    
+
     .info-modal {
         background-color: #ececec;
         border-radius: 10px;
