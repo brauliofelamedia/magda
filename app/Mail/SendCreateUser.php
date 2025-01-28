@@ -16,8 +16,13 @@ class SendCreateUser extends Mailable
 {
     use Queueable, SerializesModels, MailerSendTrait;
 
-    public function __construct(private $user, private $password)
+    public $user;
+    public $password;
+
+    public function __construct( $user,$password)
     {
+        $this->user = $user;
+        $this->password = $password;
     }
 
     public function envelope(): Envelope
@@ -29,22 +34,14 @@ class SendCreateUser extends Mailable
 
     public function content()
     {
-        // Additional options for MailerSend API features
-        $this->mailersend(
-            template_id: 'ynrw7gyxvynl2k8e',
-            personalization: [
-                new Personalization($this->user->email, [
-                    'name' => $this->user->name,
-                    'email' => $this->user->email,
-                    'institution' => $this->user->name_institution,
-                    'password' => $this->password,
-                ])
-            ],
-            precedenceBulkHeader: true,
-        );
-
         return new Content(
-            view: 'emails.create',
+            view: 'emails.reset',
+            with: [
+                'name' => $this->user->name,
+                'email' => $this->user->email,
+                'institution' => $this->user->name_institution,
+                'password' => $this->password,
+            ],
         );
     }
 
