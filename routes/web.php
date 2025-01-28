@@ -49,6 +49,7 @@ Route::prefix('dashboard')->middleware('auth')->group(function () {
         Artisan::call('config:clear');
         Artisan::call('route:clear');
         Artisan::call('view:clear');
+        Artisan::call('optimize:clear');
         return response()->json(['message' => 'Se han limpiado todas las caches.']);
     });
 
