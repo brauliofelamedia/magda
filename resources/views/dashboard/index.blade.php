@@ -179,8 +179,7 @@
                             <p>Si se deja en blanco, se generará una contraseña aleatoria.</p>
                         </div>
                     </div>
-
-                    <button type="submit" class="btn btn-success">Registrar usuario</button>
+                    <button type="submit" class="btn btn-success send-email">Registrar usuario</button>
                 </form>
             </div>
             <div class="modal-footer">
@@ -241,7 +240,7 @@
                                         <div class="btn-group text-center" role="group">
                                             <a  href="{{route('dashboard.sync')}}" class="btn btn-warning"><i class="fas fa-sync"></i> Sincronizar usuarios</a>
                                         </div>
-                                        <div class="btn-group text-center" role="group">
+                                        <div class="btn-group text-center" role="group" style="display: none;">
                                             <a  href="{{route('dashboard.import')}}" class="btn btn-info"><i class="fas fa-file-import"></i> Importar usuarios</a>
                                         </div>
                                     @endhasrole
@@ -310,6 +309,19 @@
                 legalTitle.hide();
                 inputInstitution.hide()
             }
+        });
+    });
+</script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    $(document).ready(function(){
+        $('.send-email').on('click', function(){
+            Swal.fire({
+                title: "Registrando usuario",
+                text: "Espera un momento...",
+                icon: "warning",
+                showConfirmButton: false,
+            });
         });
     });
 </script>

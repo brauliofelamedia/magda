@@ -13,6 +13,7 @@
         "laravel/tinker": "^2.8",
         "laravel/ui": "^4.5",
         "maatwebsite/excel": "^3.1",
+        "mailersend/laravel-driver": "^2.7",
         "ramsey/uuid": "^4.7",
         "sentry/sentry-laravel": "^4.10",
         "spatie/laravel-permission": "^6.7",
