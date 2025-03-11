@@ -64,6 +64,11 @@ class User extends Authenticatable
         return $this->hasOne(User::class,'id','user_id');
     }
 
+    public function getLangAttribute($value)
+    {
+        return $value ?? 'es-ES';
+    }
+
     public function getFullNameAttribute()
     {
         if($this->name_institution){

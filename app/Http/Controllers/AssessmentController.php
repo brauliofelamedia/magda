@@ -28,8 +28,8 @@ class AssessmentController extends Controller
         return view('assessments.welcome');
     }
 
-    public function newEvaluation($respondentId, $locale)
-    {
+    public function newEvaluation($respondentId, $locale = 'es-ES')
+    {   
         $email = User::where('account_id',$respondentId)->first();
         $id_return = $this->createNewEvaluation($respondentId,$locale,array($email));
         $assesment = $this->getAssesment($id_return);
@@ -63,11 +63,12 @@ class AssessmentController extends Controller
 
     public function finish($id)
     {
-        $locale = 'es-PR';
-        $items = $this->getReportAssessment($id,$locale);
-        $reportPDF = $this->getReportAssessmentPDF($id,$locale);
         $user = Auth()->user();
-        return view('dashboard.users.finish',compact('items','reportPDF','user'));
+        $locale = 'es-ES';
+        $items = $this->getReportAssessment($id,$locale);
+        //$reports = $this->getReportInterestPDF($id,$locale);
+        $reports = $this->getReportAssessmentPDF($id,$locale);
+        return view('dashboard.users.finish',compact('items','reports','user'));
     }
 
     public function closeAssessment(Request $request)

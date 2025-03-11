@@ -35,7 +35,7 @@ class DashboardController extends Controller
                 $user->name = $respondent['node']['firstName'].' '.$respondent['node']['lastName'];
                 $user->email = $respondent['node']['email'];
                 $user->account_id = $respondent['node']['id'];
-                $user->lang = $respondent['node']['locale'];
+                $user->lang = $respondent['node']['locale'] ?? 'es-ES';
                 $user->platform = true;
                 $user->password = bcrypt('password');
                 $user->assignRole('respondent');

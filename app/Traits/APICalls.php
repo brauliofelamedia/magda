@@ -469,7 +469,7 @@ trait APICalls
         }
     }
 
-    public function getReportAssessmentPDF($respondentId,$locale)
+    public function getReportInterestPDF($respondentId,$locale)
     {
         $config = Config::latest()->first();
         try {
@@ -488,8 +488,73 @@ trait APICalls
                     ]
                 ]
             ]);
-
             $reports = $authResponse->json('data.generateStudentInterestsReport.url');
+            return $reports;
+
+        } catch (\Exception $e) {
+            dd($e->getMessage());
+        }
+    }
+
+    public function getReportAssessmentPDF($respondentId, $locale)
+    {
+        $config = Config::latest()->first();
+        $reports = [];
+
+        try {
+            // Get Interests Report
+            $interestsResponse = Http::withHeaders([
+                'Accept' => 'application/json',
+                'Authorization' => 'Bearer ' . $config->token,
+                'Content-Type' => 'application/json'
+            ])->post('https://api.gr8pi.com/api/v1/questionnaire-scheduling', [
+                'query' => 'mutation($input: ReportWithAssessmentGenericInput!) { generateStudentInterestsReport(input: $input) { url }}',
+                'variables' => [
+                    'input' => [
+                        'account' => 243576,
+                        'assessment' => $respondentId,
+                        'locale' => $locale,
+                        'printerFriendly' => true
+                    ]
+                ]
+            ]);
+            $reports['interests'] = $interestsResponse->json('data.generateStudentInterestsReport.url');
+
+            // Get Personality Report
+            $personalityResponse = Http::withHeaders([
+                'Accept' => 'application/json',
+                'Authorization' => 'Bearer ' . $config->token,
+                'Content-Type' => 'application/json'
+            ])->post('https://api.gr8pi.com/api/v1/questionnaire-scheduling', [
+                'query' => 'mutation($input: ReportWithAssessmentAndJobProfileInput!) { generateSummaryReport(input: $input) { url }}',
+                'variables' => [
+                    'input' => [
+                        'account' => 243576,
+                        'assessment' => $respondentId,
+                        'locale' => $locale,
+                        'printerFriendly' => true
+                    ]
+                ]
+            ]);
+            $reports['summary'] = $personalityResponse->json('data.generateSummaryReport.url');
+
+            // Get Individual Report
+            $individualResponse = Http::withHeaders([
+                'Accept' => 'application/json',
+                'Authorization' => 'Bearer ' . $config->token,
+                'Content-Type' => 'application/json'
+            ])->post('https://api.gr8pi.com/api/v1/questionnaire-scheduling', [
+                'query' => 'mutation($input: ReportWithAssessmentGenericInput!) { generateIndividualReport(input: $input) { url }}',
+                'variables' => [
+                    'input' => [
+                        'account' => 243576,
+                        'assessment' => $respondentId,
+                        'locale' => $locale,
+                        'printerFriendly' => true
+                    ]
+                ]
+            ]);
+            $reports['individual'] = $individualResponse->json('data.generateIndividualReport.url');
             return $reports;
 
         } catch (\Exception $e) {

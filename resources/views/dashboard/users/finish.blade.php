@@ -104,7 +104,9 @@
                                                 @endforeach
                                                 <div class="col-xl-12">
                                                     <canvas id="myChart"></canvas>
-                                                    <a href="{{$reportPDF}}" target="_blank" download class="text-center btn btn-info" style="margin-top:20px;color:white;background: #0DC863!important;">Descargar en PDF el resumen</a><br>
+                                                    <h4>Descargar:</h4>
+                                                    <a href="{{$reports['individual']}}" target="_blank" download class="text-center btn btn-info" style="margin-top:20px;color:white;background: #0DC863!important;">Informe Individual</a><br>
+                                                    <a href="{{$reports['interests']}}" target="_blank" download class="text-center btn btn-info" style="margin-top:20px;color:white;background: #0DC863!important;">Informe de Intereses de Orientación Profesional</a><br>
                                                     @if(!is_null($user->account_id))
                                                         <a href="{{route('assessments.index',$user->account_id)}}" class="btn btn-success" style="margin-top:20px;display: inline-block;">Regresar</a>
                                                     @else
