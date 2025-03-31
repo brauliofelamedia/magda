@@ -159,10 +159,10 @@
                                 @endif
                                     <div class="text-center">
                                         @hasrole('respondent')
-                                            <a href="{{route('assessments.new',[Auth::user()->account_id,Auth::user()->lang])}}" class="btn btn-primary">Iniciar nueva evaluación</a>
+                                            <a href="{{route('assessments.new',[Auth::user()->account_id,Auth::user()->lang ?? 'es-ES'])}}" class="btn btn-primary">Iniciar nueva evaluación</a>
                                             <a href="{{route('dashboard.welcome')}}" class="btn btn-secondary">Regresar</a>
                                         @elseif('institution')
-                                            <a href="{{route('assessments.new',[$user->account_id,Auth::user()->lang])}}" class="btn btn-primary">Asignar una evaluación</a>
+                                            <a href="{{route('assessments.new',[$user->account_id, Auth::user()->lang ?? 'es-ES'])}}" class="btn btn-primary">Asignar una evaluación</a>
                                             <a href="{{route('dashboard.welcome')}}" class="btn btn-secondary">Regresar</a>
                                         @else
                                             <a href="{{route('dashboard.welcome')}}" class="btn btn-secondary">Regresar</a>
