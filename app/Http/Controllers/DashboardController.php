@@ -70,7 +70,7 @@ class DashboardController extends Controller
             $users = $users->where('user_id', Auth::user()->id)->role(['respondent']);
         }
 
-        $users = $users->paginate(10);
+        $users = $users->paginate(10)->onEachSide(1);
         
         $locales = config('languages.locales');
         $institutions = User::whereHas('roles', function ($query) {

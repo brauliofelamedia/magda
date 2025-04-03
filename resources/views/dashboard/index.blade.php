@@ -114,6 +114,16 @@
         border: grey!important;
     }
 
+    /* Estilos para pantallas pequeñas */
+    @media (max-width: 768px) {
+        table td:nth-child(2),
+        table th:nth-child(2),
+        table td:nth-child(3),
+        table th:nth-child(3) {
+            display: none;
+        }
+    }
+
     /* Estilos para la paginación */
     .pagination .page-item.active .page-link {
         background-color: #f74219 !important;
@@ -314,7 +324,7 @@
                                 <h3 class="text-center">Usuarios</h3>
 
                                 <div class="row mb-3">
-                                    <div class="col-md-4">
+                                    <div class="col-xl-4 col-lg-6">
                                         @hasanyrole(['administrator','institution'])
                                         <div class="d-flex">
                                             <select name="category" id="category" class="form-control me-2">
@@ -337,7 +347,7 @@
                                         </div>
                                         @endhasanyrole
                                     </div>
-                                    <div class="col-md-4 offset-md-4">
+                                    <div class="col-xl-4 col-lg-6 offset-xl-4">
                                         <form action="{{ route('dashboard.welcome') }}" method="GET" class="d-flex">
                                             <input type="text" name="search" class="form-control" placeholder="Buscar por nombre..." value="{{ request('search') }}">
                                             <button type="submit" class="btn btn-primary ms-2">Buscar</button>
