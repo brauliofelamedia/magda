@@ -28,7 +28,8 @@ class User extends Authenticatable
         'account_id',
         'platform',
         'password',
-        'user_id'
+        'user_id',
+        'category_id'
     ];
 
     /**
@@ -113,5 +114,10 @@ class User extends Authenticatable
         }
 
         return asset('storage/' . $this->avatar);
+    }
+
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
     }
 }

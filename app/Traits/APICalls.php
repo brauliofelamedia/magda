@@ -496,7 +496,7 @@ trait APICalls
         }
     }
 
-    public function getReportAssessmentPDF($respondentId, $locale)
+    public function getReportAssessmentPDF($respondentId, $locale = 'en-US')
     {
         $config = Config::latest()->first();
         $reports = [];
@@ -508,7 +508,7 @@ trait APICalls
                 'Authorization' => 'Bearer ' . $config->token,
                 'Content-Type' => 'application/json'
             ])->post('https://api.gr8pi.com/api/v1/questionnaire-scheduling', [
-                'query' => 'mutation($input: ReportWithAssessmentGenericInput!) { generateStudentInterestsReport(input: $input) { url }}',
+                'query' => 'mutation($input: ReportWithAssessmentGenericInput!) { generateCareerCounselingInterestsReport(input: $input) { url }}',
                 'variables' => [
                     'input' => [
                         'account' => 243576,
@@ -518,7 +518,7 @@ trait APICalls
                     ]
                 ]
             ]);
-            $reports['interests'] = $interestsResponse->json('data.generateStudentInterestsReport.url');
+            $reports['interests'] = $interestsResponse->json('data.generateCareerCounselingInterestsReport.url');
 
             // Get Personality Report
             $personalityResponse = Http::withHeaders([

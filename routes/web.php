@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ApiController;
 use App\Http\Controllers\AssessmentController;
+use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\TestController;
@@ -31,11 +32,18 @@ Route::get('/',[DashboardController::class,'index'])->name('index');
 Route::post('users/reset', [UserController::class, 'resetPassword'])->name('users.password.reset');
 
 Route::prefix('dashboard')->middleware('auth')->group(function () {
-    Route::get('/', [DashboardController::class, 'welcome'])->name('dashboard.welcome');
+Route::get('/', [DashboardController::class, 'welcome'])->name('dashboard.welcome');
     Route::get('/syncUsers', [DashboardController::class, 'syncUsers'])->name('dashboard.sync');
     Route::get('/import', [DashboardController::class, 'import'])->name('dashboard.import');
     Route::post('/import/process', [DashboardController::class, 'import_process'])->name('dashboard.process.import');
     Route::post('remove-notification', [DashboardController::class, 'remove_notification'])->name('dashboard.remove.notification');
+
+    Route::post('category/updateNow', [CategoryController::class, 'assignCategory'])->name('category.updateNow');
+    Route::post('category/get', [CategoryController::class, 'getCategory'])->name('category.get');
+    Route::put('category/update/new', [CategoryController::class, 'updateCategory'])->name('category.updateNoww');
+    Route::post('category/delete', [CategoryController::class, 'deleteCategory'])->name('category.delete');
+    Route::resource('category', CategoryController::class);
+    
 
     //Tools
     Route::get('/migrate', function(){

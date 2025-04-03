@@ -1,6 +1,6 @@
 @extends('layouts.main')
 
-@section('title','Iniciar sesión')
+@section('title','Resultados de la evaluación')
 
 @push('css')
 <style>
@@ -28,6 +28,10 @@
         top: -70px;
         left: 50%;
         transform: translate(-50%, 0);
+    }
+
+    ol,ul {
+        text-align: left!important;
     }
 
     .item {
@@ -71,6 +75,24 @@
     /*Desktop*/
     @media (min-width: 1200px) {
     }
+
+    .resume {
+        background-color: #ececec;
+        padding: 30px;
+        border-radius: 10px;
+        margin-top: 30px;
+    }
+
+    .resume h2 {
+        font-weight: bold;
+        color: #f7423e;
+        font-size: 28px;
+    }
+
+    .resume h4 {
+        font-size: 18px;
+        font-weight: 600;
+    }
 </style>
 </style>
 @endpush
@@ -105,8 +127,17 @@
                                                 <div class="col-xl-12">
                                                     <canvas id="myChart"></canvas>
                                                     <h4>Descargar:</h4>
-                                                    <a href="{{$reports['individual']}}" target="_blank" download class="text-center btn btn-info" style="margin-top:20px;color:white;background: #0DC863!important;">Informe Individual</a><br>
-                                                    <a href="{{$reports['interests']}}" target="_blank" download class="text-center btn btn-info" style="margin-top:20px;color:white;background: #0DC863!important;">Informe de Intereses de Orientación Profesional</a><br>
+                                                    @if(isset($pdf_individual))
+                                                        <a href="{{$pdf_individual}}" target="_blank" download class="text-center btn btn-info" style="margin-top:20px;color:white;background: #0DC863!important;">Informe Individual</a><br>
+                                                    @endif
+                                                    @if(isset($pdf_interest))
+                                                        <a href="{{$pdf_interest}}" target="_blank" download class="text-center btn btn-info" style="margin-top:20px;color:white;background: #0DC863!important;">Informe de Intereses de Orientación Profesional</a><br>
+                                                    @endif
+                                                    @if(isset($assessment->openia))
+                                                        <div class="resume">
+                                                            {!!$assessment->openia!!}
+                                                        </div>
+                                                    @endif
                                                     @if(!is_null($user->account_id))
                                                         <a href="{{route('assessments.index',$user->account_id)}}" class="btn btn-success" style="margin-top:20px;display: inline-block;">Regresar</a>
                                                     @else

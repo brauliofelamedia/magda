@@ -3,9 +3,6 @@
 @section('title','Panel de administración')
 
 @push('css')
-<link rel="stylesheet" href="//cdn.datatables.net/2.1.8/css/dataTables.dataTables.min.css">
-<link rel="stylesheet" href="https://cdn.datatables.net/2.1.8/css/dataTables.bootstrap5.css">
-<link rel="stylesheet" href="https://cdn.datatables.net/responsive/3.0.3/css/responsive.bootstrap5.css">
 <style>
     .mt-10 {
         margin-top: 70px!important;
@@ -19,10 +16,12 @@
         top: 0 !important;
         bottom: 0 !important;
     }
+
     .coral {
         top: 0 !important;
         bottom: 0 !important;
     }
+    
     .form-control {
         padding: 10px 23px!important;
     }
@@ -65,19 +64,128 @@
     th {
         background: #f74219 !important;
     }
+    
+    svg {
+        width: 20px;
+        height: 20px;
+    }
 
-    .dt-paging-button.current {
-        background-color: #ffc107 !important;
+    a {
+        text-decoration: none;
+    }
+
+    nav {
+        text-align: center;
+        margin: 10px;
+        margin-bottom: 19px;
+    }
+
+    nav p {
+        margin:10px 0;
+    }
+
+    nav .justify-between {
+        display: none;
+    }
+
+    /* Add these new styles */
+    .modal {
+        z-index: 1050 !important;
+    }
+    
+    .modal-backdrop {
+        z-index: 1040 !important;
+    }
+    
+    .modal-dialog {
+        z-index: 1060 !important;
+    }
+    
+    .modal-content {
+        box-shadow: 0 0 10px rgba(0,0,0,0.3);
+    }
+
+    thead tr th {
         color: white !important;
     }
 
-    .first, .last {
-        display: none !important;
+    .btn:disabled {
+        background-color: grey!important;
+        border: grey!important;
+    }
+
+    /* Estilos para la paginación */
+    .pagination .page-item.active .page-link {
+        background-color: #f74219 !important;
+        border-color: #f74219 !important;
+        color: white !important;
+    }
+
+    .pagination .page-link {
+        color: #033a60;
+    }
+
+    .pagination .page-link:focus {
+        box-shadow: 0 0 0 0.25rem rgba(247, 66, 25, 0.25);
     }
 </style>
 @endpush
 
 @section('content')
+
+    <!-- Modal for editing categories -->
+    <div class="modal fade" id="editCategoryModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Editar filtro</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editCategoryForm" method="POST">
+                        @csrf
+                        @method('PUT')
+                        <input type="hidden" id="edit_category_id" name="category_id">
+                        <div class="mb-3">
+                            <label for="edit_name" class="form-label">Nombre del filtro</label>
+                            <input type="text" class="form-control" id="edit_name" name="name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit_description" class="form-label">Descripción</label>
+                            <textarea name="description" class="form-control" id="edit_description" cols="3" rows="3"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Actualizar</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for adding categories -->
+    <div class="modal fade" id="categoryModal" tabindex="-1" aria-labelledby="categoryModalLabel" aria-hidden="true" data-bs-backdrop="static">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="categoryModalLabel">Agregar filtro</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="categoryForm" action="{{route('category.store')}}" method="POST">
+                        @csrf
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Nombre del filtro</label>
+                            <input type="text" class="form-control" id="name" name="name" vale="{{old('name')}}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Descripción</label>
+                            <textarea name="description" class="form-control" id="description" cols="3" rows="3">{{old('description')}}</textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Agregar</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!--Crear nuevo usuario -->
     <div class="modal fade" id="newModal" tabindex="-1" aria-labelledby="newModalLabel" aria-hidden="true">
@@ -205,35 +313,100 @@
                             <div class="col-xl-12">
                                 <h3 class="text-center">Usuarios</h3>
 
-                                <table id="users-table" class="table table-striped responsive nowrap" style="width:100%">
+                                <div class="row mb-3">
+                                    <div class="col-md-4">
+                                        @hasanyrole(['administrator','institution'])
+                                        <div class="d-flex">
+                                            <select name="category" id="category" class="form-control me-2">
+                                                <option value="">Todos los usuarios</option>
+                                                @foreach($categories as $category)
+                                                    <option value="{{ $category->id }}" {{ request('category') == $category->id ? 'selected' : '' }}>
+                                                        {{ $category->name }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                            <button type="button" class="btn btn-success me-2" title="Agregar nuevo filtro" data-bs-toggle="modal" data-bs-target="#categoryModal">
+                                                <i class="fas fa-plus"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-primary edit-category me-2" title="Editar filtro" {{ empty(request('category')) ? 'disabled' : '' }}>
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-danger delete-category" title="Eliminar filtro" {{ empty(request('category')) ? 'disabled' : '' }}>
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                        @endhasanyrole
+                                    </div>
+                                    <div class="col-md-4 offset-md-4">
+                                        <form action="{{ route('dashboard.welcome') }}" method="GET" class="d-flex">
+                                            <input type="text" name="search" class="form-control" placeholder="Buscar por nombre..." value="{{ request('search') }}">
+                                            <button type="submit" class="btn btn-primary ms-2">Buscar</button>
+                                        </form>
+                                    </div>
+                                </div>
+
+                                <table class="table table-striped">
                                     <thead>
                                         <tr>
                                             <th>Nombre</th>
                                             <th>Correo</th>
                                             <th>Rol</th>
+                                            @hasanyrole(['administrator','institution'])
+                                            <th>Filtro</th>
+                                            @endhasanyrole
                                             <th>#</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @foreach ($users as $user)
+                                        @if($users->isEmpty())
                                             <tr>
-                                                <td>{{ $user->fullname }}</td>
-                                                <td>{{ $user->emailCut }}</td>
-                                                <td>{{ $user->rol }}</td>
-                                                <td>
-                                                    <a href="{{route('users.edit',$user->uuid)}}" class="edit btn btn-blue btn-sm">Editar perfil</a>
-                                                    @if(Auth::user()->hasRole(['administrator','institution','coordinator']))
-                                                        @if(!empty($user->account_id))
-                                                            <a href="{{route('assessments.index',$user->account_id)}}" class="btn btn-warning btn-sm">Evaluaciones</a>
-                                                        @else
-                                                            <a href="#" class="btn btn-disabled btn-sm" disabled>Evaluaciones</a>
-                                                        @endif
-                                                    @endif
-                                                </td>
+                                                <td colspan="5" class="text-center">No hay usuarios para mostrar</td>
                                             </tr>
-                                        @endforeach
+                                        @else
+                                            @foreach ($users as $user)
+                                                <tr>
+                                                    <td>{{ $user->fullname }}</td>
+                                                    <td>{{ $user->emailCut }}</td>
+                                                    <td>{{ $user->rol }}</td>
+                                                    <td>
+                                                        @hasanyrole(['administrator','institution'])
+                                                        <select class="form-control category-select" data-user-id="{{ $user->id }}" style="padding: 2px 10px!important; font-size: 14px;">
+                                                            <option value="">Sin filtros</option>
+                                                            @foreach($categories as $category)
+                                                                <option value="{{ $category->id }}" {{ $user->category_id == $category->id ? 'selected' : '' }}>
+                                                                    {{ $category->name }}
+                                                                </option>
+                                                            @endforeach
+                                                        </select>
+                                                        @else
+                                                        {{ $user->category ? $user->category->name : 'Sin filtros' }}
+                                                        @endhasanyrole
+                                                    </td>
+                                                    <td>
+                                                        <a href="{{route('users.edit',$user->uuid)}}" class="edit btn btn-blue btn-sm" title="Editar perfil">
+                                                            <i class="fas fa-pencil-alt"></i>
+                                                        </a>
+                                                        @if(Auth::user()->hasRole(['administrator','institution','coordinator']))
+                                                            @if(!empty($user->account_id))
+                                                                <a href="{{route('assessments.index',$user->account_id)}}" class="btn btn-warning btn-sm" title="Evaluaciones">
+                                                                    <i class="fas fa-clipboard-list"></i>
+                                                                </a>
+                                                            @else
+                                                                <a href="#" class="btn btn-disabled btn-sm" disabled title="Evaluaciones">
+                                                                    <i class="fas fa-clipboard-list"></i>
+                                                                </a>
+                                                            @endif
+                                                        @endif
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                        @endif
                                     </tbody>
                                 </table>
+
+                                <div class="d-flex justify-content-center">
+                                    {{ $users->links() }}
+                                </div>
 
                                 <div class="text-center">
                                     @hasrole(['administrator'])
@@ -273,54 +446,189 @@
 @endsection
 
 @push('js')
-<script src="//cdn.datatables.net/2.1.8/js/dataTables.min.js"></script>
-<script src="https://cdn.datatables.net/responsive/3.0.3/js/dataTables.responsive.js"></script>
-<script src="https://cdn.datatables.net/responsive/3.0.3/js/responsive.bootstrap5.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script>
-     new DataTable('#users-table', {
-        responsive: true,
-        language: {
-            url: 'https://cdn.datatables.net/plug-ins/1.11.5/i18n/es-ES.json'
-        }
-    });
-
-    $(document).ready(function() {
-        var institution = $('#institution');
-        institution.hide();
-
-        $('#role').change(function() {
-            var role = $(this).val();
-            var inputInstitution = $('#institution_name');
-
-            var legalTitle = $('#legal_representative');
-
-            if(role == 'institution'){
-                inputInstitution.show()
-                legalTitle.show();
-                institution.hide();
-            } else if(role == 'respondent'){
-                legalTitle.hide();
-                inputInstitution.hide()
-                institution.show();
-            } else {
-                institution.show();
-                legalTitle.hide();
-                inputInstitution.hide()
-            }
-        });
-    });
-</script>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script>
     $(document).ready(function(){
+        // Existing code for send-email and modal handling
         $('.send-email').on('click', function(){
             Swal.fire({
                 title: "Registrando usuario",
                 text: "Espera un momento...",
                 icon: "warning",
                 showConfirmButton: false,
+            });
+        });
+
+        $('#categoryModal').on('shown.bs.modal', function () {
+            $(this).css('display', 'block');
+            $('.modal-backdrop').css('z-index', '1040');
+            $(this).css('z-index', '1050');
+        });
+
+        // Add category filter handling
+        $('#category').on('change', function() {
+            const categoryId = $(this).val();
+            const currentUrl = new URL(window.location.href);
+            
+            if (categoryId) {
+                currentUrl.searchParams.set('category', categoryId);
+            } else {
+                currentUrl.searchParams.delete('category');
+            }
+            
+            // Preserve search parameter if it exists
+            const searchParam = currentUrl.searchParams.get('search');
+            if (searchParam) {
+                currentUrl.searchParams.set('search', searchParam);
+            }
+
+            window.location.href = currentUrl.toString();
+        });
+
+        // Handle category assignment
+        $('.category-select').on('change', function() {
+            const userId = $(this).data('user-id');
+            const categoryId = $(this).val();
+            
+            $.ajax({
+                url: '{{route('category.updateNow')}}',
+                method: 'POST',
+                data: {
+                    user_id: userId,
+                    category_id: categoryId,
+                    _token: $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function(response) {
+                    Swal.fire({
+                        title: "¡Éxito!",
+                        text: "Filtro asignado correctamente",
+                        icon: "success",
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+                },
+                error: function() {
+                    Swal.fire({
+                        title: "Error",
+                        text: "No se pudo asignar el filtro",
+                        icon: "error"
+                    });
+                }
+            });
+        });
+
+        // Handle edit category button click
+        $('.edit-category').on('click', function() {
+            const categoryId = $('#category').val();
+            if (!categoryId) return;
+
+            // Fetch category data
+            $.ajax({
+                url: '{{route('category.get')}}',
+                method: 'POST',
+                data: {
+                    category_id: categoryId,
+                    _token: $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function(response) {
+                    $('#edit_name').val(response.name);
+                    $('#edit_description').val(response.description);
+                    $('#edit_category_id').val(response.id);
+                    $('#editCategoryForm').attr('action', '{{ route("category.updateNoww") }}');
+                    
+                    // Show modal using Bootstrap 5
+                    const editModal = new bootstrap.Modal(document.getElementById('editCategoryModal'));
+                    editModal.show();
+                },
+                error: function() {
+                    Swal.fire({
+                        title: "Error",
+                        text: "No se pudo cargar la información del filtro",
+                        icon: "error"
+                    });
+                }
+            });
+        });
+
+        // Handle category update form submission
+        $('#editCategoryForm').on('submit', function(e) {
+            e.preventDefault();
+            const form = $(this);
+            const url = form.attr('action');
+
+            $.ajax({
+                url: url,
+                method: 'POST',
+                data: form.serialize(),
+                success: function(response) {
+                    // Hide modal using Bootstrap 5
+                    const editModal = bootstrap.Modal.getInstance(document.getElementById('editCategoryModal'));
+                    editModal.hide();
+                    
+                    Swal.fire({
+                        title: "¡Éxito!",
+                        text: "Filtro actualizado correctamente",
+                        icon: "success",
+                        timer: 1500,
+                        showConfirmButton: false
+                    }).then(() => {
+                        window.location.reload();
+                    });
+                },
+                error: function() {
+                    Swal.fire({
+                        title: "Error",
+                        text: "No se pudo actualizar el filtro",
+                        icon: "error"
+                    });
+                }
+            });
+        });
+
+        // Handle delete category button click
+        $('.delete-category').on('click', function() {
+            const categoryId = $('#category').val();
+            if (!categoryId) return;
+
+            Swal.fire({
+                title: "¿Estás seguro?",
+                text: "¿Deseas eliminar el filtro '" + $("#category option:selected").text() + "'? Esta acción no se puede deshacer",
+                icon: "warning", 
+                showCancelButton: true,
+                confirmButtonColor: "#d33",
+                cancelButtonColor: "#3085d6",
+                confirmButtonText: "Sí, eliminar",
+                cancelButtonText: "Cancelar"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: '{{route('category.delete')}}',
+                        method: 'POST',
+                        data: {
+                            category_id: categoryId,
+                            _token: $('meta[name="csrf-token"]').attr('content')
+                        },
+                        success: function(response) {
+                            Swal.fire({
+                                title: "¡Eliminado!",
+                                text: "El filtro ha sido eliminado",
+                                icon: "success",
+                                timer: 1500,
+                                showConfirmButton: false
+                            }).then(() => {
+                                window.location.href = "{{ route('dashboard.welcome') }}";
+                            });
+                        },
+                        error: function(response) {
+                            Swal.fire({
+                                title: "Error",
+                                text: "No se pudo eliminar el filtro",
+                                icon: "error"
+                            });
+                        }
+                    });
+                }
             });
         });
     });

@@ -14,8 +14,10 @@
         "laravel/ui": "^4.5",
         "maatwebsite/excel": "^3.1",
         "mailersend/laravel-driver": "^2.7",
+        "openai-php/laravel": "^0.11.0",
         "ramsey/uuid": "^4.7",
         "sentry/sentry-laravel": "^4.10",
+        "smalot/pdfparser": "^2.12",
         "spatie/laravel-permission": "^6.7",
         "yajra/laravel-datatables": "10.0"
     },

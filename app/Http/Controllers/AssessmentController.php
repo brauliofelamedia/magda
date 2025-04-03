@@ -12,6 +12,9 @@ use App\Traits\APICalls;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Mail;
+use OpenAI\Laravel\Facades\OpenAI;
+use Illuminate\Support\Facades\Storage;
+
 class AssessmentController extends Controller
 {
     use APICalls;
@@ -64,11 +67,58 @@ class AssessmentController extends Controller
     public function finish($id)
     {
         $user = Auth()->user();
-        $locale = 'es-ES';
+        $assessment = Assessment::where('assessment_id', $id)->first();
+        $locale = $user->lang ?? 'en-US';
         $items = $this->getReportAssessment($id,$locale);
-        //$reports = $this->getReportInterestPDF($id,$locale);
         $reports = $this->getReportAssessmentPDF($id,$locale);
-        return view('dashboard.users.finish',compact('items','reports','user'));
+        $content = '';
+
+        if (!$assessment) {
+            $assessment = new Assessment();
+            $assessment->assessment_id = $id;
+            $assessment->save();
+        }
+
+        if (!empty($reports['interests']) && $assessment->interest_url == null) {
+            $interestsContent = file_get_contents($reports['interests']);
+            $interestsPath = 'assessments/' . $id . '_interests.pdf';
+            Storage::disk('public')->put($interestsPath, $interestsContent);
+            $assessment->interest_url = $interestsPath;
+        }
+
+        if (!empty($reports['individual']) && $assessment->individual_url == null) {
+            $individualContent = file_get_contents($reports['individual']);
+            $individualPath = 'assessments/' . $id . '_individual.pdf';
+            Storage::disk('public')->put($individualPath, $individualContent);
+            $assessment->individual_url = $individualPath;
+        }
+
+        if (isset($assessment)) {
+            $assessment->save();
+        }
+
+        $pdf_interest = url(Storage::url($assessment->interest_url));
+        $pdf_individual = url(Storage::url($assessment->individual_url));
+        
+        if (empty($assessment->openia)) {
+            $parser = new \Smalot\PdfParser\Parser();
+            $pdf = $parser->parseFile($pdf_interest);
+            
+            // Get all pages and limit to first 5
+            $pages = $pdf->getPages();
+            $pageLimit = min(5, count($pages));
+            
+            // Extract text from first 5 pages only
+            for ($i = 0; $i < $pageLimit; $i++) {
+                $content .= $pages[$i]->getText();
+            }
+
+            $returnOpenAI = $this->analyzePDFWithOpenAI($content);
+            $assessment->openia = $returnOpenAI;
+            $assessment->save();
+        }
+
+        return view('dashboard.users.finish',compact('items','reports','user','assessment','pdf_interest','pdf_individual'));
     }
 
     public function closeAssessment(Request $request)
@@ -147,4 +197,22 @@ class AssessmentController extends Controller
          }
 
     }
+
+    private function analyzePDFWithOpenAI($pdfText) {
+        $apiKey = env('OPENAI_API_KEY');
+        
+        $prompt = "Si esta ingles traducelo y haz lo siguiente, basado en el siguiente texto que contiene intereses y habilidades profesionales, 
+                  sugiere 5 trabajos actualizados y relevantes en el mercado laboral actual, enfocate en la actualidad nada de vacantes viejas / antiguas. 
+                  Para cada trabajo, explica brevemente por qué sería una buena opción y dame un texto de introduccion principal antes de los 5 trabajos y en la parte de los lista desordenada de los 5 trabajos ponle un titulo que diga 5 trabajos recomendados:, cierralo con un mensaje motivador, formatealo en html, no pongas fechas, solo deja el <body> no necesito cabecera ni nada, el titulo que sea h2, usa p para parrafos, li para lista ordenada:\n\n" . $pdfText;
+
+        $response = OpenAI::chat()->create([
+            'model' => 'gpt-3.5-turbo',
+            'messages' => [
+                ['role' => 'user', 'content' => $prompt]
+            ],
+        ]);
+        
+        return $response->choices[0]->message->content;
+    }
+
 }

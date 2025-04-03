@@ -17,7 +17,7 @@ class VerifyToken
         if(!$config->token && !$config->refreshToken){
             $this->getToken();
         } else {
-            $this->expirationToken();
+            $exp = $this->expirationToken();
         }
 
         return $next($request);

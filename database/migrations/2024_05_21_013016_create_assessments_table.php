@@ -13,6 +13,10 @@ return new class extends Migration
     {
         Schema::create('assessments', function (Blueprint $table) {
             $table->id();
+            $table->text('openia')->nullable();
+            $table->string('individual_url')->nullable();
+            $table->string('interest_url')->nullable();
+            $table->string('assessment_id')->nullable();
             $table->timestamps();
         });
     }

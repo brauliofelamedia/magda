@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\DataTables\UsersDataTable;
 use App\Imports\UsersImport;
+use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Traits\APICalls;
@@ -49,22 +50,36 @@ class DashboardController extends Controller
     }
 
     public function welcome(){
-        //dd(Auth::user()->roles);
+
+        if(Auth::user()->hasRole('respondent')){
+            return view('dashboard.assessments.welcome');
+        }
+
+        $users = User::query()
+            ->when(request('search'), function($query) {
+                $query->where('name', 'like', '%' . request('search') . '%')
+                      ->orWhere('email', 'like', '%' . request('search') . '%');
+            })
+            ->when(request('category'), function($query) {
+                $query->where('category_id', request('category'));
+            });
+
+        if(Auth::user()->hasRole('administrator')){
+            $users = $users;
+        } else if(Auth::user()->hasRole('institution')){
+            $users = $users->where('user_id', Auth::user()->id)->role(['respondent']);
+        }
+
+        $users = $users->paginate(10);
+        
         $locales = config('languages.locales');
         $institutions = User::whereHas('roles', function ($query) {
             $query->where('name', 'institution');
         })->get();
 
-        if(Auth::user()->hasRole('administrator')){
-            $users = User::all();
-        } else if(Auth::user()->hasRole('institution')){
-            $users = User::where('user_id',Auth::user()->id)->role(['respondent'])->get();
+        $categories = Category::where('user_id',Auth::user()->id)->get();
 
-        } else if(Auth::user()->hasRole('respondent')){
-            return view('dashboard.assessments.welcome');
-        }
-
-        return view('dashboard.index',compact('users','locales','institutions'));
+        return view('dashboard.index',compact('users','locales','institutions','categories'));
     }
 
     public function import()
