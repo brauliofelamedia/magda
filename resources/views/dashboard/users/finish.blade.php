@@ -106,6 +106,11 @@
         font-size: 19px;
         margin-bottom: 10px;
     }
+
+    .prompt-text p, .prompt-text li, .prompt-text ol, .prompt-text strong {
+        font-size: 14px !important;
+        margin-bottom: 0;
+    }
 </style>
 </style>
 @endpush
@@ -157,6 +162,34 @@
                                                         <a href="{{route('dashboard.welcome')}}" class="btn btn-success" style="margin-top:20px;display: inline-block;">Regresar</a>
                                                     @endif
                                                 </div>
+                                                <div class="prompt">
+                                                    <div class="col-xl-12">
+                                                        <div class="resume" style="margin-top: 30px;background-color: #f9f9f9;">
+                                                            <h4>Prompt utilizado para el análisis:</h4>
+                                                            <div class="prompt-text" style="background-color: #fff!important; padding: 15px; border-radius: 5px; margin: 10px 0; height: 180px; overflow-y: auto;">
+                                                                <p>Actúa como un orientador vocacional con experiencia en desarrollo de carrera y análisis de perfiles. A continuación, recibirás un informe completo de intereses ocupacionales generado a través del assessment 'Tu Talento Finder' para un individuo. Tu tarea es leer y analizar dicho informe con atención.</p>
+                                                                <p>Basándote en:</p>
+                                                                <ul>
+                                                                    <li>Los tres intereses ocupacionales más altos del participante (en orden de prioridad).</li>
+                                                                    <li>Las descripciones detalladas de esos tipos de interés.</li>
+                                                                    <li>Las ocupaciones sugeridas en las categorías profesionales del informe.</li>
+                                                                    <li>La compatibilidad porcentual si está incluida.</li>
+                                                                    <li>Los pasatiempos y motivadores asociados a los intereses dominantes.</li>
+                                                                </ul>
+                                                                <p>Genera lo siguiente:</p>
+                                                                <ol>
+                                                                    <li>Las <strong>5 profesiones ideales</strong> para el participante, al día de hoy, que estén alineadas con sus intereses, motivadores y nivel de preparación actual (puedes hacer suposiciones razonables si no se incluye nivel de estudios).</li>
+                                                                    <li>Las <strong>5 mejores ideas de emprendimiento</strong> que podrían entusiasmar y retar al participante, considerando sus motivadores personales, como el liderazgo, la autonomía, la creatividad o la interacción con personas.</li>
+                                                                    <li>Justifica brevemente cada recomendación (1-2 líneas por cada profesión o emprendimiento).</li>
+                                                                </ol>
+                                                                <p class="mt-3"><strong>IMPORTANTE:</strong> Las recomendaciones deben ser prácticas, relevantes al contexto actual del mercado laboral, y ofrecer tanto opciones tradicionales como innovadoras. Sé concreto, creativo y profesional.</p>
+                                                            </div>
+                                                            <button class="btn btn-secondary copy-prompt" style="margin-top: 10px;">
+                                                                <i class="fas fa-copy"></i> Copiar Prompt
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -185,6 +218,20 @@
 
 @push('js')
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    $(document).ready(function() {
+        $('.copy-prompt').click(function() {
+            var promptText = $('.prompt-text').find('p, li, strong').map(function() {
+                return $(this).text();
+            }).get().join('\n');
+            navigator.clipboard.writeText(promptText).then(function() {
+                alert('Prompt copiado al portapapeles');
+            }).catch(function() {
+                alert('Error al copiar el prompt');
+            });
+        });
+    });
+</script>
 <script>
     const ctx = document.getElementById('myChart').getContext('2d');
     const items = @json($items);

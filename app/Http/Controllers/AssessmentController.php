@@ -79,18 +79,22 @@ class AssessmentController extends Controller
             $assessment->save();
         }
 
-        if (!empty($reports['interests']) && $assessment->interest_url == null) {
-            $interestsContent = file_get_contents($reports['interests']);
-            $interestsPath = 'assessments/' . $id . '_interests.pdf';
-            Storage::disk('public')->put($interestsPath, $interestsContent);
-            $assessment->interest_url = $interestsPath;
+        if (!empty($reports['interests'])) {
+            if ($assessment->interest_url == null) {
+                $interestsContent = file_get_contents($reports['interests']);
+                $interestsPath = 'assessments/' . $id . '_interests.pdf';
+                Storage::disk('public')->put($interestsPath, $interestsContent);
+                $assessment->interest_url = $interestsPath;
+            }
         }
 
-        if (!empty($reports['individual']) && $assessment->individual_url == null) {
-            $individualContent = file_get_contents($reports['individual']);
-            $individualPath = 'assessments/' . $id . '_individual.pdf';
-            Storage::disk('public')->put($individualPath, $individualContent);
-            $assessment->individual_url = $individualPath;
+        if (!empty($reports['individual'])) {
+            if ($assessment->individual_url == null) {
+                $individualContent = file_get_contents($reports['individual']);
+                $individualPath = 'assessments/' . $id . '_individual.pdf';
+                Storage::disk('public')->put($individualPath, $individualContent);
+                $assessment->individual_url = $individualPath;
+            }
         }
 
         if (isset($assessment)) {
