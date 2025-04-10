@@ -86,12 +86,25 @@
     .resume h2 {
         font-weight: bold;
         color: #f7423e;
-        font-size: 28px;
+        font-size: 26px;
+        margin-bottom: 20px;
     }
 
     .resume h4 {
         font-size: 18px;
         font-weight: 600;
+    }
+
+    .resume h1 {
+        font-size: 32px;
+        font-weight: bold;
+        line-height: 1.1em;
+        margin-bottom: 21px;
+    }
+
+    .resume h3 {
+        font-size: 19px;
+        margin-bottom: 10px;
     }
 </style>
 </style>

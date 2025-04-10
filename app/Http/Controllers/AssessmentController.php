@@ -201,9 +201,19 @@ class AssessmentController extends Controller
     private function analyzePDFWithOpenAI($pdfText) {
         $apiKey = env('OPENAI_API_KEY');
         
-        $prompt = "Si esta ingles traducelo y haz lo siguiente, basado en el siguiente texto que contiene intereses y habilidades profesionales, 
-                  sugiere 5 trabajos actualizados y relevantes en el mercado laboral actual, enfocate en la actualidad nada de vacantes viejas / antiguas. 
-                  Para cada trabajo, explica brevemente por qué sería una buena opción y dame un texto de introduccion principal antes de los 5 trabajos y en la parte de los lista desordenada de los 5 trabajos ponle un titulo que diga 5 trabajos recomendados:, cierralo con un mensaje motivador, formatealo en html, no pongas fechas, solo deja el <body> no necesito cabecera ni nada, el titulo que sea h2, usa p para parrafos, li para lista ordenada:\n\n" . $pdfText;
+        $prompt = "Si esta ingles traducelo y haz lo siguienteActúa como un orientador vocacional con experiencia en desarrollo de carrera y análisis de perfiles. A continuación, recibirás un informe completo de intereses ocupacionales generado a través del assessment 'Tu Talento Finder' para un individuo. Tu tarea es leer y analizar dicho informe con atención.
+Basándote en:
+1. Los tres intereses ocupacionales más altos del participante (en orden de prioridad).
+2. Las descripciones detalladas de esos tipos de interés.
+3. Las ocupaciones sugeridas en las categorías profesionales del informe.
+4. La compatibilidad porcentual si está incluida.
+5. Los pasatiempos y motivadores asociados a los intereses dominantes.
+Genera lo siguiente:
+1. Las **5 profesiones ideales** para el participante, al día de hoy, que estén alineadas con sus intereses, motivadores y nivel de preparación actual (puedes hacer suposiciones razonables si no se incluye nivel de estudios).
+2. Las **5 mejores ideas de emprendimiento** que podrían entusiasmar y retar al participante, considerando sus motivadores personales, como el liderazgo, la autonomía, la creatividad o la interacción con personas.
+3. Justifica brevemente cada recomendación (1-2 líneas por cada profesión o emprendimiento).
+IMPORTANTE: Las recomendaciones deben ser prácticas, relevantes al contexto actual del mercado laboral, y ofrecer tanto opciones tradicionales como innovadoras. Sé concreto, creativo y profesional.
+Este es el informe para analizar: generalo en html solo entregame el body, no pongas fechas, sin header ordenando la lista, parrafos y titulos principal (h1), titulos secundarios (h2) y otros titulo (h3). \n\n" . $pdfText;
 
         $response = OpenAI::chat()->create([
             'model' => 'gpt-3.5-turbo',
