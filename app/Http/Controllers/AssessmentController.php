@@ -101,12 +101,20 @@ class AssessmentController extends Controller
             $assessment->save();
         }
 
-        $pdf_interest = url(Storage::url($assessment->interest_url));
-        $pdf_individual = url(Storage::url($assessment->individual_url));
+        $pdf_interest = null;
+        $pdf_individual = null;
+
+        if ($assessment->interest_url && Storage::disk('public')->exists($assessment->interest_url)) {
+            $pdf_interest = url(Storage::url($assessment->interest_url));
+            $pdfPath = storage_path('app/public/' . $assessment->interest_url);
+        } elseif ($assessment->individual_url && Storage::disk('public')->exists($assessment->individual_url)) {
+            $pdf_individual = url(Storage::url($assessment->individual_url));
+            $pdfPath = storage_path('app/public/' . $assessment->individual_url);
+        }
         
-        if (empty($assessment->openia)) {
+        if (empty($assessment->openia) && isset($pdfPath)) {
             $parser = new \Smalot\PdfParser\Parser();
-            $pdf = $parser->parseFile($pdf_interest);
+            $pdf = $parser->parseFile($pdfPath);
             
             // Get all pages and limit to first 5
             $pages = $pdf->getPages();
@@ -114,7 +122,7 @@ class AssessmentController extends Controller
             
             // Extract text from first 5 pages only
             for ($i = 0; $i < $pageLimit; $i++) {
-                $content .= $pages[$i]->getText();
+            $content .= $pages[$i]->getText();
             }
 
             $returnOpenAI = $this->analyzePDFWithOpenAI($content);
