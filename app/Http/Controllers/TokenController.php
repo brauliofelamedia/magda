@@ -31,10 +31,17 @@ class TokenController extends Controller
             $token = $authResponse->json('data.generateToken');
             
             //Guardamos el token en tabla
-            $config = Config::updateOrCreate(
-                ['token' => $token['token']],
-                ['refreshToken' => $token['refreshToken']]
-            );
+            $config = Config::first();
+            if ($config) {
+                $config->token = $token['token'];
+                $config->refreshToken = $token['refreshToken'];
+                $config->save();
+            } else {
+                $config = Config::create([
+                    'token' => $token['token'],
+                    'refreshToken' => $token['refreshToken']
+                ]);
+            }
             
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
