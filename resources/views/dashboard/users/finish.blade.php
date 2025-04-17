@@ -16,6 +16,13 @@
         padding-top: 230px!important;
     }
 
+    .img-ia {
+        width: 380px;
+        display: block;
+        margin: 20px auto;
+        margin-bottom: 0;
+    }
+
     .vertical-align p {
         margin: 0!important;
     }
@@ -107,10 +114,89 @@
         margin-bottom: 10px;
     }
 
+    .prompt {
+        margin-top: 30px;.
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        padding:30px;
+        border: 1px solid #ececec;
+        border-radius: 10px;
+    }
+
+    .prompt-text {
+        text-align: left;
+        background-color: #fff;
+        padding: 20px; 
+        border-radius: 8px; 
+        margin: 10px 0; 
+        height: 200px; 
+        overflow-y: auto; 
+        border: 1px solid #e0e0e0;
+    }
+
+    .prompt-text h5 {
+        margin: 10px 0;
+        font-size: 18px;
+    }
+
     .prompt-text p, .prompt-text li, .prompt-text ol, .prompt-text strong {
         font-size: 14px !important;
         margin-bottom: 0;
+        text-align: left;
     }
+
+    .btn-success {
+        margin:0 auto;
+        margin: 0 auto;
+        margin-bottom: 10px;
+        padding: 12px 25px;
+        font-weight: 500;
+    }
+
+    @media (max-width: 480px) {
+        .prompt {
+            padding:25px;
+        }
+
+        .prompt li {
+            font-size: 14px;
+            line-height: 17px;
+        }
+
+        .prompt-text {
+            padding: 15px;
+        }
+
+        .prompt-text ol {
+            padding-left: 15px;
+        }
+        
+        .prompt-text strong {
+            color: #e74c3c;
+            display: block;
+            line-height: 14px;
+            margin: 15px 0;
+        }
+
+        .resume h1 {
+            font-size: 20px;
+        }
+
+        .resume {
+            padding: 20px;
+        }
+
+        .resume h2 {
+            font-size: 20px;
+            margin-bottom: 19px;
+        }
+
+    @media (max-width: 768px) {
+        
+    }
+
+    @media (max-width: 992px) {
+        
+    }    
 </style>
 </style>
 @endpush
@@ -144,51 +230,82 @@
                                                 @endforeach
                                                 <div class="col-xl-12">
                                                     <canvas id="myChart"></canvas>
-                                                    <h4>Descargar:</h4>
-                                                    @if(isset($pdf_individual))
-                                                        <a href="{{$pdf_individual}}" target="_blank" download class="text-center btn btn-info" style="margin-top:20px;color:white;background: #0DC863!important;">Informe Individual</a><br>
-                                                    @endif
-                                                    @if(isset($pdf_interest))
-                                                        <a href="{{$pdf_interest}}" target="_blank" download class="text-center btn btn-info" style="margin-top:20px;color:white;background: #0DC863!important;">Informe de Intereses de Orientación Profesional</a><br>
-                                                    @endif
+
                                                     @if(isset($assessment->openia))
-                                                        <div class="resume">
+                                                        <div class="resume" style="margin-top: 30px;box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
                                                             {!!$assessment->openia!!}
                                                         </div>
                                                     @endif
-                                                    @if(!is_null($user->account_id))
-                                                        <a href="{{route('assessments.index',$user->account_id)}}" class="btn btn-success" style="margin-top:20px;display: inline-block;">Regresar</a>
-                                                    @else
-                                                        <a href="{{route('dashboard.welcome')}}" class="btn btn-success" style="margin-top:20px;display: inline-block;">Regresar</a>
-                                                    @endif
-                                                </div>
-                                                <div class="prompt">
-                                                    <div class="col-xl-12">
-                                                        <div class="resume" style="margin-top: 30px;background-color: #f9f9f9;">
-                                                            <h4>Prompt utilizado para el análisis:</h4>
-                                                            <div class="prompt-text" style="background-color: #fff!important; padding: 15px; border-radius: 5px; margin: 10px 0; height: 180px; overflow-y: auto;">
-                                                                <p>Actúa como un orientador vocacional con experiencia en desarrollo de carrera y análisis de perfiles. A continuación, recibirás un informe completo de intereses ocupacionales generado a través del assessment 'Tu Talento Finder' para un individuo. Tu tarea es leer y analizar dicho informe con atención.</p>
-                                                                <p>Basándote en:</p>
-                                                                <ul>
+                                                    
+                                                    <div class="prompt">
+                                                        <div class="col-xl-12">
+                                                            <div>
+                                                                <div class="usage-tips" style="margin-bottom: 20px;">
+                                                                    <h4 style="color: #333;">💡 ¿Cómo puedes usarlo?</h4>
+                                                                    <ul style="list-style: none; padding-left: 0;">
+                                                                        <li style="margin-bottom: 10px;">
+                                                                            <i class="fas fa-check" style="color: #68c133; margin-right: 8px;"></i>
+                                                                            Puedes copiar este prompt y pegarlo directamente en ChatGPT, Claude, Gemini u otra IA.
+                                                                        </li>
+                                                                        <li style="margin-bottom: 10px;">
+                                                                            <i class="fas fa-check" style="color: #68c133; margin-right: 8px;"></i>
+                                                                            Puedes usarlo en tu propia plataforma si integras GPT con Tu Talento Finder.
+                                                                        </li>
+                                                                        <li style="margin-bottom: 10px;">
+                                                                            <i class="fas fa-check" style="color: #68c133; margin-right: 8px;"></i>
+                                                                            Puedes incluso automatizarlo si haces una integración por lotes para generar informes de orientación.
+                                                                        </li>
+                                                                    </ul>
+                                                                </div>
+                                                                <div class="prompt-text">
+                                                                <h5 style="color: #2c3e50;font-weight: 600;">Basándote en:</h5>
+                                                                <ol>
                                                                     <li>Los tres intereses ocupacionales más altos del participante (en orden de prioridad).</li>
                                                                     <li>Las descripciones detalladas de esos tipos de interés.</li>
                                                                     <li>Las ocupaciones sugeridas en las categorías profesionales del informe.</li>
                                                                     <li>La compatibilidad porcentual si está incluida.</li>
                                                                     <li>Los pasatiempos y motivadores asociados a los intereses dominantes.</li>
-                                                                </ul>
-                                                                <p>Genera lo siguiente:</p>
+                                                                </ol>
+                                                                <h5 style="color: #2c3e50;font-weight: 600;">Genera lo siguiente:</h5>
                                                                 <ol>
-                                                                    <li>Las <strong>5 profesiones ideales</strong> para el participante, al día de hoy, que estén alineadas con sus intereses, motivadores y nivel de preparación actual (puedes hacer suposiciones razonables si no se incluye nivel de estudios).</li>
-                                                                    <li>Las <strong>5 mejores ideas de emprendimiento</strong> que podrían entusiasmar y retar al participante, considerando sus motivadores personales, como el liderazgo, la autonomía, la creatividad o la interacción con personas.</li>
+                                                                    <li>Las **5 profesiones ideales** para el participante, al día de hoy, que estén alineadas con sus intereses, motivadores y nivel de preparación actual.</li>
+                                                                    <li>Las **5 mejores ideas de emprendimiento** que podrían entusiasmar y retar al participante.</li>
                                                                     <li>Justifica brevemente cada recomendación (1-2 líneas por cada profesión o emprendimiento).</li>
                                                                 </ol>
-                                                                <p class="mt-3"><strong>IMPORTANTE:</strong> Las recomendaciones deben ser prácticas, relevantes al contexto actual del mercado laboral, y ofrecer tanto opciones tradicionales como innovadoras. Sé concreto, creativo y profesional.</p>
+                                                                <strong style="color: #e74c3c;">IMPORTANTE: Las recomendaciones deben ser prácticas y relevantes al contexto actual del mercado laboral.</strong>
+                                                                <p>Este es el informe para analizar:</p>
+                                                                <p>[pega el contenido del informe aquí o súbelo como archivo PDF]</p>
+                                                                </div>
+                                                                <button class="btn btn-secondary copy-prompt" style="margin-top: 15px;padding: 8px 20px;">
+                                                                    <i class="fas fa-copy"></i> Copiar Prompt
+                                                                </button>
+                                                                <img src="{{asset('assets/img/logo-ia.png')}}" alt="OpenAI" class="img-fluid img-ia">
                                                             </div>
-                                                            <button class="btn btn-secondary copy-prompt" style="margin-top: 10px;">
-                                                                <i class="fas fa-copy"></i> Copiar Prompt
-                                                            </button>
                                                         </div>
                                                     </div>
+                                                    
+                                                    <div class="download-section" style="margin-top: 30px;">
+                                                        <h4 style="color: #333;margin-bottom: 15px;">Descargar informes:</h4>
+                                                        <div class="d-flex flex-column gap-2">
+                                                            @if(isset($pdf_individual))
+                                                                <a href="{{$pdf_individual}}" target="_blank" download class="btn btn-success">
+                                                                    <i class="fas fa-file-pdf mr-2"></i> Individual
+                                                                </a>
+                                                            @endif
+                                                            @if(isset($pdf_interest))
+                                                                <a href="{{$pdf_interest}}" target="_blank" download class="btn btn-success">
+                                                                    <i class="fas fa-file-pdf mr-2"></i> Intereses de orientación profesional
+                                                                </a>
+                                                            @endif
+                                                        </div>
+                                                    </div>
+                                                    
+                                                   
+                                                    @if(!is_null($user->account_id))
+                                                        <a href="{{route('assessments.index',$user->account_id)}}" class="btn btn-success" style="margin-top:20px;display: inline-block;">Regresar</a>
+                                                    @else
+                                                        <a href="{{route('dashboard.welcome')}}" class="btn btn-success" style="margin-top:20px;display: inline-block;">Regresar</a>
+                                                    @endif
                                                 </div>
                                             </div>
                                         </div>
