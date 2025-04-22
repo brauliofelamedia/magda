@@ -17,7 +17,7 @@ class VerifyToken
         if(!$config->token && !$config->refreshToken){
             $this->getToken();
         } else {
-            $exp = $this->expirationToken();
+            $this->expirationToken();
         }
 
         return $next($request);
@@ -59,6 +59,7 @@ class VerifyToken
     private function expirationToken(){
 
         $config = Config::first();
+
         try {
             //Obtenemos el token
             $authResponse = Http::withHeaders([
@@ -83,6 +84,7 @@ class VerifyToken
 
     private function refreshToken(){
         $config = Config::first();
+        
         try {
             //Obtenemos el token
             $authResponse = Http::withHeaders([
@@ -96,6 +98,10 @@ class VerifyToken
             ]);
 
             $data = $authResponse->json('data.refreshToken');
+            
+            if(is_null($data)){
+                return $this->getToken();
+            }
 
             //Guardamos el nuevo token
             $config->token = $data['token'];
