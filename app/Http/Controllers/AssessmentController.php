@@ -68,7 +68,7 @@ class AssessmentController extends Controller
     {
         $user = Auth()->user();
         $assessment = Assessment::where('assessment_id', $id)->first();
-        $locale = $user->lang ?? 'en-US';
+        $locale = 'es-PR';
         $items = $this->getReportAssessment($id,$locale);
         $reports = $this->getReportAssessmentPDF($id,$locale);
         $content = '';
@@ -213,7 +213,7 @@ class AssessmentController extends Controller
     private function analyzePDFWithOpenAI($pdfText) {
         $apiKey = env('OPENAI_API_KEY');
         
-        $prompt = "Si esta ingles traducelo y haz lo siguienteActúa como un orientador vocacional con experiencia en desarrollo de carrera y análisis de perfiles. A continuación, recibirás un informe completo de intereses ocupacionales generado a través del assessment 'Tu Talento Finder' para un individuo. Tu tarea es leer y analizar dicho informe con atención.
+        $prompt = "Traducelo al español y haz lo siguiente, Actúa como un orientador vocacional con experiencia en desarrollo de carrera y análisis de perfiles. A continuación, recibirás un informe completo de intereses ocupacionales generado a través del assessment 'Tu Talento Finder' para un individuo. Tu tarea es leer y analizar dicho informe con atención.
 Basándote en:
 1. Los tres intereses ocupacionales más altos del participante (en orden de prioridad).
 2. Las descripciones detalladas de esos tipos de interés.
