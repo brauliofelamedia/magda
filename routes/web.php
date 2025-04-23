@@ -44,7 +44,11 @@ Route::get('/', [DashboardController::class, 'welcome'])->name('dashboard.welcom
     Route::post('category/delete', [CategoryController::class, 'deleteCategory'])->name('category.delete');
     Route::resource('category', CategoryController::class);
     
-
+    Route::get('/storage-link', function() {
+        Artisan::call('storage:link');
+        return response()->json(['message' => 'Storage link created successfully']);
+    });
+    
     //Tools
     Route::get('/migrate', function(){
         Artisan::call('migrate');
