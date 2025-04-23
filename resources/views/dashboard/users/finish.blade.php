@@ -189,6 +189,7 @@
             font-size: 20px;
             margin-bottom: 19px;
         }
+    }
 
     @media (max-width: 768px) {
         
@@ -197,7 +198,6 @@
     @media (max-width: 992px) {
         
     }    
-</style>
 </style>
 @endpush
 
@@ -258,7 +258,7 @@
                                                                     </ul>
                                                                 </div>
                                                                 <div class="prompt-text">
-                                                                <h5 style="color: #2c3e50;font-weight: 600;">Basándote en:</h5>
+                                                                <p style="color: #2c3e50;font-weight: 600;font-size: 18px !important;">Basándote en:</p>
                                                                 <ol>
                                                                     <li>Los tres intereses ocupacionales más altos del participante (en orden de prioridad).</li>
                                                                     <li>Las descripciones detalladas de esos tipos de interés.</li>
@@ -266,7 +266,7 @@
                                                                     <li>La compatibilidad porcentual si está incluida.</li>
                                                                     <li>Los pasatiempos y motivadores asociados a los intereses dominantes.</li>
                                                                 </ol>
-                                                                <h5 style="color: #2c3e50;font-weight: 600;">Genera lo siguiente:</h5>
+                                                                <p style="color: #2c3e50;font-weight: 600;font-size: 18px !important;">Genera lo siguiente:</p>
                                                                 <ol>
                                                                     <li>Las **5 profesiones ideales** para el participante, al día de hoy, que estén alineadas con sus intereses, motivadores y nivel de preparación actual.</li>
                                                                     <li>Las **5 mejores ideas de emprendimiento** que podrían entusiasmar y retar al participante.</li>
