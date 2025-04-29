@@ -192,7 +192,7 @@
                                                             <div class="form-check">
                                                                 <input type="checkbox" id="evaluation_long" name="type_of_evaluation[]" value="long" class="form-check-input"
                                                                     @if(is_array($user->type_of_evaluation) && in_array('long', $user->type_of_evaluation)) checked @endif>
-                                                                <label class="form-check-label" for="evaluation_long">Evaluación larga (comportamientos, intereses y cognitivo) - 174 preguntas</label>
+                                                                <label class="form-check-label" for="evaluation_long">Evaluación larga (comportamientos, intereses y cognitivo) - 202 preguntas</label>
                                                             </div>
                                                         </div>
                                                     </div>

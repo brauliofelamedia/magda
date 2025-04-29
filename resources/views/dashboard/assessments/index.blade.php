@@ -118,7 +118,7 @@
                                     <option value="short">Evaluación corta (intereses) - 60 preguntas</option>
                                 @endif
                                 @if(in_array('long', $user->type_of_evaluation ?? []))
-                                    <option value="long">Evaluación larga (comportamientos, intereses y cognitivo) - 174 preguntas</option>
+                                    <option value="long">Evaluación larga (comportamientos, intereses y cognitivo) - 202 preguntas</option>
                                 @endif
                             </select>
                         </div>
