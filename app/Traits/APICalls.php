@@ -100,10 +100,16 @@ trait APICalls
         }
     }
 
-    public function createNewEvaluation($respondentId,$locale,array $emails)
+    public function createNewEvaluation($respondentId,$locale,array $emails,$type)
     {
         $dateNow = Carbon::now();
         $dateNextWeek = $dateNow->addWeek();
+
+        if($type == 'short'){
+            $idTemplate = 261966;
+        } else {
+            $idTemplate = 261967;
+        }
 
         $config = Config::latest()->first();
         try {
@@ -117,7 +123,7 @@ trait APICalls
                     'input' => [
                         //Tu Talento Finder Intereses - 261966
                         //Tu Talento Finder Full Version - 261967
-                        'assessmentTemplateId' => 261966,
+                        'assessmentTemplateId' => $idTemplate,
                         'respondentId'         => $respondentId,
                         'accountId'           => 243576,
                         'locale'              => $locale,

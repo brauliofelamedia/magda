@@ -24,6 +24,7 @@ class User extends Authenticatable
         'name',
         'last_name',
         'lang',
+        'type_of_evaluation',
         'email',
         'account_id',
         'platform',
@@ -50,6 +51,7 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
+        'type_of_evaluation' => 'array',
     ];
 
     protected static function boot()

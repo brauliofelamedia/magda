@@ -96,6 +96,42 @@
 @endpush
 
 @section('content')
+
+    <!-- Modal -->
+    <div class="modal fade" id="evaluationTypeModal" tabindex="-1" aria-labelledby="evaluationTypeModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="evaluationTypeModalLabel">Seleccionar tipo de evaluación</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="evaluationTypeForm" method="POST" action="{{route('assessments.new')}}">
+                        @csrf
+                        <input type="hidden" name="respondentId" value="{{$user->account_id}}">
+                        <input type="hidden" name="locale" value="{{$user->lang}}">
+                        <div class="mb-3">
+                            <label for="evaluationType" class="form-label">Tipo de evaluación</label>
+                            <select class="form-select" id="evaluationType" name="type" required>
+                                <option value="" selected disabled>Seleccione una opción</option>
+                                @if(in_array('short', $user->type_of_evaluation ?? []))
+                                    <option value="short">Evaluación corta (intereses) - 60 preguntas</option>
+                                @endif
+                                @if(in_array('long', $user->type_of_evaluation ?? []))
+                                    <option value="long">Evaluación larga (comportamientos, intereses y cognitivo) - 174 preguntas</option>
+                                @endif
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary" form="evaluationTypeForm">Continuar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="container" id="dashboard">
         <meta name="csrf-token" content="{{ csrf_token() }}">
         @php
@@ -159,10 +195,16 @@
                                 @endif
                                     <div class="text-center">
                                         @hasrole('respondent')
-                                            <a href="{{route('assessments.new',[Auth::user()->account_id,Auth::user()->lang ?? 'es-ES'])}}" class="btn btn-primary">Iniciar nueva evaluación</a>
+                                            <!-- Button to trigger modal -->
+                                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#evaluationTypeModal">
+                                                Iniciar nueva evaluación
+                                            </button>
                                             <a href="{{route('dashboard.welcome')}}" class="btn btn-secondary">Regresar</a>
                                         @elseif('institution')
-                                            <a href="{{route('assessments.new',[$user->account_id, Auth::user()->lang ?? 'es-ES'])}}" class="btn btn-primary">Asignar una evaluación</a>
+                                            <!-- Button to trigger modal -->
+                                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#evaluationTypeModal">
+                                                Asignar una evaluación
+                                            </button>
                                             <a href="{{route('dashboard.welcome')}}" class="btn btn-secondary">Regresar</a>
                                         @else
                                             <a href="{{route('dashboard.welcome')}}" class="btn btn-secondary">Regresar</a>

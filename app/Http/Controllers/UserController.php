@@ -12,54 +12,62 @@ use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use App\Mail\resetPassword;
+
 class UserController extends Controller
 {
     use APICalls;
 
     public function edit($uuid)
     {
-        $user = User::where('uuid',$uuid)->first();
+        $user = User::where('uuid', $uuid)->first();
         $institutes = User::role('institution')->get();
-        return view('dashboard.users.edit',compact('user','institutes'));
+        return view('dashboard.users.edit', compact('user', 'institutes'));
     }
 
-    public function update(Request $request,$uuid)
+    public function update(Request $request, $uuid)
     {
-        $user = User::where('uuid',$uuid)->first();
-        $request->validate([
+        $user = User::where('uuid', $uuid)->firstOrFail();
+
+        $data = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email',
             'password' => 'nullable|string|min:8|confirmed',
+            'type_of_evaluation' => 'nullable',
         ]);
 
-        $user->name = $request->name;
-        $user->last_name = $request->last_name;
-        $user->email = $request->email;
-        $user->user_id = $request->user_id;
-        $user->syncRoles($request->role);
+        $data['last_name'] = $request->last_name;
+        $data['user_id'] = $request->user_id;
 
-        if($request->name_institution){
-            $user->name_institution = $request->name_institution;
-            $user->save();
+        if ($request->has('type_of_evaluation')) {
+            $data['type_of_evaluation'] = $request->type_of_evaluation;
         }
 
-        if($request->avatar){
+        if ($request->has('role')) {
+            $user->syncRoles($request->role);
+        }
+
+        if ($request->name_institution) {
+            $data['name_institution'] = $request->name_institution;
+        }
+
+        if ($request->avatar) {
             $request->validate([
                 'avatar' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
             ]);
 
             if ($request->hasFile('avatar')) {
                 $imagePath = $request->file('avatar')->store('avatars', 'public');
-                $user->avatar = $imagePath;
+                $data['avatar'] = $imagePath;
             }
         }
 
-        if($request->password == $request->password_confirmation){
-            $user->password = Hash::make($request->input('password'));
+        if ($request->password == $request->password_confirmation) {
+            $data['password'] = Hash::make($request->input('password'));
         }
 
-        $user->save();
-        return redirect()->route('users.edit',$uuid)->with('success', 'Se han actualizado los datos correctamente.');
+        $user->update($data);
+
+        return redirect()->route('users.edit', $user->uuid)->with('success', 'Usuario actualizado correctamente.');
     }
 
     public function sendEmailWelcome(Request $request)
@@ -76,16 +84,16 @@ class UserController extends Controller
 
     public function resetPassword(Request $request)
     {
-        $user = User::where('email',$request->email)->first();
+        $user = User::where('email', $request->email)->first();
 
-        if($user){
+        if ($user) {
             $passwordRandom = Str::random(8);
             $user->password = Hash::make($passwordRandom);
             $user->save();
-            Mail::to($user->email)->send(new resetPassword($user,$passwordRandom));
+            Mail::to($user->email)->send(new resetPassword($user, $passwordRandom));
         }
 
-        if($request->type == 'reset_admin'){
+        if ($request->type == 'reset_admin') {
             return redirect()->back()->with('success', 'Se ha enviado correctamente el correo de invitación.');
         } else {
             return redirect()->back()->with('success', 'Si el correo coincide con nuestro registro, se te enviara una contraseña.');

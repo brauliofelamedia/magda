@@ -61,6 +61,12 @@
         }
     }
 
+    .type {
+        padding: 20px;
+        background-color: #ececec;
+        border-radius: 10px;
+    }
+
     h5 {
         color: red;
         font-weight: bold;
@@ -78,6 +84,7 @@
     @media (min-width: 1200px) {
     }
 </style>
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0/dist/css/select2.min.css" rel="stylesheet" />
 @endpush
 
 @section('content')
@@ -172,25 +179,26 @@
                                                     </select>
                                                 </div>
                                             @endhasanyrole
-                                            <hr>
-                                            <h4>Cambiar contraseña</h4>
-                                            <p>Si deseas cambiar la contraseña, necesitas rellenar la contraseña y confirmar la misma.</p>
                                             <div class="row">
-                                                <div class="col-md-6">
-                                                    <div class="form-group">
-                                                        <label for="">Contraseña:</label>
-                                                        <input type="password" name="password" class="form-control" autocomplete="false">
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-6">
-                                                    <div class="form-group">
-                                                        <label for="">Repetir contraseña:</label>
-                                                        <input type="password" name="password_confirmation" class="form-control" autocomplete="false">
+                                                <div class="col-lg-12">
+                                                    <div class="type">
+                                                        <label for="type_of_evaluation">Tipo de evaluación: <small class="form-text text-muted">Selecciona uno o más tipos de evaluación.</small></label>
+                                                        <div class="form-group" style="margin-bottom: 0;">
+                                                            <div class="form-check">
+                                                                <input type="checkbox" id="evaluation_short" name="type_of_evaluation[]" value="short" class="form-check-input"
+                                                                    @if(is_array($user->type_of_evaluation) && in_array('short', $user->type_of_evaluation)) checked @endif>
+                                                                <label class="form-check-label" for="evaluation_short">Evaluación corta (intereses) - 60 preguntas</label>
+                                                            </div>
+                                                            <div class="form-check">
+                                                                <input type="checkbox" id="evaluation_long" name="type_of_evaluation[]" value="long" class="form-check-input"
+                                                                    @if(is_array($user->type_of_evaluation) && in_array('long', $user->type_of_evaluation)) checked @endif>
+                                                                <label class="form-check-label" for="evaluation_long">Evaluación larga (comportamientos, intereses y cognitivo) - 174 preguntas</label>
+                                                            </div>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
-                                            <button type="submit" class="btn btn-primary btn-big btn-block" style="background: #0DC863;border:0;margin-bottom:5px;">Guardar cambios</button>
-                                            <a href="{{route('dashboard.welcome')}}" class="text-center btn btn-big btn-danger btn-block">Regresar</a>
+                                            <button type="submit" class="btn btn-primary btn-big btn-block" style="background: #0DC863; border: 0; margin-bottom: 5px; font-size: 18px; padding: 15px; margin-top:15px;">Guardar cambios</button>
                                         </form>
                                         @hasrole('administrator')
                                             <form action="{{route('users.password.reset')}}" id="send-email-form" method="post">
@@ -205,6 +213,34 @@
                                 </div>
 
                             </div>
+                        </div>
+                    </div>
+                    <div class="box-inner" style="margin-top: 25px;">
+                        <form action="{{route('users.update',$user->uuid)}}" method="post" >
+                            @csrf
+                            @method('PATCH')
+                            <h4>Cambiar contraseña</h4>
+                            <p>Si deseas cambiar la contraseña, necesitas rellenar la contraseña y confirmar la misma.</p>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="">Contraseña:</label>
+                                        <input type="password" name="password" class="form-control" autocomplete="false">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="">Repetir contraseña:</label>
+                                        <input type="password" name="password_confirmation" class="form-control" autocomplete="false">
+                                    </div>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-big btn-block" style="background: #0DC863; border: 0; margin-bottom: 5px; font-size: 18px; padding: 15px;">Guardar cambios</button>                                            
+                        </form>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <a href="{{route('dashboard.welcome')}}" class="text-center btn btn-big btn-danger btn-block" style="margin-top: 15px; font-size: 18px; padding: 15px;">Cancelar y regresar</a>
                         </div>
                     </div>
                 </div>
@@ -228,7 +264,13 @@
 
 @push('js')
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0/dist/js/select2.min.js"></script>
 <script>
+     $('#type_of_evaluation').select2({
+        placeholder: "Selecciona el tipo de evaluación",
+        allowClear: true
+    });
+
     $(document).ready(function(){
         $('.send-email').on('click', function(){
             Swal.fire({

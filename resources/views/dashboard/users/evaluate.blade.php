@@ -106,8 +106,14 @@
             <div class="row">
                 <div class="col-xl-12 col-md-8">
                     <div class="vertical-align">
-                        <h2 class="fw-700 c-orange">{{$assesments['interests']['displayName']}}</h2>
-                        <p>{{$assesments['interests']['instructions']}}</p>
+                        @php
+                            $isMultiArray = isset($assesments['interests']) || isset($assesments['cognitive']);
+                            $sections = $isMultiArray ? $assesments : ['default' => $assesments];
+                        @endphp
+                        @foreach($sections as $sectionKey => $section)
+                            <h2 class="fw-700 c-orange section-title" data-section-id="{{$sectionKey}}" style="display: none;">{{$section['displayName'] ?? 'Sección'}}</h2>
+                            <p class="section-instructions" data-section-id="{{$sectionKey}}" style="display: none;">{{$section['instructions'] ?? ''}}</p>
+                        @endforeach
                     </div>
                 </div>
                 <div class="col-xl-2 col-md-4" style="display: none;">
@@ -120,9 +126,7 @@
         <div class="col-lg-12 text-center">
             <div class="box-pink">
                 <div class="row">
-
                     <div class="col-lg-8 offset-lg-2">
-
                         <div class="step-app" id="steps">
                             @php
                                 $id = request()->route('id');
@@ -130,44 +134,63 @@
                                 $userId = request()->route('userId');
                                 $count = 1;
                             @endphp
-                            <span id="step-active"></span>/{{count($assesments['interests']['groups'][0]['items'])}}
+                            <span id="step-active"></span>/
+                            <span id="step-total">
+                                {{ array_sum(array_map(function($section) {
+                                    $total = 0;
+                                    foreach ($section['groups'] ?? [] as $group) {
+                                        $total += count($group['items'] ?? []);
+                                    }
+                                    return $total;
+                                }, $sections)) }}
+                            </span>
                             <ul class="step-steps" style="display: none;">
-                                @foreach($assesments['interests']['groups'][0]['items'] as $asses)
-                                    <li data-step-target="step{{$asses['id']}}">{{$count}}</li>
+                                @foreach($sections as $sectionKey => $section)
+                                    @foreach(($section['groups'] ?? []) as $group)
+                                        @foreach(($group['items'] ?? []) as $asses)
+                                            <li data-step-target="step{{$asses['id']}}">{{$count}}</li>
+                                            @php $count++; @endphp
+                                        @endforeach
+                                    @endforeach
                                 @endforeach
                             </ul>
-                            @php
-                                $count ++;
-                            @endphp
-
                             <div class="step-content">
                                 <form action="#">
-                                    @foreach($assesments['interests']['groups'][0]['items'] as $key => $asses)
-                                        <div class="step-tab-panel" data-step="step{{$asses['id']}}">
-
-                                            <h4 class="text-center">{{$assesments['interests']['groups'][0]['items'][$key]['text']}}</h4><br>
-
-                                            @foreach($assesments['interests']['groups'][0]['items'][$key]['answers'] as $key => $answer)
-                                                @php
-                                                    $original = $answer['text'];
-                                                    $new_string = str_replace("probablemente", "probable", $original);
-                                                @endphp
-                                                <div class="form-check ps-0 q-box step" data-item-id="{{$asses['id']}}">
-                                                    <input class="form-check-input question__input answer" name="radio-{{$asses['id']}}" data-answer-id="{{$answer['id']}}" type="radio" id="{{$answer['id']}}">
-                                                    <label class="form-check-label question__label step-btn" data-step-action="next" for="{{$answer['id']}}">{{$new_string}}</label>
+                                    @foreach($sections as $sectionKey => $section)
+                                        @foreach(($section['groups'] ?? []) as $group)
+                                            @foreach(($group['items'] ?? []) as $key => $asses)
+                                                <div class="step-tab-panel" data-step="step{{$asses['id']}}" data-section-id="{{$sectionKey}}">
+                                                    <h4 class="text-center">{{$asses['text']}}</h4><br>
+                                                    @if($sectionKey == 'cognitive')
+                                                        @php
+                                                            $cognitiveIndex = array_search($asses, array_merge(...array_column($section['groups'], 'items'))) + 1;
+                                                        @endphp
+                                                        @if($cognitiveIndex >= 1 && $cognitiveIndex <= 5)
+                                                            <div class="text-center mb-4">
+                                                                <img src="{{asset('assets/img/cognitive/cogni-'.$cognitiveIndex.'.png')}}" alt="Cognitive Image {{$cognitiveIndex}}" class="img-fluid">
+                                                            </div>
+                                                        @endif
+                                                    @endif
+                                                    @foreach($asses['answers'] as $key => $answer)
+                                                        @php
+                                                            $original = $answer['text'];
+                                                            $new_string = str_replace("probablemente", "probable", $original);
+                                                        @endphp
+                                                        <div class="form-check ps-0 q-box step" data-item-id="{{$asses['id']}}">
+                                                            <input class="form-check-input question__input answer" name="radio-{{$asses['id']}}" data-answer-id="{{$answer['id']}}" type="radio" id="{{$answer['id']}}">
+                                                            <label class="form-check-label question__label step-btn" data-step-action="next" for="{{$answer['id']}}">{{$new_string}}</label>
+                                                        </div>
+                                                    @endforeach
                                                 </div>
                                             @endforeach
-
-                                        </div>
+                                        @endforeach
                                     @endforeach
                                 </form>
                             </div>
                         </div>
                         <div class="hidden" id="step-loader" style="background-image:url('{{asset('assets/img/loader.gif')}}')"></div>
-
-                        <img src="{{asset('assets/img/detail.png')}}" id="octopus"class="animate__animated octopus" alt="Octopus">
+                        <img src="{{asset('assets/img/detail.png')}}" id="octopus" class="animate__animated octopus" alt="Octopus">
                     </div>
-                        
                 </div>
             </div>
             <a href="{{route('dashboard.welcome')}}" class="btn btn-danger btn-xs" style="margin-top: 20px;">Cancelar y regresar</a>
@@ -233,6 +256,9 @@
     var steps = $('#steps').steps({
         onChange: function (currentIndex, newIndex, stepDirection) {
             $('#step-active').text(newIndex + 1);
+            const currentSectionId = $('.step-tab-panel').eq(newIndex).data('section-id');
+            updateStepTotal(currentSectionId);
+            updateSectionVisibility(newIndex + 1);
             return true;
         },
         onFinish: function () {
@@ -280,11 +306,11 @@
 
     //Animation class random
     $(document).ready(function() {
-        $('.step-btn').click(function() {
+        $('.step-btn').on('click', function() {
             var img1 = "{{ asset('assets/img/edit.png') }}";
             var img2 = "{{ asset('assets/img/finish.png') }}";
             var img3 = "{{ asset('assets/img/detail.png') }}";
-            const img = [img1,img2,img3];
+            const img = [img1, img3];
             const clases = ['animate__bounce', 'animate__fadeInUpBig', 'animate__fadeInLeftBig', 'animate__fadeInBottomRight', 'animate__fadeInTopRight', 'animate__jello', 'animate__jello', 'animate__heartBeat', 'animate__rubberBand', 'animate__swing'];
 
             const indiceAleatorio = Math.floor(Math.random() * clases.length);
@@ -293,20 +319,61 @@
             const claseAleatoria = clases[indiceAleatorio];
             const imgAleatoria = img[imgAleatorio];
 
-            const elemento = $('#octopus');
+            const $elemento = $('#octopus');
 
             function anadirClase() {
-                elemento.addClass('octopus');
+                $elemento.addClass('octopus');
             }
 
-            //Cambiar fotos
-            elemento.attr('src',imgAleatoria);
+            // Cambiar fotos
+            $elemento.attr('src', imgAleatoria);
 
-            elemento.removeClass();
-            elemento.addClass('animate__animated');
-            elemento.addClass(claseAleatoria);
+            $elemento.removeClass();
+            $elemento.addClass('animate__animated');
+            $elemento.addClass(claseAleatoria);
             setTimeout(anadirClase, 2000);
         });
+    });
+
+    // Update section title and instructions visibility based on the current step
+    function updateSectionVisibility(currentStep) {
+        let cumulativeCount = 0;
+        let currentSectionId = null;
+
+        // Determine the current section based on the step number
+        $('.step-tab-panel').each(function(index) {
+            const sectionId = $(this).data('section-id');
+            if (sectionId !== currentSectionId) {
+                currentSectionId = sectionId;
+                cumulativeCount = 0; // Reset count for the new section
+            }
+            cumulativeCount++;
+            if (index + 1 === currentStep) {
+                return false; // Break the loop when the current step is found
+            }
+        });
+
+        // Hide all section titles and instructions
+        $('.section-title, .section-instructions').hide();
+
+        // Show the title and instructions for the current section
+        if (currentSectionId) {
+            $(`.section-title[data-section-id="${currentSectionId}"], .section-instructions[data-section-id="${currentSectionId}"]`).show();
+        }
+    }
+
+    // Update the total steps dynamically based on the current section
+    function updateStepTotal(currentSectionId) {
+        const totalSteps = $(`.step-tab-panel[data-section-id="${currentSectionId}"]`).length;
+        $('#step-total').text(totalSteps);
+    }
+
+    // Initialize visibility on page load
+    $(document).ready(function() {
+        const initialSectionId = $('.step-tab-panel').first().data('section-id');
+        updateStepTotal(initialSectionId);
+        const initialStep = 1; // Start with the first step explicitly
+        updateSectionVisibility(initialStep); // Ensure the first step's instructions are shown
     });
 </script>
 @endpush

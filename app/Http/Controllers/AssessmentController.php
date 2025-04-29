@@ -26,17 +26,24 @@ class AssessmentController extends Controller
         return view('dashboard.assessments.index',compact('assesments','user'));
     }
 
-    public function welcome()
+public function welcome()
     {
         return view('assessments.welcome');
     }
 
-    public function newEvaluation($respondentId, $locale = 'es-ES')
+    public function newEvaluation(Request $request)
     {   
-        $email = User::where('account_id',$respondentId)->first();
-        $id_return = $this->createNewEvaluation($respondentId,$locale,array($email));
+        $user = User::where('account_id',$request->respondentId)->first();
+        $type = $request->type;
+        
+        $lang = $user->lang ?? 'en-US';
+        if ($lang === 'es-MX') {
+            $lang = 'es-ES';
+        }
+
+        $id_return = $this->createNewEvaluation($request->respondentId,$lang,array($user->email),$type);
         $assesment = $this->getAssesment($id_return);
-        return $this->startEvaluate($respondentId,$assesment['id'],$assesment['token'],$locale);
+        return $this->startEvaluate($request->respondentId,$assesment['id'],$assesment['token'],$lang);
     }
 
     public function startEvaluate($respondentId,$id,$token,$lang)
@@ -152,6 +159,9 @@ class AssessmentController extends Controller
     public function continueEvaluate($userId,$id,$token,$lang)
     {
         $assesments = $this->getDataAssessment($id,$token,$lang);
+        $assesments = collect($assesments)->sortBy(function($section, $key) {
+            return $key === 'cognitive' ? 0 : 1;
+        })->toArray();
         return view('dashboard.users.evaluate',compact('assesments'));
     }
 

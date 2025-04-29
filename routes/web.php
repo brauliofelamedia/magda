@@ -78,7 +78,7 @@ Route::get('/', [DashboardController::class, 'welcome'])->name('dashboard.welcom
     Route::get('/assessment/start/{id}/{token}/{lang}', [AssessmentController::class, 'startEvaluate'])->name('assessments.start');
     Route::get('/assessment/continue/{userId}/{id}/{token}/{lang}', [AssessmentController::class, 'continueEvaluate'])->name('assessments.continue');
     Route::post('/assessment/update', [AssessmentController::class, 'updateAnswersAssessment'])->name('assessments.update');
-    Route::get('/assessment/new/{id}/{lang}', [AssessmentController::class, 'newEvaluation'])->name('assessments.new');
+    Route::post('/assessment/new', [AssessmentController::class, 'newEvaluation'])->name('assessments.new');
     Route::post('/assessment/user/new', [AssessmentController::class, 'createNewUser'])->name('assessments.user.new');
     Route::post('/assessment/close', [AssessmentController::class, 'closeAssessment'])->name('assessments.close');
     Route::get('/assessment/finish/{id}', [AssessmentController::class, 'finish'])->name('assessments.finish');
