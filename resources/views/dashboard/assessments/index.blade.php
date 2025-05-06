@@ -193,23 +193,13 @@
                                 @else
                                     <p class="text-center">El usuario no tiene evaluaciones</p>
                                 @endif
-                                    <div class="text-center">
-                                        @hasrole('respondent')
-                                            <!-- Button to trigger modal -->
-                                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#evaluationTypeModal">
-                                                Iniciar nueva evaluación
-                                            </button>
-                                            <a href="{{route('dashboard.welcome')}}" class="btn btn-secondary">Regresar</a>
-                                        @elseif('institution')
-                                            <!-- Button to trigger modal -->
-                                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#evaluationTypeModal">
-                                                Asignar una evaluación
-                                            </button>
-                                            <a href="{{route('dashboard.welcome')}}" class="btn btn-secondary">Regresar</a>
-                                        @else
-                                            <a href="{{route('dashboard.welcome')}}" class="btn btn-secondary">Regresar</a>
-                                        @endhasrole
-                                    </div>
+                                <div class="text-center">
+                                    <!-- Button to trigger modal -->
+                                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#evaluationTypeModal">
+                                        Asignar una evaluación
+                                    </button>
+                                    <a href="{{route('dashboard.welcome')}}" class="btn btn-secondary">Regresar</a>
+                                </div>
                             </div>
                         </div>
                     </div>
