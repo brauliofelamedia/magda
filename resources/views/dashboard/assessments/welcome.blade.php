@@ -131,6 +131,41 @@
 @endpush
 
 @section('content')
+<!-- Modal -->
+<div class="modal fade" id="evaluationTypeModal" tabindex="-1" aria-labelledby="evaluationTypeModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="evaluationTypeModalLabel">Seleccionar tipo de evaluación</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="evaluationTypeForm" method="POST" action="{{route('assessments.new')}}">
+                    @csrf
+                    <input type="hidden" name="respondentId" value="{{Auth::user()->account_id}}">
+                    <input type="hidden" name="locale" value="{{Auth::user()->lang}}">
+                    <div class="mb-3">
+                        <label for="evaluationType" class="form-label">Tipo de evaluación</label>
+                        <select class="form-select" id="evaluationType" name="type" required>
+                            <option value="" selected disabled>Seleccione una opción</option>
+                            @if(in_array('short', Auth::user()->type_of_evaluation ?? []))
+                                <option value="short">Evaluación corta (intereses) - 60 preguntas</option>
+                            @endif
+                            @if(in_array('long', Auth::user()->type_of_evaluation ?? []))
+                                <option value="long">Evaluación larga (comportamientos, intereses y cognitivo) - 202 preguntas</option>
+                            @endif
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" class="btn btn-primary" form="evaluationTypeForm">Continuar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
     <div class="container" id="dashboard">
         @include('parts.user-top')
         <div class="row mt-10">
@@ -143,7 +178,9 @@
                                 <h3 class="text-center">Hola <strong>{{Auth::user()->name}}</strong>, bienvenido a <span>Tu Talento</span> <span class="red">Finder</span></h3>
                                 <div class="text-center">
                                     <p class="card-text">¿Qué deseas hacer hoy?</p>
-                                    <a href="{{route('assessments.new',[Auth::user()->account_id,Auth::user()->lang])}}" class="btn btn-primary">Iniciar Nueva Evaluación</a>
+                                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#evaluationTypeModal">
+                                        Asignar una evaluación
+                                    </button>
                                     <a href="{{route('assessments.index',Auth::user()->account_id)}}" class="btn btn-secondary">Ver Historial</a>
                                 </div>
                             </div>
