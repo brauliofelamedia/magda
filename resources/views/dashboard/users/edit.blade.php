@@ -153,7 +153,7 @@
                                                         <select name="user_id" id="user_id" class="form-control">
                                                             <option value="">-- Selecciona a quien sera asignado el usuario --</option>
                                                             @foreach($institutes as $institute)
-                                                                <option value="{{$institute->id}}" @if($institute->id == $user->user_id) selected @endif>{{$institute->name_institution}}</option>
+                                                                <option value="{{$institute->id}}" @if($institute->id == $user->user_id) selected @endif>{{$institute->name}}</option>
                                                             @endforeach
                                                         </select>
                                                     </div>
