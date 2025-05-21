@@ -203,7 +203,7 @@ public function welcome()
                 $user->password = bcrypt($passwordRandom);
                 $user->save();
 
-                //Mail::to($user->email)->send(new SendCreateUser($user,$passwordRandom));
+                Mail::to($user->email)->send(new SendCreateUser($user,$passwordRandom));
             }
 
             if($request->name_institution){
