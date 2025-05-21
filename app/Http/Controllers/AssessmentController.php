@@ -28,7 +28,8 @@ class AssessmentController extends Controller
 
 public function welcome()
     {
-        return view('assessments.welcome');
+        $institutions = User::role('institution')->get();
+        return view('assessments.welcome', compact('institutions'));
     }
 
     public function newEvaluation(Request $request)
@@ -184,6 +185,7 @@ public function welcome()
             $user->name = $request->name;
             $user->last_name = $request->lastname;
             $user->email = $request->email;
+            $user->type_of_evaluation = $request->type_of_evaluation;
             $user->lang = $request->locale;
             $user->user_id = $request->user_id;
             $user->account_id = $data['data']['createRespondent']['respondent']['id'];
@@ -193,18 +195,15 @@ public function welcome()
 
             //Generate password / Save passwords
             if($request->password){
-
                 $user->password = bcrypt($request->password);
                 $user->save();
                 Mail::to($user->email)->send(new SendCreateUser($user,$request->password));
-
             } else {
-
                 $passwordRandom = Str::random(10);
                 $user->password = bcrypt($passwordRandom);
                 $user->save();
 
-                Mail::to($user->email)->send(new SendCreateUser($user,$passwordRandom));
+                //Mail::to($user->email)->send(new SendCreateUser($user,$passwordRandom));
             }
 
             if($request->name_institution){

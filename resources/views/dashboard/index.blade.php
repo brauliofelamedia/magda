@@ -4,6 +4,17 @@
 
 @push('css')
 <style>
+    .type {
+        background-color: #ececec;
+        padding: 20px;
+        border-radius: 11px;
+    }
+
+    .modal-footer {
+        padding: 0!important;
+        padding-top: 15px !important;
+    }
+
     .mt-10 {
         margin-top: 70px!important;
     }
@@ -206,20 +217,9 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form class="form" method="post" action="{{route('assessments.user.new')}}">
+                <form class="form" method="post" id="formModalCreate" action="{{route('assessments.user.new')}}">
                     @csrf
-                    <div class="row" id="institution_name" style="display: none;">
-                        <div class="col-xl-12">
-                            <div class="form-group">
-                                <label for="name">Nombre de la institución:</label>
-                                <input type="text" id="name_institution" name="name_institution" class="form-control" autocomplete="off">
-                            </div>
-                        </div>
-                    </div>
                     <div class="row">
-                        <div class="col-xl-12" id="legal_representative" style="display: none;">
-                            <h5>Representante legal:</h5>
-                        </div>
                         <div class="col-xl-12">
                             <div class="form-group">
                                 <label for="role">Rol:</label>
@@ -237,12 +237,24 @@
                                 </select>
                             </div>
                         </div>
+                        <div class="col-xl-12" id="legal_representative" style="display: none;">
+                            <h5>Representante legal:</h5>
+                        </div>
+                         <div class="row" id="institution_name" style="display: none;">
+                            <div class="col-xl-12">
+                                <div class="form-group">
+                                    <label for="name">Nombre de la institución:</label>
+                                    <input type="text" id="name_institution" name="name_institution" class="form-control" autocomplete="off">
+                                </div>
+                            </div>
+                        </div>
                         <div class="col-xl-12" id="institution">
                             <div class="form-group">
                                 <label for="name">Selecciona una institución:</label>
                                 <select name="user_id" class="form-control">
+                                        <option value="">-- Selecciona una instutución --</option>
                                     @foreach($institutions as $institution)
-                                        <option value="{{$institution->id}}">{{$institution->name_institution}}</option>
+                                        <option value="{{$institution->id}}">{{$institution->name}}</option>
                                     @endforeach
                                 </select>
                             </div>
@@ -257,6 +269,21 @@
                             <div class="form-group">
                                 <label for="lastname">Apellidos:</label>
                                 <input type="text" id="lastname" name="lastname" class="form-control" autocomplete="off" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-12" id="type">
+                        <div class="type">
+                            <label for="type_of_evaluation">Tipo de evaluación: <small class="form-text text-muted">Selecciona uno o más tipos de evaluación.</small></label>
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <div class="form-check">
+                                    <input type="checkbox" id="evaluation_short" name="type_of_evaluation[]" value="short" class="form-check-input">
+                                    <label class="form-check-label" for="evaluation_short">Evaluación corta (intereses) - 60 preguntas</label>
+                                </div>
+                                <div class="form-check">
+                                    <input type="checkbox" id="evaluation_long" name="type_of_evaluation[]" value="long" class="form-check-input">
+                                    <label class="form-check-label" for="evaluation_long">Evaluación larga (comportamientos, intereses y cognitivo) - 202 preguntas</label>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -297,11 +324,11 @@
                             <p>Si se deja en blanco, se generará una contraseña aleatoria.</p>
                         </div>
                     </div>
-                    <button type="submit" class="btn btn-success send-email">Registrar usuario</button>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-success send-email">Registrar usuario</button>
+                        <button type="button" class="btn btn-secondary btn-clear" data-bs-dismiss="modal">Cerrar</button>
+                    </div>
                 </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary btn-clear" data-bs-dismiss="modal">Cerrar</button>
             </div>
         </div>
         </div>
@@ -460,7 +487,9 @@
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script>
     $(document).ready(function(){
-        // Existing code for send-email and modal handling
+        $('#type').hide();
+        $('#institution').hide();
+
         $('.send-email').on('click', function(){
             Swal.fire({
                 title: "Registrando usuario",
@@ -641,6 +670,27 @@
                 }
             });
         });
+    });
+
+    $('#role').on('change', function() {
+        const selectedRole = $(this).val();
+        if (selectedRole === 'institution') {
+            $('#institution_name').show();
+            $('#legal_representative').show();
+            $('#institution').hide();
+            $('#type').hide();
+        } else if (selectedRole === 'administrator') {
+            $('#institution_name').hide();
+            $('#legal_representative').hide();
+            $('#institution').hide();
+            $('#type').hide();
+        } else {
+            $('#type').show();
+            $('#institution_name').hide();
+            $('#legal_representative').hide();
+            $('#institution').show();
+            
+        }
     });
 </script>
 @endpush
