@@ -163,6 +163,7 @@ public function welcome()
         $assesments = collect($assesments)->sortBy(function($section, $key) {
             return $key === 'cognitive' ? 0 : 1;
         })->toArray();
+        //dd($assesments);
         return view('dashboard.users.evaluate',compact('assesments'));
     }
 

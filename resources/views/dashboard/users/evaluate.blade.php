@@ -40,9 +40,18 @@
 
     #octopus {
         position: absolute;
-        left: 30px;
+        left: -110px;
         width: 290px;
-        bottom: 30px;
+        bottom: -80px;
+    }
+
+    .grey-content {
+        background-color: #ececec;
+        padding: 25px;
+        border-radius: 10px;
+        font-size: 16px;
+        line-height: 1.3em;
+        margin-bottom: 20px;
     }
 
     @media only screen and (max-width:768px){
@@ -160,7 +169,98 @@
                                         @foreach(($section['groups'] ?? []) as $group)
                                             @foreach(($group['items'] ?? []) as $key => $asses)
                                                 <div class="step-tab-panel" data-step="step{{$asses['id']}}" data-section-id="{{$sectionKey}}">
+                                                    {{var_dump($asses['id'])}}
                                                     <h4 class="text-center">{{$asses['text']}}</h4><br>
+                                                    @php
+                                                        $preguntasConContenido = [
+                                                            [
+                                                                'id' => 'COG_9',
+                                                                'contenido' => 'Muchas especies de aves pueden considerarse, en parte o exclusivamente, depredadoras. Tomado literalmente, el término "ave de presa" tiene un significado amplio que incluye muchas aves que cazan y se alimentan de animales y también las aves que se alimentan de pequeños insectos. En la ornitología, la definición de "ave de presa" tiene un significado más concreto: aves que tienen muy buena vista para encontrar comida, fuertes patas para sujetar la comida y un fuerte pico curvo para desgarrar la comida. La mayoría de las aves de presa también tienen fuertes garras curvadas para atrapar o matar a sus presas. Un ejemplo de esta diferencia en la definición, la definición más restringida excluye cigüeñas y gaviotas que pueden comer peces bastante grandes, en parte porque estas aves atrapan y matan totalmente con sus picos y, de modo similar, a los skuas que se alimentan de pájaros, a los pingüinos que comen peces y a las cucaburras que comen vertebrados, todos están excluídos. Las aves de presa, en general, se alimentan de los vertebrados, que son normalmente bastante grandes en relación al tamaño del ave. La mayoría también comen carroña, al menos ocasionalmente, y los buitres y cóndores comen carroña como su principal fuente de alimento. Muchas especies de aves rapaces son consideradas depredadoras.'
+                                                            ],
+                                                            [
+                                                                'id' => 'COG_7',
+                                                                'contenido' => 'Muchas especies de aves pueden considerarse, en parte o exclusivamente, depredadoras. Tomado literalmente, el término "ave de presa" tiene un significado amplio que incluye muchas aves que cazan y se alimentan de animales y también las aves que se alimentan de pequeños insectos. En la ornitología, la definición de "ave de presa" tiene un significado más concreto: aves que tienen muy buena vista para encontrar comida, fuertes patas para sujetar la comida y un fuerte pico curvo para desgarrar la comida. La mayoría de las aves de presa también tienen fuertes garras curvadas para atrapar o matar a sus presas. Un ejemplo de esta diferencia en la definición, la definición más restringida excluye cigüeñas y gaviotas que pueden comer peces bastante grandes, en parte porque estas aves atrapan y matan totalmente con sus picos y, de modo similar, a los skuas que se alimentan de pájaros, a los pingüinos que comen peces y a las cucaburras que comen vertebrados, todos están excluídos. Las aves de presa, en general, se alimentan de los vertebrados, que son normalmente bastante grandes en relación al tamaño del ave. La mayoría también comen carroña, al menos ocasionalmente, y los buitres y cóndores comen carroña como su principal fuente de alimento. Muchas especies de aves rapaces son consideradas depredadoras.'
+                                                            ],
+                                                            [
+                                                                'id' => 'COG_31',
+                                                                'contenido' => 'De las cuatro respuestas sugeridas selecciona, por favor, la palabra o frase que crees que tiene el significado MÁS PARECIDO a la indicada.'
+                                                            ],
+                                                            [
+                                                                'id' => 'COG_32',
+                                                                'contenido' => 'De las cuatro respuestas sugeridas selecciona, por favor, la palabra o frase que crees que tiene el significado MÁS PARECIDO a la indicada.'
+                                                            ],
+                                                            [
+                                                                'id' => 'COG_14',
+                                                                'contenido' => 'Los orígenes de Internet se remontan a la investigación encargada por el gobierno de los Estados Unidos en la década de los 60 para construir una comunicación robusta, tolerante a fallos de comunicación a través de redes informáticas. Este trabajo, combinado con el trabajo del Reino Unido y Francia, llevó a la red primaria precursora, ARPANET, en Estados Unidos. Un documento de 1980 alude a "ARPA Internet". La interconexión de las redes académicas regionales en los años 80 marcó el comienzo de la transición al moderno Internet. Desde principios de 1990, la red ha experimentado un crecimiento exponencial sostenido en tanto que las generaciones de computadoras institucionales, personales y los teléfonos se conectaron a ella.'
+                                                            ],
+                                                            [
+                                                                'id' => 'COG_11',
+                                                                'contenido' => 'A pesar del meteórico crecimiento de la tasa del producto interior bruto (PIB) del país (alrededor del 9%), la pobreza en la India sigue siendo generalizada; especialmente en las áreas rurales donde vive el 70% de los 1.2 mil millones de la población. Es una de las economías de más rápido crecimiento en el mundo, sin embargo sus riquezas apenas se redistribuyen entre la población. Gasta aproximadamente el 1% de su PIB en salud, que es la mitad del gasto de China, quien ya está planificando un incremento entre el 3 y el 4%.'
+                                                            ],
+                                                            [
+                                                                'id' => 'COG_10',
+                                                                'contenido' => 'A pesar del meteórico crecimiento de la tasa del producto interior bruto (PIB) del país (alrededor del 9%), la pobreza en la India sigue siendo generalizada; especialmente en las áreas rurales donde vive el 70% de los 1.2 mil millones de la población. Es una de las economías de más rápido crecimiento en el mundo, sin embargo sus riquezas apenas se redistribuyen entre la población. Gasta aproximadamente el 1% de su PIB en salud, que es la mitad del gasto de China, quien ya está planificando un incremento entre el 3 y el 4%.'
+                                                            ],
+                                                            [
+                                                                'id' => 'COG_34',
+                                                                'contenido' => 'De las cuatro respuestas sugeridas selecciona, por favor, la palabra o frase que crees que tiene el significado MÁS ALEJADO de la indicada.'
+                                                            ],
+                                                            [
+                                                                'id' => 'COG_33',
+                                                                'contenido' => 'De las cuatro respuestas sugeridas selecciona, por favor, la palabra o frase que crees que tiene el significado MÁS ALEJADO de la indicada.'
+                                                            ],
+                                                            [
+                                                                'id' => 'COG_13',
+                                                                'contenido' => 'Los orígenes de Internet se remontan a la investigación encargada por el gobierno de los Estados Unidos en la década de los 60 para construir una comunicación robusta, tolerante a fallos de comunicación a través de redes informáticas. Este trabajo, combinado con el trabajo del Reino Unido y Francia, llevó a la red primaria precursora, ARPANET, en Estados Unidos. Un documento de 1980 alude a "ARPA Internet". La interconexión de las redes académicas regionales en los años 80 marcó el comienzo de la transición al moderno Internet. Desde principios de 1990, la red ha experimentado un crecimiento exponencial sostenido en tanto que las generaciones de computadoras institucionales, personales y los teléfonos se conectaron a ella.'
+                                                            ],
+                                                            [
+                                                                'id' => 'COG_5',
+                                                                'contenido' => 'Aunque todavía no está reconocido por la Asociación Médica Internacional (IMA) como un trastorno diagnosticable, la adicción a los vídeojuegos es un problema muy real para muchas personas. Estudios recientes sugieren que entre el 6 y el 15 por ciento de los jugadores muestran signos que podrían ser caracterizados como una adicción. Aunque este transtorno puede tener consecuencias significativas para todas aquellas personas que lo padecen, sus signos y síntomas pueden, a veces, ser difícilmente reconocidos.'
+                                                            ],
+                                                            [
+                                                                'id' => 'COG_4',
+                                                                'contenido' => 'Aunque todavía no está reconocido por la Asociación Médica Internacional (IMA) como un trastorno diagnosticable, la adicción a los vídeojuegos es un problema muy real para muchas personas. Estudios recientes sugieren que entre el 6 y el 15 por ciento de los jugadores muestran signos que podrían ser caracterizados como una adicción. Aunque este transtorno puede tener consecuencias significativas para todas aquellas personas que lo padecen, sus signos y síntomas pueden, a veces, ser difícilmente reconocidos.'
+                                                            ],
+                                                            [
+                                                                'id' => 'COG_1',
+                                                                'contenido' => 'Por lo general, la gripe aviar (H5N1) no se transmite de las aves a los humanos. Sin embargo, en los últimos diez años ha habido cientos de casos de gripe aviar en los humanos, y, los científicos creen que, si hay una forma de que se contagie de persona a persona, podría tratarse de una gripe pandémica. La mayor parte de los casos de contagio de H5N1 se cree que han ocurrido como resultado del contacto directo o cercano con aves de corral enfermas o infectadas. Eso es porque no hay una inmunidad natural de la gripe aviar en los humanos. Nuestro cuerpo no puede desarrollar anticuerpos y, por lo general, se requiere hospitalización. Debido a esto, cualquier persona está en riesgo de contraer gripe aviar y eso es algo que aumenta la preocupación acerca de una gripe pandémica.'
+                                                            ],
+                                                            [
+                                                                'id' => 'COG_2',
+                                                                'contenido' => 'Por lo general, la gripe aviar (H5N1) no se transmite de las aves a los humanos. Sin embargo, en los últimos diez años ha habido cientos de casos de gripe aviar en los humanos, y, los científicos creen que, si hay una forma de que se contagie de persona a persona, podría tratarse de una gripe pandémica. La mayor parte de los casos de contagio de H5N1 se cree que han ocurrido como resultado del contacto directo o cercano con aves de corral enfermas o infectadas. Eso es porque no hay una inmunidad natural de la gripe aviar en los humanos. Nuestro cuerpo no puede desarrollar anticuerpos y, por lo general, se requiere hospitalización. Debido a esto, cualquier persona está en riesgo de contraer gripe aviar y eso es algo que aumenta la preocupación acerca de una gripe pandémica.'
+                                                            ],
+                                                            [
+                                                                'id' => 'COG_16',
+                                                                'contenido' => 'Cada problema consiste en tres frases. Según las dos primeras frases, la tercera puede ser verdadera, falsa o desconocida'
+                                                            ],
+                                                            [
+                                                                'id' => 'COG_17',
+                                                                'contenido' => 'Cada problema consiste en tres frases. Según las dos primeras frases, la tercera puede ser verdadera, falsa o desconocida'
+                                                            ],
+                                                            [
+                                                                'id' => 'COG_19',
+                                                                'contenido' => 'Cada problema consiste en tres frases. Según las dos primeras frases, la tercera puede ser verdadera, falsa o desconocida'
+                                                            ],
+                                                            [
+                                                                'id' => 'COG_18',
+                                                                'contenido' => 'Cada problema consiste en tres frases. Según las dos primeras frases, la tercera puede ser verdadera, falsa o desconocida'
+                                                            ],
+                                                            [
+                                                                'id' => 'COG_21',
+                                                                'contenido' => 'Cada problema consiste en tres frases. Según las dos primeras frases, la tercera puede ser verdadera, falsa o desconocida'
+                                                            ],
+                                                            [
+                                                                'id' => 'COG_20',
+                                                                'contenido' => 'Cada problema consiste en tres frases. Según las dos primeras frases, la tercera puede ser verdadera, falsa o desconocida'
+                                                            ],
+                                                        ];
+                                                    @endphp
+
+                                                    @foreach($preguntasConContenido as $preguntaContenido)
+                                                        @if($asses['id'] == $preguntaContenido['id'])
+                                                            <p class="grey-content">{{ $preguntaContenido['contenido'] }}</p>
+                                                        @endif
+                                                    @endforeach
                                                     @if($sectionKey == 'cognitive')
                                                         @php
                                                             $cognitiveIndex = array_search($asses, array_merge(...array_column($section['groups'], 'items'))) + 1;
