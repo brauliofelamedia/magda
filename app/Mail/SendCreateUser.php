@@ -14,7 +14,7 @@ use MailerSend\Helpers\Builder\Variable;
 
 class SendCreateUser extends Mailable
 {
-    use Queueable, SerializesModels, MailerSendTrait;
+    use Queueable, SerializesModels;
 
     public $user;
     public $password;
@@ -35,7 +35,7 @@ class SendCreateUser extends Mailable
     public function content()
     {
         return new Content(
-            view: 'emails.reset',
+            view: 'emails.create',
             with: [
                 'name' => $this->user->name,
                 'email' => $this->user->email,

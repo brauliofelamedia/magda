@@ -4,6 +4,7 @@ use App\Http\Controllers\ApiController;
 use App\Http\Controllers\AssessmentController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\FileUploadTestController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\TestController;
 use App\Http\Controllers\TokenController;
@@ -36,6 +37,11 @@ Route::get('/', [DashboardController::class, 'welcome'])->name('dashboard.welcom
     Route::get('/syncUsers', [DashboardController::class, 'syncUsers'])->name('dashboard.sync');
     Route::get('/import', [DashboardController::class, 'import'])->name('dashboard.import');
     Route::post('/import/process', [DashboardController::class, 'import_process'])->name('dashboard.process.import');
+    Route::post('/import/map', [DashboardController::class, 'import_map'])->name('dashboard.import.map');
+    Route::get('/import/template', [DashboardController::class, 'download_template'])->name('dashboard.download.template');
+    Route::get('/import/template/admin', [DashboardController::class, 'download_admin_template'])->name('dashboard.download.template.admin');
+    Route::get('/import/template/institution', [DashboardController::class, 'download_institution_template'])->name('dashboard.download.template.institution');
+    Route::get('/import/summary', [DashboardController::class, 'import_summary'])->name('dashboard.import.summary');
     Route::post('remove-notification', [DashboardController::class, 'remove_notification'])->name('dashboard.remove.notification');
 
     Route::post('category/updateNow', [CategoryController::class, 'assignCategory'])->name('category.updateNow');
@@ -94,3 +100,7 @@ Route::get('/', [DashboardController::class, 'welcome'])->name('dashboard.welcom
 });
 
 Auth::routes();
+
+// Ruta de diagnóstico de subida de archivos
+Route::get('/upload-test', [FileUploadTestController::class, 'test'])->name('upload.test');
+Route::post('/upload-test/manual', [FileUploadTestController::class, 'testManual'])->name('upload.test.manual');

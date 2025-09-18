@@ -6,10 +6,22 @@
                 <div class="row bg-grey">
                     <div class="col-md-5 col-sm-5 col-xs-6 col-4 relative">
                         @hasanyrole(['institution','administrator','coordinator'])
-                            <div class="avatar" style="background-image: url('{{@Auth::user()->avatar_url}}');"></div>
+                            <div class="avatar" style="background-image: url('{{ !empty(@Auth::user()->avatar_url) ? @Auth::user()->avatar_url : asset('assets/img/logo-center.jpg') }}');">
+                                @if(empty(@Auth::user()->avatar_url))
+                                    <span class="avatar-letter">{{ strtoupper(substr(@Auth::user()->name, 0, 1)) }}</span>
+                                @endif
+                            </div>
                         @else
-                            <div class="avatar" style="background-image: url('{{@Auth::user()->institution->avatar_url}}');"></div>
-                            <div class="avatar floating people" style="background-image: url('{{@Auth::user()->avatar_url}}');"></div>
+                            <div class="avatar" title="{{@Auth::user()->institution->name}}" style="background-image: url('{{ !empty(@Auth::user()->institution->avatar_url) ? @Auth::user()->institution->avatar_url : asset('assets/img/logo-center.jpg') }}');">
+                                @if(empty(@Auth::user()->institution->avatar_url))
+                                    <span class="avatar-letter">{{ strtoupper(substr(@Auth::user()->institution->name, 0, 1)) }}</span>
+                                @endif
+                            </div>
+                            <div class="avatar floating people" style="background-image: url('{{ !empty(@Auth::user()->avatar_url) ? @Auth::user()->avatar_url : asset('assets/img/logo-center.jpg') }}');">
+                                @if(empty(@Auth::user()->avatar_url))
+                                    <span class="avatar-letter">{{ strtoupper(substr(@Auth::user()->name, 0, 1)) }}</span>
+                                @endif
+                            </div>
                         @endhasanyrole
                     </div>
                     <div class="col-md-7 col-sm-7 col-xs-6 col-8">
@@ -72,4 +84,20 @@
 </div>
 
 @push('css')
+<style>
+    .avatar {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .avatar-letter {
+        position: absolute;
+        font-size: 24px;
+        font-weight: bold;
+        color: #ffffff;
+        text-align: center;
+    }
+</style>
 @endpush

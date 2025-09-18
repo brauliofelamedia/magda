@@ -450,13 +450,11 @@
                                         <div class="btn-group text-center" role="group">
                                             <a  href="{{route('dashboard.sync')}}" class="btn btn-warning"><i class="fas fa-sync"></i> Sincronizar usuarios</a>
                                         </div>
-                                        <div class="btn-group text-center" role="group" style="display: none;">
-                                            <a  href="{{route('dashboard.import')}}" class="btn btn-info"><i class="fas fa-file-import"></i> Importar usuarios</a>
-                                        </div>
                                     @endhasrole
                                     @hasanyrole(['administrator','institution'])
                                         <div class="btn-group text-center" role="group">
-                                            <a href="#" data-bs-toggle="modal" data-bs-target="#newModal" class="btn btn-success"><i class="fas fa-users"></i> Añadir usuario</a>
+                                            <a href="#" data-bs-toggle="modal" data-bs-target="#newModal" class="btn btn-success mx-1"><i class="fas fa-user-plus"></i> Añadir usuario</a>
+                                            <a href="{{route('dashboard.import')}}" class="btn btn-info mx-1"><i class="fas fa-file-import"></i> Importar usuarios</a>
                                         </div>
                                     @endhasanyrole
                                 </div>

@@ -8,23 +8,27 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
+use MailerSend\LaravelDriver\MailerSendTrait;
 
-class AssignEvaluate extends Mailable
+class TestMail extends Mailable
 {
-    use Queueable, SerializesModels;
+    use Queueable, SerializesModels, MailerSendTrait;
 
-    public function __construct(private $user, private $url)
+    /**
+     * Create a new message instance.
+     */
+    public function __construct()
     {
-        // Asegurarnos de que la URL sea completa
-        if ($this->url && !preg_match("~^(?:f|ht)tps?://~i", $this->url)) {
-            $this->url = config('app.url') . (str_starts_with($this->url, '/') ? '' : '/') . $this->url;
-        }
+        //
     }
 
+    /**
+     * Get the message envelope.
+     */
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Se te ha asignado una nueva evaluación - '.$this->user->name,
+            subject: 'Correo de Prueba',
         );
     }
 
@@ -34,11 +38,7 @@ class AssignEvaluate extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'emails.evaluate',
-            with: [
-                'name' => $this->user->name,
-                'url' => $this->url,
-            ],
+            view: 'emails.test-mail',
         );
     }
 
