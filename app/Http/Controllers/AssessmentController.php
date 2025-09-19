@@ -77,36 +77,20 @@ public function welcome()
         $user = Auth()->user();
         $assessment = Assessment::where('assessment_id', $id)->first();
         $locale = 'es-PR';
-        $items = $this->getReportAssessment($id,$locale);
-        $reports = $this->getReportAssessmentPDF($id,$locale);
-        $content = '';
-
+        
+        // Usar caché para evitar llamadas API repetidas (24 horas de caché)
+        $cacheKey = 'report_assessment_' . $id;
+        $items = cache()->remember($cacheKey, 86400, function() use($id, $locale) {
+            return $this->getReportAssessment($id, $locale);
+        });
+        
         if (!$assessment) {
             $assessment = new Assessment();
             $assessment->assessment_id = $id;
             $assessment->save();
-        }
-
-        if (!empty($reports['interests'])) {
-            if ($assessment->interest_url == null) {
-                $interestsContent = file_get_contents($reports['interests']);
-                $interestsPath = 'assessments/' . $id . '_interests.pdf';
-                Storage::disk('public')->put($interestsPath, $interestsContent);
-                $assessment->interest_url = $interestsPath;
-            }
-        }
-
-        if (!empty($reports['individual'])) {
-            if ($assessment->individual_url == null) {
-                $individualContent = file_get_contents($reports['individual']);
-                $individualPath = 'assessments/' . $id . '_individual.pdf';
-                Storage::disk('public')->put($individualPath, $individualContent);
-                $assessment->individual_url = $individualPath;
-            }
-        }
-
-        if (isset($assessment)) {
-            $assessment->save();
+            
+            // Si es nuevo, procesamos los reportes PDF en segundo plano
+            $this->processPDFs($id, $locale, $assessment);
         }
 
         $pdf_interest = null;
@@ -114,31 +98,102 @@ public function welcome()
 
         if ($assessment->interest_url && Storage::disk('public')->exists($assessment->interest_url)) {
             $pdf_interest = url(Storage::url($assessment->interest_url));
-            $pdfPath = storage_path('app/public/' . $assessment->interest_url);
-        } elseif ($assessment->individual_url && Storage::disk('public')->exists($assessment->individual_url)) {
-            $pdf_individual = url(Storage::url($assessment->individual_url));
-            $pdfPath = storage_path('app/public/' . $assessment->individual_url);
         }
         
-        if (empty($assessment->openia) && isset($pdfPath)) {
-            $parser = new \Smalot\PdfParser\Parser();
-            $pdf = $parser->parseFile($pdfPath);
-            
-            // Get all pages and limit to first 5
-            $pages = $pdf->getPages();
-            $pageLimit = min(5, count($pages));
-            
-            // Extract text from first 5 pages only
-            for ($i = 0; $i < $pageLimit; $i++) {
-            $content .= $pages[$i]->getText();
+        if ($assessment->individual_url && Storage::disk('public')->exists($assessment->individual_url)) {
+            $pdf_individual = url(Storage::url($assessment->individual_url));
+        }
+        
+        // Procesar con OpenAI en segundo plano si no está hecho
+        if (empty($assessment->openia) || empty($assessment->resumen_openia)) {
+            if ($assessment->is_processing != 1) {
+                $assessment->is_processing = 1;
+                $assessment->save();
+                
+                // En un entorno real, esto se manejaría con colas
+                // Por ahora hacemos una versión simplificada
+                $this->processOpenAI($assessment);
             }
-
-            $returnOpenAI = $this->analyzePDFWithOpenAI($content);
-            $assessment->openia = $returnOpenAI;
-            $assessment->save();
+        }
+        
+        // Devolver la vista aunque no esté completamente procesado
+        // El usuario verá los resultados incluso si OpenAI no ha terminado
+        return view('dashboard.users.finish',compact('items','user','assessment','pdf_interest','pdf_individual'));
+    }
+    
+    /**
+     * Procesa los PDFs en segundo plano
+     */
+    private function processPDFs($id, $locale, $assessment)
+    {
+        // En un sistema de producción, esto iría a una cola
+        $reports = $this->getReportAssessmentPDF($id, $locale);
+        
+        if (!empty($reports['interests']) && $assessment->interest_url == null) {
+            $interestsContent = file_get_contents($reports['interests']);
+            $interestsPath = 'assessments/' . $id . '_interests.pdf';
+            Storage::disk('public')->put($interestsPath, $interestsContent);
+            $assessment->interest_url = $interestsPath;
         }
 
-        return view('dashboard.users.finish',compact('items','reports','user','assessment','pdf_interest','pdf_individual'));
+        if (!empty($reports['individual']) && $assessment->individual_url == null) {
+            $individualContent = file_get_contents($reports['individual']);
+            $individualPath = 'assessments/' . $id . '_individual.pdf';
+            Storage::disk('public')->put($individualPath, $individualContent);
+            $assessment->individual_url = $individualPath;
+        }
+
+        $assessment->save();
+    }
+    
+    /**
+     * Procesa el análisis de OpenAI
+     */
+    private function processOpenAI($assessment)
+    {
+        try {
+            // Solo procesar si tenemos un PDF disponible
+            if (($assessment->interest_url && Storage::disk('public')->exists($assessment->interest_url)) || 
+                ($assessment->individual_url && Storage::disk('public')->exists($assessment->individual_url))) {
+                
+                $pdfPath = null;
+                if ($assessment->interest_url) {
+                    $pdfPath = storage_path('app/public/' . $assessment->interest_url);
+                } elseif ($assessment->individual_url) {
+                    $pdfPath = storage_path('app/public/' . $assessment->individual_url);
+                }
+                
+                if ($pdfPath) {
+                    // Procesamos el PDF y hacemos una sola llamada a OpenAI
+                    $parser = new \Smalot\PdfParser\Parser();
+                    $pdf = $parser->parseFile($pdfPath);
+                    
+                    $content = '';
+                    $pages = $pdf->getPages();
+                    $pageLimit = min(5, count($pages));
+                    
+                    for ($i = 0; $i < $pageLimit; $i++) {
+                        $content .= $pages[$i]->getText();
+                    }
+                    
+                    // Usamos un prompt combinado para generar ambos resultados en una sola llamada
+                    $returnOpenAI = $this->combinedOpenAIAnalysis($content);
+                    
+                    // Si tenemos una respuesta, la guardamos
+                    if (!empty($returnOpenAI) && isset($returnOpenAI['main'], $returnOpenAI['summary'])) {
+                        $assessment->openia = $returnOpenAI['main'];
+                        $assessment->resumen_openia = $returnOpenAI['summary'];
+                        $assessment->is_processing = 0;
+                        $assessment->save();
+                    }
+                }
+            }
+        } catch (\Exception $e) {
+            // Log del error pero permitir que la página se siga mostrando
+            \Log::error('Error procesando OpenAI: ' . $e->getMessage());
+            $assessment->is_processing = 0;
+            $assessment->save();
+        }
     }
 
     public function closeAssessment(Request $request)
@@ -220,31 +275,93 @@ public function welcome()
 
     }
 
-    private function analyzePDFWithOpenAI($pdfText) {
-        $apiKey = env('OPENAI_API_KEY');
-        
-        $prompt = "Traducelo al español y haz lo siguiente, Actúa como un orientador vocacional con experiencia en desarrollo de carrera y análisis de perfiles. A continuación, recibirás un informe completo de intereses ocupacionales generado a través del assessment 'Tu Talento Finder' para un individuo. Tu tarea es leer y analizar dicho informe con atención.
+    private function combinedOpenAIAnalysis($pdfText) {
+        try {
+            $prompt = "Traducelo al español y haz lo siguiente, Actúa como un orientador vocacional con experiencia en desarrollo de carrera y análisis de perfiles. A continuación, recibirás un informe completo de intereses ocupacionales generado a través del assessment 'Tu Talento Finder' para un individuo. Tu tarea es leer y analizar dicho informe con atención.
 Basándote en:
 1. Los tres intereses ocupacionales más altos del participante (en orden de prioridad).
 2. Las descripciones detalladas de esos tipos de interés.
 3. Las ocupaciones sugeridas en las categorías profesionales del informe.
 4. La compatibilidad porcentual si está incluida.
 5. Los pasatiempos y motivadores asociados a los intereses dominantes.
-Genera lo siguiente:
-1. Las **5 profesiones ideales** para el participante, al día de hoy, que estén alineadas con sus intereses, motivadores y nivel de preparación actual (puedes hacer suposiciones razonables si no se incluye nivel de estudios).
-2. Las **5 mejores ideas de emprendimiento** que podrían entusiasmar y retar al participante, considerando sus motivadores personales, como el liderazgo, la autonomía, la creatividad o la interacción con personas.
-3. Justifica brevemente cada recomendación (1-2 líneas por cada profesión o emprendimiento).
-IMPORTANTE: Las recomendaciones deben ser prácticas, relevantes al contexto actual del mercado laboral, y ofrecer tanto opciones tradicionales como innovadoras. Sé concreto, creativo y profesional.
-Este es el informe para analizar: generalo en html solo entregame el body, no pongas fechas, sin header ordenando la lista, parrafos y titulos principal (h1), titulos secundarios (h2) y otros titulo (h3). \n\n" . $pdfText;
 
-        $response = OpenAI::chat()->create([
-            'model' => 'gpt-3.5-turbo',
-            'messages' => [
-                ['role' => 'user', 'content' => $prompt]
-            ],
-        ]);
-        
-        return $response->choices[0]->message->content;
+Necesito que generes dos secciones en formato JSON:
+1. Una sección 'main' con análisis completo detallado, incluyendo:
+   - Las 5 profesiones ideales para el participante alineadas con sus intereses
+   - Las 5 mejores ideas de emprendimiento
+   - Justificaciones para cada recomendación
+   - Formato en HTML (solo el body, sin fechas, sin header)
+
+2. Una sección 'summary' con un resumen conciso, incluyendo:
+   - Listado de las 5 profesiones recomendadas
+   - Listado de las 5 ideas de emprendimiento
+   - Breve justificación para cada una (1-2 líneas)
+   - Formato en HTML (solo el body, sin fechas, sin header)
+    -No hagas referencias a ChatGPT ni a IA en el texto.
+
+El formato de respuesta debe ser JSON exactamente así:
+{
+  \"main\": \"<aquí va el HTML del análisis detallado>\",
+  \"summary\": \"<aquí va el HTML del resumen>\"
+}
+
+IMPORTANTE: Las recomendaciones deben ser prácticas, relevantes al contexto actual del mercado laboral, y ofrecer tanto opciones tradicionales como innovadoras. Sé concreto, creativo y profesional.
+
+Este es el informe para analizar: \n\n" . $pdfText;
+
+            $response = OpenAI::chat()->create([
+                'model' => 'gpt-3.5-turbo-16k', // Usar modelo con contexto más grande para mejor manejo de documentos
+                'messages' => [
+                    ['role' => 'user', 'content' => $prompt]
+                ],
+                'response_format' => ['type' => 'json_object'], // Asegurarnos que devuelva JSON
+            ]);
+            
+            // Decodificar el JSON de respuesta
+            $content = $response->choices[0]->message->content;
+            $result = json_decode($content, true);
+            
+            // Si la respuesta no es un JSON válido o no tiene los campos esperados, devolvemos un formato predeterminado
+            if (!is_array($result) || !isset($result['main']) || !isset($result['summary'])) {
+                return [
+                    'main' => $content, // Si falló, usar todo el contenido como main
+                    'summary' => '<h1>Resumen no disponible</h1><p>No se pudo generar un resumen adecuado.</p>'
+                ];
+            }
+            
+            return $result;
+        } catch (\Exception $e) {
+            \Log::error('Error en OpenAI: ' . $e->getMessage());
+            return [
+                'main' => '<h1>Análisis no disponible</h1><p>Hubo un error al procesar el informe. Por favor inténtalo más tarde.</p>',
+                'summary' => '<h1>Resumen no disponible</h1><p>Hubo un error al procesar el informe. Por favor inténtalo más tarde.</p>'
+            ];
+        }
+    }
+    
+    // Mantenemos los métodos originales para compatibilidad con código existente
+    private function analyzePDFWithOpenAI($pdfText) {
+        $result = $this->combinedOpenAIAnalysis($pdfText);
+        return $result['main'];
+    }
+    
+    private function generateResumenOpenAI($openiaContent) {
+        // Si ya tenemos el contenido principal, intentamos extraer un resumen del mismo
+        $prompt = "Crea un resumen conciso del siguiente análisis vocacional. Incluye las 5 profesiones recomendadas y las 5 ideas de emprendimiento con una breve justificación para cada una (1-2 líneas). Formatea la respuesta en HTML limpio sin fechas ni headers: \n\n" . $openiaContent;
+
+        try {
+            $response = OpenAI::chat()->create([
+                'model' => 'gpt-3.5-turbo',
+                'messages' => [
+                    ['role' => 'user', 'content' => $prompt]
+                ],
+            ]);
+            
+            return $response->choices[0]->message->content;
+        } catch (\Exception $e) {
+            \Log::error('Error generando resumen: ' . $e->getMessage());
+            return '<h1>Resumen no disponible</h1><p>No se pudo generar un resumen del análisis.</p>';
+        }
     }
 
 }

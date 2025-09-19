@@ -197,7 +197,33 @@
 
     @media (max-width: 992px) {
         
-    }    
+    }
+    
+    .interpreter-collapse .interpreter-header {
+        padding: 10px 15px;
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .interpreter-collapse .interpreter-header:hover {
+        background-color: #e9ecef;
+    }
+    
+    .interpreter-collapse .interpreter-body {
+        padding: 0 15px;
+    }
+    
+    .interpreter-header .fa-chevron-down {
+        transition: transform 0.3s ease;
+        margin-left: 10px;
+    }
+    
+    .interpreter-header[aria-expanded="true"] .fa-chevron-down {
+        transform: rotate(180deg);
+    }
 </style>
 @endpush
 
@@ -231,9 +257,37 @@
                                                 <div class="col-xl-12">
                                                     <canvas id="myChart"></canvas>
 
-                                                    @if(isset($assessment->openia))
+                                                    @if(isset($assessment->openia) && !empty($assessment->openia))
                                                         <div class="resume" style="margin-top: 30px;box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                                                            <h4 style="margin-bottom:20px;padding:13px 20px; border-radius:20px;background-color:white;"><img src="{{asset('assets/img/chatgpt.png')}}" alt="ChatGPT" style="width: 120px; height: 40px; margin-right: 10px;"> Interpretación usando ChatGPT</h4>
                                                             {!!$assessment->openia!!}
+                                                        </div>
+                                                    @elseif($assessment->is_processing == 1)
+                                                        <div class="resume" style="margin-top: 30px;box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                                                            <div class="text-center">
+                                                                <div class="spinner-border text-primary" role="status">
+                                                                    <span class="visually-hidden">Cargando...</span>
+                                                                </div>
+                                                                <h3>Estamos generando tu análisis personalizado</h3>
+                                                                <p>Por favor espera unos momentos o recarga la página en unos instantes...</p>
+                                                            </div>
+                                                        </div>
+                                                    @endif
+                                                    
+                                                    @if(isset($assessment->resumen_openia) && empty($assessment->resumen_openia))
+                                                        <div class="resume interpreter-collapse" style="margin-top: 30px;box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                                                            <div class="interpreter-header" data-toggle="collapse" data-target="#interpreterContent" aria-expanded="false" aria-controls="interpreterContent" style="cursor: pointer;">
+                                                                <div style="display: flex; align-items: center;">
+                                                                    <img src="{{asset('assets/img/chatgpt.png')}}" alt="ChatGPT" style="width: 120px; height: 40px; margin-right: 10px;">
+                                                                    <h4 style="margin: 0;">Ver interpretación</h4>
+                                                                    <i class="fas fa-chevron-down ml-2"></i>
+                                                                </div>
+                                                            </div>
+                                                            <div class="collapse" id="interpreterContent">
+                                                                <div class="interpreter-body" style="padding-top: 15px;">
+                                                                    {!!$assessment->resumen_openia!!}
+                                                                </div>
+                                                            </div>
                                                         </div>
                                                     @endif
                                                     
@@ -245,7 +299,7 @@
                                                                     <ul style="list-style: none; padding-left: 0;">
                                                                         <li style="margin-bottom: 10px;">
                                                                             <i class="fas fa-check" style="color: #68c133; margin-right: 8px;"></i>
-                                                                            Puedes copiar este prompt y pegarlo directamente en ChatGPT, Claude, Gemini u otra IA.
+                                                                            Puedes copiar este prompt y pegarlo directamente en Claude, Gemini u otra IA.
                                                                         </li>
                                                                         <li style="margin-bottom: 10px;">
                                                                             <i class="fas fa-check" style="color: #68c133; margin-right: 8px;"></i>
@@ -347,6 +401,23 @@
                 alert('Error al copiar el prompt');
             });
         });
+        
+        $('.interpreter-header').click(function() {
+            var expanded = $(this).attr('aria-expanded') === 'true';
+            $(this).attr('aria-expanded', !expanded);
+            $(this).find('.fa-chevron-down').css('transform', !expanded ? 'rotate(180deg)' : 'rotate(0)');
+            // Activar el collapse de Bootstrap usando el método nativo de Bootstrap 5
+            var interpreterCollapse = bootstrap.Collapse.getOrCreateInstance(document.getElementById('interpreterContent'));
+            interpreterCollapse.toggle();
+        });
+        
+        // Si hay un proceso de análisis en curso, recargar la página cada 30 segundos
+        @if(isset($assessment) && $assessment->is_processing == 1)
+            // Recargar la página cada 30 segundos hasta que se complete el análisis
+            setTimeout(function() {
+                location.reload();
+            }, 30000);
+        @endif
     });
 </script>
 <script>
