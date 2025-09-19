@@ -5,6 +5,7 @@ use App\Http\Controllers\AssessmentController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FileUploadTestController;
+use App\Http\Controllers\OpenAIConfigController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\TestController;
 use App\Http\Controllers\TokenController;
@@ -74,6 +75,12 @@ Route::get('/', [DashboardController::class, 'welcome'])->name('dashboard.welcom
     //Users
     Route::post('users/email/welcome', [UserController::class, 'sendEmailWelcome'])->name('users.email.welcome');
     Route::resource('users',UserController::class);
+    
+    //OpenAI Config - Solo para administradores
+    Route::group(['middleware' => ['role:administrator']], function () {
+        Route::get('/openai/config', [OpenAIConfigController::class, 'index'])->name('openai.config');
+        Route::post('/openai/config', [OpenAIConfigController::class, 'store'])->name('openai.config.store');
+    });
 
     //Reports
     Route::post('/reports/results', [ReportController::class, 'getReportAssessments'])->name('report.results');

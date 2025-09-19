@@ -12,7 +12,7 @@ return [
     | and organization on your OpenAI dashboard, at https://openai.com.
     */
 
-    'api_key' => env('OPENAI_API_KEY'),
+    'api_key' => function_exists('app') ? \App\Models\OpenAIConfig::getActiveApiKey() ?? env('OPENAI_API_KEY') : env('OPENAI_API_KEY'),
     'organization' => env('OPENAI_ORGANIZATION'),
 
     /*

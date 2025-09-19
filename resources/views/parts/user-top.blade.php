@@ -37,6 +37,9 @@
                 </div>
                 <ul class="sub-menu">
                     <li><a href="{{route('users.edit',Auth()->user()->uuid)}}">Editar perfil</a></li>
+                    @if(Auth::user()->hasRole('administrator'))
+                    <li><a href="{{route('openai.config')}}">Configuración OpenAI</a></li>
+                    @endif
                     <li>
                         <form action="{{route('logout')}}" method="POST">
                             @csrf

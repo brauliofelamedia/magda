@@ -12,7 +12,8 @@ class ReportController extends Controller
     use APICalls;
 
     private function analyzePDFWithOpenAI($pdfText) {
-        $apiKey = env('OPENAI_API_KEY');
+        // Verificar si hay una API key personalizada configurada
+        $apiKey = \App\Models\OpenAIConfig::getActiveApiKey() ?? env('OPENAI_API_KEY');
         $client = OpenAI::client($apiKey);
         
         $prompt = "Basado en el siguiente texto que contiene intereses y habilidades profesionales, 
