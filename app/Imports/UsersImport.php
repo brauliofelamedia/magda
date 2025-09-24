@@ -30,7 +30,7 @@ class UsersImport implements ToModel, WithStartRow
      *
      * @param array $mapping Mapeo de columnas (nombre de campo => índice en Excel)
      */
-    public function __construct(array $mapping = null)
+    public function __construct(?array $mapping = null)
     {
         $this->mapping = $mapping;
     }
@@ -98,11 +98,10 @@ class UsersImport implements ToModel, WithStartRow
         }
         
         // Determinar el ID de usuario institucional (si aplica)
-        $institutionId = Auth::id(); // Por defecto, el usuario actual
+        $institutionId = null;
         
-        // Si hay un mapeo para institution_email y hay un valor en esa columna
-        if ($userIdIndex !== null && !empty($row[$userIdIndex])) {
-            // Buscar la institución por su correo electrónico
+        if (Auth::user()->hasRole('administrator') && $userIdIndex !== null && !empty($row[$userIdIndex])) {
+            // Solo administradores pueden asignar a otras instituciones
             $institutionEmail = trim($row[$userIdIndex]);
             $targetInstitution = User::where('email', $institutionEmail)->first();
             
@@ -113,17 +112,25 @@ class UsersImport implements ToModel, WithStartRow
             } else {
                 \Log::warning("No se encontró institución con email: {$institutionEmail} o no tiene el rol adecuado");
             }
+        } elseif (Auth::user()->hasRole('institution')) {
+            // Instituciones siempre asignan a sí mismas
+            $institutionId = Auth::id();
         }
         
         // Crear nuevo usuario en el sistema
-        $user = new User([
+        $userData = [
             'name' => $row[$nameIndex],
             'last_name' => $row[$lastNameIndex],
             'email' => $row[$emailIndex],
             'lang' => $lang,
             'password' => $password,
-            'user_id' => $institutionId // Asignar la institución correspondiente
-        ]);
+        ];
+        
+        if ($institutionId !== null) {
+            $userData['user_id'] = $institutionId;
+        }
+        
+        $user = new User($userData);
         
         // Guardar el usuario para obtener su ID
         $user->save();
