@@ -277,7 +277,8 @@ public function welcome()
 
     private function combinedOpenAIAnalysis($pdfText) {
         try {
-            $prompt = "Traducelo al español y haz lo siguiente, Actúa como un orientador vocacional con experiencia en desarrollo de carrera y análisis de perfiles. A continuación, recibirás un informe completo de intereses ocupacionales generado a través del assessment 'Tu Talento Finder' para un individuo. Tu tarea es leer y analizar dicho informe con atención.
+            $prompt = "Traducelo al español y haz lo siguiente, Actúa como un orientador vocacional con experiencia en desarrollo de carrera y análisis de perfiles. El estudiante acaba de completar la evaluación Tu Talento Finder. A continuación, recibirás un informe completo de intereses ocupacionales generado a través del assessment 'Tu Talento Finder' para un individuo. Tu tarea es leer y analizar dicho informe con atención y entregar una respuesta clara, motivadora y sencilla (nivel de lectura 8vo grado).
+
 Basándote en:
 1. Los tres intereses ocupacionales más altos del participante (en orden de prioridad).
 2. Las descripciones detalladas de esos tipos de interés.
@@ -287,17 +288,23 @@ Basándote en:
 
 Necesito que generes dos secciones en formato JSON:
 1. Una sección 'main' con análisis completo detallado, incluyendo:
-   - Las 5 profesiones ideales para el participante alineadas con sus intereses
-   - Las 5 mejores ideas de emprendimiento
+   - Las 5 carreras profesionales o vocacionales que más se alinean con el perfil del estudiante y los programas académicos en Puerto Rico necesarios para esas 5 carreras
+   - 5 ideas de emprendimiento viables en Puerto Rico que conecten con sus talentos y personalidad, con una inversión máxima de \$1,000
+   - Una reflexión motivadora con tono juvenil, que invite a creer en su potencial y tomar acción
    - Justificaciones para cada recomendación
    - Formato en HTML (solo el body, sin fechas, sin header)
+   - Usa viñetas para que sea fácil de leer
+   - Tono amigable, claro, inspirador y breve
+   - Evita lenguaje técnico
 
 2. Una sección 'summary' con un resumen conciso, incluyendo:
-   - Listado de las 5 profesiones recomendadas
-   - Listado de las 5 ideas de emprendimiento
+   - Listado de las 5 carreras profesionales recomendadas con sus programas académicos en Puerto Rico
+   - Listado de las 5 ideas de emprendimiento (con inversión máxima de \$1,000)
    - Breve justificación para cada una (1-2 líneas)
    - Formato en HTML (solo el body, sin fechas, sin header)
-    -No hagas referencias a ChatGPT ni a IA en el texto.
+   - Tono amigable y claro (nivel 8vo grado)
+   - Usa viñetas
+   - No hagas referencias a ChatGPT ni a IA en el texto.
 
 El formato de respuesta debe ser JSON exactamente así:
 {
@@ -305,7 +312,11 @@ El formato de respuesta debe ser JSON exactamente así:
   \"summary\": \"<aquí va el HTML del resumen>\"
 }
 
-IMPORTANTE: Las recomendaciones deben ser prácticas, relevantes al contexto actual del mercado laboral, y ofrecer tanto opciones tradicionales como innovadoras. Sé concreto, creativo y profesional.
+IMPORTANTE: 
+- Las recomendaciones deben ser prácticas, relevantes al contexto actual del mercado laboral en Puerto Rico, y ofrecer tanto opciones tradicionales como innovadoras.
+- Sé concreto, creativo y profesional, pero mantén un tono juvenil y motivador.
+- La respuesta debe ser escrita en tono amigable, claro, inspirador y breve (nivel de lectura 8vo grado).
+- Evita lenguaje técnico y usa viñetas para facilitar la lectura.
 
 Este es el informe para analizar: \n\n" . $pdfText;
 
