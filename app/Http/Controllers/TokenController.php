@@ -31,9 +31,12 @@ class TokenController extends Controller
             // Test 1: DNS Resolution
             $host = 'api.gr8pi.com';
             $ip = gethostbyname($host);
+            $dnsRecords = dns_get_record($host, DNS_A);
+            
             $results['dns_lookup'] = [
                 'host' => $host,
                 'resolved_ip' => $ip,
+                'dns_records' => $dnsRecords,
                 'is_local' => ($ip === '127.0.0.1' || $ip === '::1') ? 'YES (Problem!)' : 'NO'
             ];
 
@@ -60,62 +63,72 @@ class TokenController extends Controller
             
             $start = microtime(true);
             
-            // Add User-Agent and explicitly disable some SSL checks for testing if needed
-            $response = Http::withOptions(array_merge($this->getHttpOptions(), [
-                'debug' => false // Set to true if we could capture stderr, but harder in web response
-            ]))->withHeaders([
-                'Accept' => 'application/json',
-                'Content-Type' => 'application/json',
-                'User-Agent' => 'Laravel/TuTalentoFinder-Diagnostic',
-            ])->post('https://api.gr8pi.com/api/v1/questionnaire-scheduling', [
-                'query' => 'mutation($input:GenerateTokenInput!){generateToken(input:$input){token refreshToken userId}}',
-                'variables' => [
-                    'input' => [
-                        'username' => $username,
-                        'password' => $password,
+            try {
+                // Add User-Agent and explicitly disable some SSL checks for testing if needed
+                $response = Http::withOptions(array_merge($this->getHttpOptions(), [
+                    'debug' => false 
+                ]))->withHeaders([
+                    'Accept' => 'application/json',
+                    'Content-Type' => 'application/json',
+                    'User-Agent' => 'Laravel/TuTalentoFinder-Diagnostic',
+                ])->post('https://api.gr8pi.com/api/v1/questionnaire-scheduling', [
+                    'query' => 'mutation($input:GenerateTokenInput!){generateToken(input:$input){token refreshToken userId}}',
+                    'variables' => [
+                        'input' => [
+                            'username' => $username,
+                            'password' => $password,
+                        ],
                     ],
-                ],
-            ]);
-            
-            $duration = round(microtime(true) - $start, 2);
-            $data = $response->json();
-            
-            $results['api_connection'] = [
-                'status_code' => $response->status(),
-                'duration' => $duration . 's',
-                'success' => $response->successful(),
-                'response_preview' => $data
-            ];
-            
-            if ($response->successful() && isset($data['data']['generateToken']['token'])) {
-                // Update DB
-                $tokenData = $data['data']['generateToken'];
-                $config = Config::first();
-                if ($config) {
-                    $config->token = $tokenData['token'];
-                    $config->refreshToken = $tokenData['refreshToken'];
-                    $config->save();
-                } else {
-                    Config::create([
-                        'token' => $tokenData['token'],
-                        'refreshToken' => $tokenData['refreshToken']
-                    ]);
-                }
+                ]);
                 
-                $results['db_update'] = 'Success: Token updated in database.';
-                return response()->json(['status' => 'success', 'diagnostics' => $results]);
-            } else {
-                $results['db_update'] = 'Skipped: API connection failed or returned no token.';
-                return response()->json(['status' => 'error', 'message' => 'API Connection Failed', 'diagnostics' => $results], 500);
+                $duration = round(microtime(true) - $start, 2);
+                $data = $response->json();
+                
+                $results['api_connection'] = [
+                    'status_code' => $response->status(),
+                    'duration' => $duration . 's',
+                    'success' => $response->successful(),
+                    'response_preview' => $data
+                ];
+                
+                if ($response->successful() && isset($data['data']['generateToken']['token'])) {
+                    // Update DB
+                    $tokenData = $data['data']['generateToken'];
+                    $config = Config::first();
+                    if ($config) {
+                        $config->token = $tokenData['token'];
+                        $config->refreshToken = $tokenData['refreshToken'];
+                        $config->save();
+                    } else {
+                        Config::create([
+                            'token' => $tokenData['token'],
+                            'refreshToken' => $tokenData['refreshToken']
+                        ]);
+                    }
+                    
+                    $results['db_update'] = 'Success: Token updated in database.';
+                    return response()->json(['status' => 'success', 'diagnostics' => $results]);
+                } else {
+                    $results['db_update'] = 'Skipped: API connection failed or returned no token.';
+                    return response()->json(['status' => 'error', 'message' => 'API Connection Failed', 'diagnostics' => $results], 200);
+                }
+
+            } catch (\Exception $e) {
+                 $results['api_connection'] = [
+                    'status' => 'exception',
+                    'error' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString()
+                ];
+                return response()->json(['status' => 'exception', 'message' => 'API Exception', 'diagnostics' => $results], 200);
             }
             
         } catch (\Exception $e) {
             return response()->json([
-                'status' => 'exception',
+                'status' => 'fatal_exception',
                 'message' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
                 'diagnostics' => $results
-            ], 500);
+            ], 200);
         }
     }
 

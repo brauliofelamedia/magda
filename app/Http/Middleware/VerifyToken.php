@@ -86,7 +86,7 @@ class VerifyToken
 
             //Si el token ya expiro, lo actualizamos
             if(!$data){
-                $this->refreshToken();
+                return $this->refreshToken();
             }
 
         } catch(\Exception $e) {
