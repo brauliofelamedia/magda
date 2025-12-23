@@ -99,4 +99,27 @@ class UserController extends Controller
             return redirect()->back()->with('success', 'Si el correo coincide con nuestro registro, se te enviara una contraseña.');
         }
     }
+
+    public function destroy($uuid)
+    {
+        // Solo administradores pueden eliminar
+        if (!Auth::user()->hasRole('administrator')) {
+            return redirect()->back()->with('error', 'No tienes permisos para realizar esta acción.');
+        }
+
+        $user = User::where('uuid', $uuid)->firstOrFail();
+
+        // Verificar si tiene evaluaciones
+        if ($user->account_id) {
+            $assessments = $this->getAssessmentUser($user->account_id);
+            
+            if (!empty($assessments)) {
+                return redirect()->back()->with('error', 'No es posible eliminar el usuario ya que tiene evaluaciones.');
+            }
+        }
+
+        $user->delete();
+
+        return redirect()->back()->with('success', 'Usuario eliminado correctamente.');
+    }
 }

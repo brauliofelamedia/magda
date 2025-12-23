@@ -235,7 +235,13 @@ public function welcome()
     {
         //Creamos el usuario en la plataforma
         $data = $this->createUser($request->name,$request->lastname,$request->email,$request->gender,$request->locale);
-        if($data['data']['createRespondent']){
+        
+        // Verificar si ocurrió un error de excepción (string) o si la respuesta no tiene la estructura esperada
+        if (is_string($data)) {
+            return redirect()->back()->with('error', 'Error al conectar con la API: ' . $data);
+        }
+
+        if(isset($data['data']['createRespondent']) && $data['data']['createRespondent']){
             //Creamos el usuario en la base de datos
             $user = new User();
             $user->name = $request->name;
@@ -269,8 +275,8 @@ public function welcome()
 
             return redirect()->back()->with('success','Se ha creado el usuario correctamente.');
         } else {
-
-            return redirect()->back()->with('error',$data['errors'][0]['message']);
+            $errorMessage = isset($data['errors'][0]['message']) ? $data['errors'][0]['message'] : 'Error desconocido al crear el usuario.';
+            return redirect()->back()->with('error', $errorMessage);
          }
 
     }

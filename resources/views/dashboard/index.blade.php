@@ -434,6 +434,15 @@
                                                                 </a>
                                                             @endif
                                                         @endif
+                                                        @if(Auth::user()->hasRole('administrator'))
+                                                            <form action="{{ route('users.destroy', $user->uuid) }}" method="POST" class="d-inline" onsubmit="return confirm('¿Estás seguro de que deseas eliminar este usuario?');">
+                                                                @csrf
+                                                                @method('DELETE')
+                                                                <button type="submit" class="btn btn-danger btn-sm" title="Eliminar usuario">
+                                                                    <i class="fas fa-trash"></i>
+                                                                </button>
+                                                            </form>
+                                                        @endif
                                                     </td>
                                                 </tr>
                                             @endforeach
