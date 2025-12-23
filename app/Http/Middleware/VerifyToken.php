@@ -10,6 +10,18 @@ use Illuminate\Support\Facades\Http;
 
 class VerifyToken
 {
+    private function getHttpOptions()
+    {
+        return [
+            'connect_timeout' => 30,
+            'timeout' => 60,
+            'verify' => false,
+            'curl' => [
+                CURLOPT_IPRESOLVE => CURL_IPRESOLVE_V4,
+            ]
+        ];
+    }
+
     public function handle(Request $request, Closure $next): Response
     {
         $config = Config::first();
@@ -30,7 +42,7 @@ class VerifyToken
 
         try {
             //Obtenemos el token
-            $authResponse = Http::withHeaders([
+            $authResponse = Http::withOptions($this->getHttpOptions())->withHeaders([
                 'Accept' => 'application/json',
                 'Content-Type' => 'application/json',
             ])->post('https://api.gr8pi.com/api/v1/questionnaire-scheduling', [
@@ -62,7 +74,7 @@ class VerifyToken
 
         try {
             //Obtenemos el token
-            $authResponse = Http::withHeaders([
+            $authResponse = Http::withOptions($this->getHttpOptions())->withHeaders([
                 'Accept' => 'application/json',
                 'Authorization' => 'Bearer ' . $config->token,
                 'Content-Type' => 'application/json',
@@ -87,7 +99,7 @@ class VerifyToken
         
         try {
             //Obtenemos el token
-            $authResponse = Http::withHeaders([
+            $authResponse = Http::withOptions($this->getHttpOptions())->withHeaders([
                 'Accept' => 'application/json',
                 'Content-Type' => 'application/json',
             ])->post('https://api.gr8pi.com/api/v1/questionnaire-scheduling', [

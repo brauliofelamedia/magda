@@ -7,6 +7,18 @@ use App\Models\Config;
 
 class TokenController extends Controller
 {
+    private function getHttpOptions()
+    {
+        return [
+            'connect_timeout' => 30,
+            'timeout' => 60,
+            'verify' => false,
+            'curl' => [
+                CURLOPT_IPRESOLVE => CURL_IPRESOLVE_V4,
+            ]
+        ];
+    }
+
     public function getToken(){
 
         //Datos para iniciar sesión
@@ -15,7 +27,7 @@ class TokenController extends Controller
 
         try {
             //Obtenemos el token
-            $authResponse = Http::withHeaders([
+            $authResponse = Http::withOptions($this->getHttpOptions())->withHeaders([
                 'Accept' => 'application/json',
                 'Content-Type' => 'application/json',
             ])->post('https://api.gr8pi.com/api/v1/questionnaire-scheduling', [
@@ -77,7 +89,7 @@ class TokenController extends Controller
         $config = Config::first();
         try {
             //Obtenemos el token
-            $authResponse = Http::withHeaders([
+            $authResponse = Http::withOptions($this->getHttpOptions())->withHeaders([
                 'Accept' => 'application/json',
                 'Content-Type' => 'application/json',
             ])->post('https://api.gr8pi.com/api/v1/questionnaire-scheduling', [
