@@ -8,18 +8,21 @@ trait APICalls
 {
     public function getRespondents()
     {
-        $config = Config::latest()->first();
         try {
-            $authResponse = Http::withHeaders([
-                'Accept' => 'application/json',
-                'Authorization' => 'Bearer ' . $config->token,
-                'Content-Type' => 'application/json'
-            ])->post('https://api.gr8pi.com/api/v1/questionnaire-scheduling', [
-                'query' => 'query { account(id: 243576) { respondents(first:100) { edges { node { id,firstName,lastName,email,locale }}}}}',
-            ]);
+            $data = $this->executeGraphQL(
+                'https://api.gr8pi.com/api/v1/questionnaire-scheduling',
+                'query { account(id: 243576) { respondents(first:100) { edges { node { id,firstName,lastName,email,locale }}}}}'
+            );
 
-            $respondents = $authResponse->json('data.account.respondents.edges');
-            return $respondents;
+            if (is_string($data)) {
+                return [];
+            }
+
+            if (isset($data['errors'])) {
+                return [];
+            }
+
+            return $data['data']['account']['respondents']['edges'] ?? [];
 
         } catch (\Exception $e) {
             dd($e->getMessage());
@@ -28,14 +31,10 @@ trait APICalls
 
     public function getUserEvaluation()
     {
-        $config = Config::latest()->first();
         try {
-            $authResponse = Http::withHeaders([
-                'Accept' => 'application/json',
-                'Authorization' => 'Bearer ' . $config->token,
-                'Content-Type' => 'application/json'
-            ])->post('https://api.gr8pi.com/api/v1/questionnaire-scheduling', [
-                'query' => '{
+            $data = $this->executeGraphQL(
+                'https://api.gr8pi.com/api/v1/questionnaire-scheduling',
+                '{
                     account(id: 243576) {
                         respondents(first: 100, after: "CURSOR") {
                             edges {
@@ -59,10 +58,13 @@ trait APICalls
                         }
                     }
                 }'
-            ]);
+            );
 
-            $respondents = $authResponse->json('data.account.respondents.edges');
-            return $respondents;
+            if (is_string($data)) {
+                return [];
+            }
+
+            return $data['data']['account']['respondents']['edges'] ?? [];
 
         } catch (\Exception $e) {
             dd($e->getMessage());
@@ -71,29 +73,24 @@ trait APICalls
 
     public function startEvaluation($id,$token,$lang)
     {
-        $config = Config::latest()->first();
-
         try {
-            $authResponse = Http::withHeaders([
-                'Accept'        => 'application/json',
-                'Authorization' => 'Bearer ' . $config->token,
-                'Content-Type'  => 'application/json'
-            ])->post('https://api.gr8pi.com/api/v1/questionnaire-data-collection', [
-                'query'     => 'mutation($input: AssessmentStartInput!) { assessment_start(input: $input) { id status } }',
-                'variables' => [
+            $data = $this->executeGraphQL(
+                'https://api.gr8pi.com/api/v1/questionnaire-data-collection',
+                'mutation($input: AssessmentStartInput!) { assessment_start(input: $input) { id status } }',
+                [
                     'input' => [
                         'id'       => $id,
                         'token'    => $token,
                         'language' => $lang
                     ]
                 ]
-            ]);
+            );
 
-        $data = $authResponse->json();
-        $id_return = $data['data']['assessment_start']['id'];
-        return $id_return;
+            if (is_string($data)) {
+                return null;
+            }
 
-        //return redirect()->route('assessments.continue',[$id,$token,$lang]);
+            return $data['data']['assessment_start']['id'] ?? null;
 
         } catch (\Exception $e) {
             dd($e->getMessage());
@@ -111,15 +108,11 @@ trait APICalls
             $idTemplate = 261967;
         }
 
-        $config = Config::latest()->first();
         try {
-            $authResponse = Http::withHeaders([
-                'Accept'        => 'application/json',
-                'Authorization' => 'Bearer ' . $config->token,
-                'Content-Type'  => 'application/json'
-            ])->post('https://api.gr8pi.com/api/v1/questionnaire-scheduling', [
-                'query'     => 'mutation($input: CreateAssessmentInput!) { createAssessment(input: $input) { assessment { id } }}',
-                'variables' => [
+            $data = $this->executeGraphQL(
+                'https://api.gr8pi.com/api/v1/questionnaire-scheduling',
+                'mutation($input: CreateAssessmentInput!) { createAssessment(input: $input) { assessment { id } }}',
+                [
                     'input' => [
                         //Tu Talento Finder Intereses - 261966
                         //Tu Talento Finder Full Version - 261967
@@ -141,10 +134,13 @@ trait APICalls
                         ]
                     ]
                 ]
-            ]);
+            );
 
-            $data = $authResponse->json();
-            return $data['data']['createAssessment']['assessment']['id'];
+            if (is_string($data)) {
+                return null;
+            }
+
+            return $data['data']['createAssessment']['assessment']['id'] ?? null;
 
         } catch (\Exception $e) {
             dd($e->getMessage());
@@ -153,24 +149,23 @@ trait APICalls
 
     public function sendEmailEvaluation($assessmentId)
     {
-        $config = Config::latest()->first();
         try {
-            $authResponse = Http::withHeaders([
-                'Accept' => 'application/json',
-                'Authorization' => 'Bearer ' . $config->token,
-                'Content-Type' => 'application/json'
-            ])->post('https://api.gr8pi.com/api/v1/questionnaire-scheduling', [
-                'query' => 'mutation($input: InviteRespondentTakeAssessmentInput!) { inviteRespondentTakeAssessment(input: $input) { assessment { id } } }',
-                'variables' => [
+            $data = $this->executeGraphQL(
+                'https://api.gr8pi.com/api/v1/questionnaire-scheduling',
+                'mutation($input: InviteRespondentTakeAssessmentInput!) { inviteRespondentTakeAssessment(input: $input) { assessment { id } } }',
+                [
                     'input' => [
                         'accountId' => 243576,
                         'assessmentId' => $assessmentId
                     ]
                 ]
-            ]);
+            );
 
-            $assessments = $authResponse->json('data.inviteRespondentTakeAssessment.assessment.id');
-            return $assessments;
+            if (is_string($data)) {
+                return null;
+            }
+
+            return $data['data']['inviteRespondentTakeAssessment']['assessment']['id'] ?? null;
 
         } catch (\Exception $e) {
             dd($e->getMessage());
@@ -179,14 +174,10 @@ trait APICalls
 
     public function getAssesment($assessmentId)
     {
-        $config = Config::latest()->first();
         try {
-            $authResponse = Http::withHeaders([
-                'Accept' => 'application/json',
-                'Authorization' => 'Bearer ' . $config->token,
-                'Content-Type' => 'application/json'
-            ])->post('https://api.gr8pi.com/api/v1/questionnaire-scheduling', [
-                'query' => '
+            $data = $this->executeGraphQL(
+                'https://api.gr8pi.com/api/v1/questionnaire-scheduling',
+                '
                     query getAssessmentDetails($assessmentId: ID!, $accountId: ID!) {
                         account(id: $accountId) {
                             assessment(id: $assessmentId) {
@@ -206,14 +197,17 @@ trait APICalls
                         }
                     }
                 ',
-                'variables' => [
+                [
                     'assessmentId' => $assessmentId,
                     'accountId' => 243576,
                 ]
-            ]);
+            );
 
-            $assessment = $authResponse->json('data.account.assessment');
-            return $assessment;
+            if (is_string($data)) {
+                return null;
+            }
+
+            return $data['data']['account']['assessment'] ?? null;
 
         } catch (\Exception $e) {
             dd($e->getMessage());
@@ -222,55 +216,53 @@ trait APICalls
 
     public function closeAnswers($assessmentId,$token)
     {
-        $config = Config::latest()->first();
         try {
-            $authResponse = Http::withHeaders([
-                'Accept' => 'application/json',
-                'Authorization' => 'Bearer ' . $config->token,
-                'Content-Type' => 'application/json'
-            ])->post('https://api.gr8pi.com/api/v1/questionnaire-data-collection', [
-                'query'=> 'mutation($input: AssessmentSubmitInput!){ assessment_submit(input: $input) {id}}',
-                "variables" => [
+            $data = $this->executeGraphQL(
+                'https://api.gr8pi.com/api/v1/questionnaire-data-collection',
+                'mutation($input: AssessmentSubmitInput!){ assessment_submit(input: $input) {id}}',
+                [
                     "input" => [
                         "id"=> $assessmentId,
                         "token" => $token
                     ]
                 ]
-            ]);
+            );
 
-            $data = $authResponse->json('data.assessment_submit.id');
-            return $data;
+            if (is_string($data)) {
+                return $data;
+            }
+
+            return $data['data']['assessment_submit']['id'] ?? null;
 
         } catch (\Exception $e) {
             return $e->getMessage();
         }
-
     }
 
     public function updateAnswers($assessmentId,$token,$responses)
     {
-        $config = Config::latest()->first();
         try {
-            $authResponse = Http::withHeaders([
-                'Accept' => 'application/json',
-                'Authorization' => 'Bearer ' . $config->token,
-                'Content-Type' => 'application/json'
-            ])->post('https://api.gr8pi.com/api/v1/questionnaire-data-collection', [
-                'query' => '
+            $data = $this->executeGraphQL(
+                'https://api.gr8pi.com/api/v1/questionnaire-data-collection',
+                '
                     mutation($input: SubmitAnswersInput!) {
                         assessment_submitAnswers(input: $input)
                     }
                 ',
-                'variables' => [
+                [
                     'input' => [
                         'id' => $assessmentId,
                         'token' => $token,
                         'answers' => $responses
                     ]
                 ]
-            ]);
-            $data = $authResponse->json('data');
-            return $data;
+            );
+
+            if (is_string($data)) {
+                return $data;
+            }
+
+            return $data['data'] ?? null;
 
         } catch (\Exception $e) {
             return $e->getMessage();
@@ -279,14 +271,10 @@ trait APICalls
 
     public function getAssessmentUser($respondentId)
     {
-        $config = Config::latest()->first();
         try {
-            $authResponse = Http::withHeaders([
-                'Accept'        => 'application/json',
-                'Authorization' => 'Bearer ' . $config->token,
-                'Content-Type'  => 'application/json'
-            ])->post('https://api.gr8pi.com/api/v1/questionnaire-scheduling', [
-                'query' => 'query($accountId: ID!, $respondentId: ID!) {
+            $data = $this->executeGraphQL(
+                'https://api.gr8pi.com/api/v1/questionnaire-scheduling',
+                'query($accountId: ID!, $respondentId: ID!) {
                         account(id: $accountId) {
                             respondent(id: $respondentId) {
                                 timeline {
@@ -306,14 +294,17 @@ trait APICalls
                             }
                         }
                     }',
-                'variables' => [
+                [
                     'accountId'    => 243576,
                     'respondentId' => $respondentId
                 ]
-            ]);
+            );
 
-            $assessments = $authResponse->json('data.account.respondent.timeline.edges');
-            return $assessments;
+            if (is_string($data)) {
+                return [];
+            }
+
+            return $data['data']['account']['respondent']['timeline']['edges'] ?? [];
 
         } catch (\Exception $e) {
             dd($e->getMessage());
@@ -322,14 +313,10 @@ trait APICalls
 
     public function getDataAssessment($id,$token,$lang)
     {
-        $config = Config::latest()->first();
         try {
-            $authResponse = Http::withHeaders([
-                'Accept' => 'application/json',
-                'Authorization' => 'Bearer ' . $config->token,
-                'Content-Type' => 'application/json'
-            ])->post('https://api.gr8pi.com/api/v1/questionnaire-data-collection', [
-                'query' => 'query($input: AssessmentInput!) {
+            $data = $this->executeGraphQL(
+                'https://api.gr8pi.com/api/v1/questionnaire-data-collection',
+                'query($input: AssessmentInput!) {
                 assessment(input: $input) {
                     id
                     content {
@@ -387,19 +374,20 @@ trait APICalls
                     }
                 }
                 }',
-                'variables' => [
+                [
                     'input' => [
                         'id' => $id,
                         'token' => $token,
                         'language' => $lang
                     ]
                 ]
-            ]);
+            );
 
-            //Apunta al contenido que incluye "behavior,cognitive,interests".
-            $assessmentData = $authResponse->json('data.assessment.content');
+            if (is_string($data)) {
+                return null;
+            }
 
-            return $assessmentData;
+            return $data['data']['assessment']['content'] ?? null;
 
         } catch (\Exception $e) {
             dd($e->getMessage());
@@ -408,15 +396,11 @@ trait APICalls
 
     public function createUser($firstName,$lastName,$email,$gender,$locale)
     {
-        $config = Config::latest()->first();
         try {
-            $authResponse = Http::withHeaders([
-                'Accept'        => 'application/json',
-                'Authorization' => 'Bearer ' . $config->token,
-                'Content-Type'  => 'application/json'
-            ])->post('https://api.gr8pi.com/api/v1/questionnaire-scheduling', [
-                'query'     => 'mutation ($input: CreateRespondentInput!) { createRespondent(input: $input) { respondent { id }}}',
-                'variables' => [
+            $data = $this->executeGraphQL(
+                'https://api.gr8pi.com/api/v1/questionnaire-scheduling',
+                'mutation ($input: CreateRespondentInput!) { createRespondent(input: $input) { respondent { id }}}',
+                [
                     'input' => [
                         'firstName'  => $firstName,
                         'lastName'   => $lastName,
@@ -428,16 +412,8 @@ trait APICalls
                         'accountId'  => 243576,
                     ]
                 ]
-            ]);
+            );
 
-            $data = $authResponse->json();
-            $userId = $authResponse->json('data.createRespondent.respondent.id');
-            $errors = $authResponse->json('errors');
-
-            /*$data = [
-                'errors' => $errors[0]['message'],
-                'userId' => $userId
-            ];*/
             return $data;
 
         } catch (\Exception $e) {
@@ -445,19 +421,13 @@ trait APICalls
         }
     }
 
-    //Obtener el reporte de una evaluación
     public function getReportAssessment($respondentId,$locale)
     {
-        $config = Config::latest()->first();
-
         try {
-            $authResponse = Http::withHeaders([
-                'Accept' => 'application/json',
-                'Authorization' => 'Bearer ' . $config->token,
-                'Content-Type' => 'application/json'
-            ])->post('https://api.gr8pi.com/api/v1/questionnaire-scheduling', [
-                'query' => 'mutation($input: ReportWithAssessmentGenericInput!) { generateInterestsGraphReportData(input: $input) { orderedInterestsResults {  code,displayName,rawScore }}}',
-                'variables' => [
+            $data = $this->executeGraphQL(
+                'https://api.gr8pi.com/api/v1/questionnaire-scheduling',
+                'mutation($input: ReportWithAssessmentGenericInput!) { generateInterestsGraphReportData(input: $input) { orderedInterestsResults {  code,displayName,rawScore }}}',
+                [
                     'input' => [
                         'account' => 243576,
                         'assessment' => $respondentId,
@@ -465,10 +435,13 @@ trait APICalls
                         'printerFriendly' => true
                     ]
                 ]
-            ]);
+            );
 
-            $reports = $authResponse->json('data.generateInterestsGraphReportData.orderedInterestsResults');
-            return $reports;
+            if (is_string($data)) {
+                return null;
+            }
+
+            return $data['data']['generateInterestsGraphReportData']['orderedInterestsResults'] ?? null;
 
         } catch (\Exception $e) {
             dd($e->getMessage());
@@ -477,15 +450,11 @@ trait APICalls
 
     public function getReportInterestPDF($respondentId,$locale)
     {
-        $config = Config::latest()->first();
         try {
-            $authResponse = Http::withHeaders([
-                'Accept' => 'application/json',
-                'Authorization' => 'Bearer ' . $config->token,
-                'Content-Type' => 'application/json'
-            ])->post('https://api.gr8pi.com/api/v1/questionnaire-scheduling', [
-                'query' => 'mutation($input: ReportWithAssessmentGenericInput!) { generateStudentInterestsReport(input: $input) { url }}',
-                'variables' => [
+            $data = $this->executeGraphQL(
+                'https://api.gr8pi.com/api/v1/questionnaire-scheduling',
+                'mutation($input: ReportWithAssessmentGenericInput!) { generateStudentInterestsReport(input: $input) { url }}',
+                [
                     'input' => [
                         'account' => 243576,
                         'assessment' => $respondentId,
@@ -493,9 +462,13 @@ trait APICalls
                         'printerFriendly' => true
                     ]
                 ]
-            ]);
-            $reports = $authResponse->json('data.generateStudentInterestsReport.url');
-            return $reports;
+            );
+
+            if (is_string($data)) {
+                return null;
+            }
+
+            return $data['data']['generateStudentInterestsReport']['url'] ?? null;
 
         } catch (\Exception $e) {
             dd($e->getMessage());
@@ -504,18 +477,14 @@ trait APICalls
 
     public function getReportAssessmentPDF($respondentId, $locale = 'en-US')
     {
-        $config = Config::latest()->first();
         $reports = [];
 
         try {
             // Get Interests Report
-            $interestsResponse = Http::withHeaders([
-                'Accept' => 'application/json',
-                'Authorization' => 'Bearer ' . $config->token,
-                'Content-Type' => 'application/json'
-            ])->post('https://api.gr8pi.com/api/v1/questionnaire-scheduling', [
-                'query' => 'mutation($input: ReportWithAssessmentGenericInput!) { generateCareerCounselingInterestsReport(input: $input) { url }}',
-                'variables' => [
+            $interestsData = $this->executeGraphQL(
+                'https://api.gr8pi.com/api/v1/questionnaire-scheduling',
+                'mutation($input: ReportWithAssessmentGenericInput!) { generateCareerCounselingInterestsReport(input: $input) { url }}',
+                [
                     'input' => [
                         'account' => 243576,
                         'assessment' => $respondentId,
@@ -523,17 +492,14 @@ trait APICalls
                         'printerFriendly' => true
                     ]
                 ]
-            ]);
-            $reports['interests'] = $interestsResponse->json('data.generateCareerCounselingInterestsReport.url');
+            );
+            $reports['interests'] = isset($interestsData['data']) ? ($interestsData['data']['generateCareerCounselingInterestsReport']['url'] ?? null) : null;
 
             // Get Personality Report
-            $personalityResponse = Http::withHeaders([
-                'Accept' => 'application/json',
-                'Authorization' => 'Bearer ' . $config->token,
-                'Content-Type' => 'application/json'
-            ])->post('https://api.gr8pi.com/api/v1/questionnaire-scheduling', [
-                'query' => 'mutation($input: ReportWithAssessmentAndJobProfileInput!) { generateSummaryReport(input: $input) { url }}',
-                'variables' => [
+            $personalityData = $this->executeGraphQL(
+                'https://api.gr8pi.com/api/v1/questionnaire-scheduling',
+                'mutation($input: ReportWithAssessmentAndJobProfileInput!) { generateSummaryReport(input: $input) { url }}',
+                [
                     'input' => [
                         'account' => 243576,
                         'assessment' => $respondentId,
@@ -541,17 +507,14 @@ trait APICalls
                         'printerFriendly' => true
                     ]
                 ]
-            ]);
-            $reports['summary'] = $personalityResponse->json('data.generateSummaryReport.url');
+            );
+            $reports['summary'] = isset($personalityData['data']) ? ($personalityData['data']['generateSummaryReport']['url'] ?? null) : null;
 
             // Get Individual Report
-            $individualResponse = Http::withHeaders([
-                'Accept' => 'application/json',
-                'Authorization' => 'Bearer ' . $config->token,
-                'Content-Type' => 'application/json'
-            ])->post('https://api.gr8pi.com/api/v1/questionnaire-scheduling', [
-                'query' => 'mutation($input: ReportWithAssessmentGenericInput!) { generateIndividualReport(input: $input) { url }}',
-                'variables' => [
+            $individualData = $this->executeGraphQL(
+                'https://api.gr8pi.com/api/v1/questionnaire-scheduling',
+                'mutation($input: ReportWithAssessmentGenericInput!) { generateIndividualReport(input: $input) { url }}',
+                [
                     'input' => [
                         'account' => 243576,
                         'assessment' => $respondentId,
@@ -559,8 +522,9 @@ trait APICalls
                         'printerFriendly' => true
                     ]
                 ]
-            ]);
-            $reports['individual'] = $individualResponse->json('data.generateIndividualReport.url');
+            );
+            $reports['individual'] = isset($individualData['data']) ? ($individualData['data']['generateIndividualReport']['url'] ?? null) : null;
+
             return $reports;
 
         } catch (\Exception $e) {
@@ -570,14 +534,10 @@ trait APICalls
 
     public function getTemplatesEvaluation()
     {
-        $config = Config::latest()->first();
         try {
-            $authResponse = Http::withHeaders([
-                'Accept' => 'application/json',
-                'Authorization' => 'Bearer ' . $config->token,
-                'Content-Type' => 'application/json'
-            ])->post('https://api.gr8pi.com/api/v1/questionnaire-scheduling', [
-                'query' => '{
+            $data = $this->executeGraphQL(
+                'https://api.gr8pi.com/api/v1/questionnaire-scheduling',
+                '{
                     account(id: 243576) {
                         assessmentTemplates {
                             edges {
@@ -589,52 +549,50 @@ trait APICalls
                         }
                     }
                 }'
-            ]);
+            );
 
-            $respondents = $authResponse->json('data.account.respondents.edges');
-            return $respondents;
+            if (is_string($data)) {
+                return null;
+            }
+
+            return $data['data']['account']['respondents']['edges'] ?? null;
 
         } catch (\Exception $e) {
             dd($e->getMessage());
         }
     }
 
-    //Reports
     public function sendSuperLink($emails,$idTemplate)
     {
-        //261967 - Tu Talento Finder Full Version
-        //261966 - Tu Talento Finder Intereses
-        $config = Config::latest()->first();
         try {
-            $authResponse = Http::withHeaders([
-                'Accept' => 'application/json',
-                'Authorization' => 'Bearer ' . $config->token,
-                'Content-Type' => 'application/json'
-            ])->post('https://api.gr8pi.com/api/v1/questionnaire-scheduling', [
-                'operationName' => 'createSuperLink',
-                'variables' => [
+            $data = $this->executeGraphQL(
+                'https://api.gr8pi.com/api/v1/questionnaire-scheduling',
+                'mutation createSuperLink($input: CreateSuperLinkInput!) { superLink(input: $input) { id } }',
+                [
                     'input' => [
                         'name' => 'Nombre del Superlink',
                         'description' => 'Descripción del Superlink',
                         'notes' => 'Notas adicionales (opcional)',
                         'assessmentTemplateId' => $idTemplate,
                         'accountId' => '243576',
-                        'respondentType' => 'EXTERNAL', // O 'EXTERNAL' según corresponda
-                        'targetJobId' => 'ID_DE_PERFIL_DE_TRABAJO_OBJETIVO', // Opcional
+                        'respondentType' => 'EXTERNAL',
+                        'targetJobId' => 'ID_DE_PERFIL_DE_TRABAJO_OBJETIVO',
                         'notificationEmails' => $emails,
-                        'reports' => ['INDIVIDUAL'], // Puedes agregar otros tipos de reporte
-                        'locale' => 'es-ES', // O el código de idioma que necesites
-                        'sendRespondentReport' => true, // O false, según tus preferencias
-                        'sendRespondentCcInterestsReport' => false, // O true, según tus preferencias
-                        'sendRespondentCcPersonalityReport' => false, // O true, según tus preferencias
-                        'printFriendlyReport' => true // O true, según tus preferencias
+                        'reports' => ['INDIVIDUAL'],
+                        'locale' => 'es-ES',
+                        'sendRespondentReport' => true,
+                        'sendRespondentCcInterestsReport' => false,
+                        'sendRespondentCcPersonalityReport' => false,
+                        'printFriendlyReport' => true
                     ]
-                ],
-                'query' => 'mutation createSuperLink($input: CreateSuperLinkInput!) { superLink(input: $input) { id } }'
-            ]);
+                ]
+            );
 
-            $respondents = $authResponse->json('data');
-            return $respondents;
+            if (is_string($data)) {
+                return null;
+            }
+
+            return $data['data'] ?? null;
 
         } catch (\Exception $e) {
             dd($e->getMessage());
@@ -643,33 +601,125 @@ trait APICalls
 
     public function sendUserInvitation($email,$questionary)
     {
-        $config = Config::latest()->first();
         try {
-            $authResponse = Http::withHeaders([
-                'Accept' => 'application/json',
-                'Authorization' => 'Bearer ' . $config->token,
-                'Content-Type' => 'application/json'
-            ])->post('https://api.gr8pi.com/api/v1/questionnaire-scheduling', [
-                'operationName' => 'scheduleQuestionnaire',
-                'variables' => [
+            $data = $this->executeGraphQL(
+                'https://api.gr8pi.com/api/v1/questionnaire-scheduling',
+                'mutation scheduleQuestionnaire($input: ScheduleQuestionnaireInput!) { scheduleQuestionnaire(input: $input) { id } }',
+                [
                     'input' => [
                         'respondentEmails' => [$email],
                         'questionnaireId' => $questionary
                     ]
-                ],
-                'query' => 'mutation scheduleQuestionnaire($input: ScheduleQuestionnaireInput!) { scheduleQuestionnaire(input: $input) { id } }'
-            ]);
+                ]
+            );
 
-            $respondents = $authResponse->json('data.account.respondents.edges');
-            return $respondents;
-
-            if ($authResponse->successful()) {
-                $responseData = $authResponse->json();
-                $scheduleId = $responseData['data']['scheduleQuestionnaire']['id'];
+            if (is_string($data)) {
+                return null;
             }
+
+            return $data['data']['account']['respondents']['edges'] ?? null;
 
         } catch (\Exception $e) {
             dd($e->getMessage());
+        }
+    }
+
+    /**
+     * Executes a GraphQL request with automatic token refresh on authentication failure.
+     *
+     * @param string $url
+     * @param string $query
+     * @param array $variables
+     * @return array|string Response data array or error string
+     */
+    private function executeGraphQL($url, $query, $variables = [])
+    {
+        $config = Config::latest()->first();
+        
+        try {
+            $response = Http::withHeaders([
+                'Accept'        => 'application/json',
+                'Authorization' => 'Bearer ' . $config->token,
+                'Content-Type'  => 'application/json'
+            ])->post($url, [
+                'query'     => $query,
+                'variables' => $variables
+            ]);
+
+            $data = $response->json();
+            
+            // Check for authentication errors
+            $isUnauthenticated = false;
+            
+            if ($response->status() === 401) {
+                $isUnauthenticated = true;
+            } elseif (isset($data['errors'])) {
+                foreach ($data['errors'] as $error) {
+                    if (isset($error['message']) && (
+                        stripos($error['message'], 'Unauthenticated') !== false || 
+                        stripos($error['message'], 'Invalid token') !== false ||
+                        stripos($error['message'], 'Expired token') !== false
+                    )) {
+                        $isUnauthenticated = true;
+                        break;
+                    }
+                }
+            }
+
+            if ($isUnauthenticated) {
+                if ($this->attemptRefreshToken()) {
+                    $config = Config::latest()->first();
+                    $response = Http::withHeaders([
+                        'Accept'        => 'application/json',
+                        'Authorization' => 'Bearer ' . $config->token,
+                        'Content-Type'  => 'application/json'
+                    ])->post($url, [
+                        'query'     => $query,
+                        'variables' => $variables
+                    ]);
+                    return $response->json();
+                }
+            }
+
+            return $data;
+
+        } catch (\Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    /**
+     * Attempts to refresh the access token using the refresh token.
+     *
+     * @return bool
+     */
+    private function attemptRefreshToken()
+    {
+        $config = Config::latest()->first();
+        
+        try {
+            $response = Http::withHeaders([
+                'Accept' => 'application/json',
+                'Content-Type' => 'application/json',
+            ])->post('https://api.gr8pi.com/api/v1/questionnaire-scheduling', [
+                'query' => 'mutation($input: String!) { refreshToken(refreshToken: $input) { token }}',
+                'variables' => [
+                    'input' => $config->refreshToken
+                ],
+            ]);
+
+            $data = $response->json('data.refreshToken');
+            
+            if (isset($data['token'])) {
+                $config->token = $data['token'];
+                $config->save();
+                return true;
+            }
+            
+            return false;
+
+        } catch(\Exception $e) {
+            return false;
         }
     }
 }
