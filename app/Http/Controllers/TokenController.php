@@ -17,7 +17,9 @@ class TokenController extends Controller
                 CURLOPT_IPRESOLVE => CURL_IPRESOLVE_V4,
             ]
         ];
-        public function testConnection()
+    }
+
+    public function testConnection()
     {
         try {
             // Attempt full login
