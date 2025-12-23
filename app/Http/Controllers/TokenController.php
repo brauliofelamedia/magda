@@ -84,7 +84,6 @@ class TokenController extends Controller
             ], 500);
         }
     }
-}
 
     public function getToken(){
 
