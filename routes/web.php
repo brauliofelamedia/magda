@@ -57,6 +57,7 @@ Route::get('/', [DashboardController::class, 'welcome'])->name('dashboard.welcom
     });
     
     //Tools
+    Route::get('/test-api', [TokenController::class, 'testConnection'])->name('test.api');
     Route::get('/migrate', function(){
         Artisan::call('migrate');
         return response()->json(['message' => 'Migraciones ejecutadas correctamente.']);

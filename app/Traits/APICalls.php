@@ -702,6 +702,7 @@ trait APICalls
 
     /**
      * Attempts to refresh the access token using the refresh token.
+     * If refresh fails, attempts full login.
      *
      * @return bool
      */
@@ -728,9 +729,48 @@ trait APICalls
                 return true;
             }
             
-            return false;
+            // If refresh failed, try full login
+            return $this->login();
 
         } catch(\Exception $e) {
+            // If exception, try full login
+            return $this->login();
+        }
+    }
+
+    private function login()
+    {
+        $username = 'jorge@felamedia.com';
+        $password = 'F3l@s0sa2024.';
+        
+        try {
+            $response = Http::withOptions($this->getHttpOptions())->withHeaders([
+                'Accept' => 'application/json',
+                'Content-Type' => 'application/json',
+            ])->post('https://api.gr8pi.com/api/v1/questionnaire-scheduling', [
+                'query' => 'mutation($input:GenerateTokenInput!){generateToken(input:$input){token refreshToken userId}}',
+                'variables' => [
+                    'input' => [
+                        'username' => $username,
+                        'password' => $password,
+                    ],
+                ],
+            ]);
+
+            $data = $response->json('data.generateToken');
+
+            if (isset($data['token'])) {
+                $config = Config::latest()->first();
+                if (!$config) {
+                    $config = new Config();
+                }
+                $config->token = $data['token'];
+                $config->refreshToken = $data['refreshToken'];
+                $config->save();
+                return true;
+            }
+            return false;
+        } catch (\Exception $e) {
             return false;
         }
     }
