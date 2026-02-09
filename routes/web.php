@@ -112,3 +112,12 @@ Auth::routes();
 // Ruta de diagnóstico de subida de archivos
 Route::get('/upload-test', [FileUploadTestController::class, 'test'])->name('upload.test');
 Route::post('/upload-test/manual', [FileUploadTestController::class, 'testManual'])->name('upload.test.manual');
+
+// Ruta para enviar correo de prueba
+Route::get('/test-email/{email?}', function ($email = 'braulio@felamedia.com') {
+    \Mail::raw('Este es un correo de prueba desde Tu Talento Finder.', function ($message) use ($email) {
+        $message->to($email)
+                ->subject('Correo de Prueba - Tu Talento Finder');
+    });
+    return response()->json(['message' => "Correo de prueba enviado a: $email"]);
+})->name('test.email');
