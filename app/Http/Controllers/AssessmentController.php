@@ -479,7 +479,7 @@ Este es el informe para analizar: \n\n" . $pdfText;
                 throw new \RuntimeException('OpenAI API key no configurada');
             }
 
-            $client = OpenAI::client($apiKey);
+            $client = \OpenAI::client($apiKey);
             $response = $client->chat()->create([
                 'model' => 'gpt-3.5-turbo-16k', // Usar modelo con contexto más grande para mejor manejo de documentos
                 'messages' => [
@@ -526,7 +526,7 @@ Este es el informe para analizar: \n\n" . $pdfText;
                 throw new \RuntimeException('OpenAI API key no configurada');
             }
 
-            $client = OpenAI::client($apiKey);
+            $client = \OpenAI::client($apiKey);
             $response = $client->chat()->create([
                 'model' => 'gpt-3.5-turbo',
                 'messages' => [

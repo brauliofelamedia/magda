@@ -18,7 +18,7 @@ class ReportController extends Controller
             throw new Exception('OpenAI API key no configurada');
         }
 
-        $client = OpenAI::client($apiKey);
+        $client = \OpenAI::client($apiKey);
         
         $prompt = "Basado en el siguiente texto que contiene intereses y habilidades profesionales, 
                   sugiere 5 trabajos actualizados y relevantes en el mercado laboral actual, enfocate en la actualidad nada de vacantes viejas / antiguas. 

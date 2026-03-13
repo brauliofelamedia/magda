@@ -75,7 +75,7 @@ Este es el informe para analizar: generalo en html solo entregame el body, no po
             throw new \RuntimeException('OpenAI API key no configurada');
         }
 
-        $client = OpenAI::client($apiKey);
+        $client = \OpenAI::client($apiKey);
         $response = $client->chat()->create([
             'model' => 'gpt-3.5-turbo',
             'messages' => [
