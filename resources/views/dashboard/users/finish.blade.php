@@ -257,12 +257,21 @@
                                                 <div class="col-xl-12">
                                                     <canvas id="myChart"></canvas>
 
-                                                    @if(isset($assessment->openia) && !empty($assessment->openia))
+                                                    @php
+                                                        $openiaValue = $assessment->openia ?? '';
+                                                        $resumenValue = $assessment->resumen_openia ?? '';
+                                                        $openiaHasError = is_string($openiaValue) && (\Illuminate\Support\Str::contains($openiaValue, 'Hubo un error al procesar el informe') || \Illuminate\Support\Str::contains($openiaValue, 'Análisis no disponible'));
+                                                        $resumenHasError = is_string($resumenValue) && (\Illuminate\Support\Str::contains($resumenValue, 'Hubo un error al procesar el informe') || \Illuminate\Support\Str::contains($resumenValue, 'Resumen no disponible'));
+                                                        $openiaIsReady = !empty($openiaValue) && !$openiaHasError;
+                                                        $resumenIsReady = !empty($resumenValue) && !$resumenHasError;
+                                                    @endphp
+
+                                                    @if($openiaIsReady)
                                                         <div class="resume" style="margin-top: 30px;box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
                                                             <h4 style="margin-bottom:20px;padding:13px 20px; border-radius:20px;background-color:white;"><img src="{{asset('assets/img/chatgpt.png')}}" alt="ChatGPT" style="width: 120px; height: 40px; margin-right: 10px;"> Interpretación usando ChatGPT</h4>
                                                             {!!$assessment->openia!!}
                                                         </div>
-                                                    @elseif($assessment->is_processing == 1)
+                                                    @elseif($assessment->is_processing == 1 || (!empty($needsOpenAI) && $needsOpenAI))
                                                         <div class="resume" style="margin-top: 30px;box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
                                                             <div class="text-center">
                                                                 <div class="spinner-border text-primary" role="status">
@@ -274,7 +283,7 @@
                                                         </div>
                                                     @endif
                                                     
-                                                    @if(isset($assessment->resumen_openia) && !empty($assessment->resumen_openia))
+                                                    @if($resumenIsReady)
                                                         <div class="resume interpreter-collapse" style="margin-top: 30px;box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
                                                             <div class="interpreter-header" data-toggle="collapse" data-target="#interpreterContent" aria-expanded="false" aria-controls="interpreterContent" style="cursor: pointer;">
                                                                 <div style="display: flex; align-items: center;">
@@ -412,8 +421,7 @@
         });
         
         // Si hay un proceso de análisis en curso, recargar la página cada 30 segundos
-        @if(isset($assessment) && $assessment->is_processing == 1)
-            // Recargar la página cada 30 segundos hasta que se complete el análisis
+        @if(isset($assessment) && ($assessment->is_processing == 1 || (!empty($needsOpenAI) && $needsOpenAI)))
             setTimeout(function() {
                 location.reload();
             }, 30000);

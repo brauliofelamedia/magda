@@ -91,11 +91,6 @@ class AssessmentController extends Controller
 
         $processingLockKey = 'assessment_openai_lock_' . $assessment->assessment_id;
 
-        if ($assessment->is_processing == 1 && !cache()->has($processingLockKey)) {
-            $assessment->is_processing = 0;
-            $assessment->save();
-        }
-
         if ($assessment->is_processing == 1 && $assessment->updated_at && $assessment->updated_at->lt(now()->subMinutes(3))) {
             $assessment->is_processing = 0;
             $assessment->save();
@@ -111,17 +106,25 @@ class AssessmentController extends Controller
         
         // Procesar con OpenAI en segundo plano si no está hecho
         $hasOpenAIErrorPlaceholder = $this->isOpenAIErrorPlaceholder($assessment->openia) || $this->isOpenAIErrorPlaceholder($assessment->resumen_openia);
-        if (empty($assessment->openia) || empty($assessment->resumen_openia) || $hasOpenAIErrorPlaceholder) {
-            $hasAnyPdf = !empty($pdf_interest) || !empty($pdf_individual);
+        $needsOpenAI = empty($assessment->openia) || empty($assessment->resumen_openia) || $hasOpenAIErrorPlaceholder;
+        if ($hasOpenAIErrorPlaceholder) {
+            $assessment->openia = null;
+            $assessment->resumen_openia = null;
+            $assessment->save();
+        }
+
+        if ($needsOpenAI) {
+            $hasAnyPdf = $this->storedPdfIsValid($assessment->interest_url) || $this->storedPdfIsValid($assessment->individual_url);
+            $lastAttemptKey = 'assessment_openai_last_attempt_' . $assessment->assessment_id;
+            $lastAttemptAt = cache()->get($lastAttemptKey);
+            $attemptCooldownSeconds = 30;
+            $cooldownActive = !empty($lastAttemptAt) && now()->diffInSeconds($lastAttemptAt) < $attemptCooldownSeconds;
 
             if ($assessment->is_processing != 1) {
                 if ($hasAnyPdf) {
-                    if (cache()->add($processingLockKey, true, 300)) {
+                    if (!$cooldownActive && cache()->add($processingLockKey, true, 300)) {
+                        cache()->put($lastAttemptKey, now(), 3600);
                         $assessment->is_processing = 1;
-                        if ($hasOpenAIErrorPlaceholder) {
-                            $assessment->openia = null;
-                            $assessment->resumen_openia = null;
-                        }
                         $assessment->save();
                         
                         try {
@@ -136,10 +139,13 @@ class AssessmentController extends Controller
                 }
             }
         }
+
+        $assessment->refresh();
+        $needsOpenAI = empty($assessment->openia) || empty($assessment->resumen_openia) || $this->isOpenAIErrorPlaceholder($assessment->openia) || $this->isOpenAIErrorPlaceholder($assessment->resumen_openia);
         
         // Devolver la vista aunque no esté completamente procesado
         // El usuario verá los resultados incluso si OpenAI no ha terminado
-        return view('dashboard.users.finish',compact('items','user','assessment','pdf_interest','pdf_individual'));
+        return view('dashboard.users.finish',compact('items','user','assessment','pdf_interest','pdf_individual','needsOpenAI'));
     }
 
     private function isOpenAIErrorPlaceholder($value): bool
@@ -345,6 +351,10 @@ class AssessmentController extends Controller
                     
                     // Si tenemos una respuesta, la guardamos
                     if (!empty($returnOpenAI) && isset($returnOpenAI['main'], $returnOpenAI['summary'])) {
+                        if ($this->isOpenAIErrorPlaceholder($returnOpenAI['main']) || $this->isOpenAIErrorPlaceholder($returnOpenAI['summary'])) {
+                            throw new \RuntimeException('Respuesta de OpenAI no válida (placeholder).');
+                        }
+
                         $assessment->openia = $returnOpenAI['main'];
                         $assessment->resumen_openia = $returnOpenAI['summary'];
                         $assessment->is_processing = 0;
