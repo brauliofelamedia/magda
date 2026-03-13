@@ -89,7 +89,14 @@ class AssessmentController extends Controller
             $assessment = Assessment::create(['assessment_id' => $id]);
         }
 
-        if ($assessment->is_processing == 1 && $assessment->updated_at && $assessment->updated_at->lt(now()->subMinutes(15))) {
+        $processingLockKey = 'assessment_openai_lock_' . $assessment->assessment_id;
+
+        if ($assessment->is_processing == 1 && !cache()->has($processingLockKey)) {
+            $assessment->is_processing = 0;
+            $assessment->save();
+        }
+
+        if ($assessment->is_processing == 1 && $assessment->updated_at && $assessment->updated_at->lt(now()->subMinutes(3))) {
             $assessment->is_processing = 0;
             $assessment->save();
         }
@@ -99,8 +106,8 @@ class AssessmentController extends Controller
         $pdf_interest = null;
         $pdf_individual = null;
 
-        $pdf_interest = $this->storagePublicUrlIfExists($assessment->interest_url);
-        $pdf_individual = $this->storagePublicUrlIfExists($assessment->individual_url);
+        $pdf_interest = $this->downloadRouteUrlIfExists($assessment->assessment_id, $assessment->interest_url, 'interests');
+        $pdf_individual = $this->downloadRouteUrlIfExists($assessment->assessment_id, $assessment->individual_url, 'individual');
         
         // Procesar con OpenAI en segundo plano si no está hecho
         if (empty($assessment->openia) || empty($assessment->resumen_openia)) {
@@ -108,12 +115,16 @@ class AssessmentController extends Controller
 
             if ($assessment->is_processing != 1) {
                 if ($hasAnyPdf) {
-                    $assessment->is_processing = 1;
-                    $assessment->save();
-                    
-                    // En un entorno real, esto se manejaría con colas
-                    // Por ahora hacemos una versión simplificada
-                    $this->processOpenAI($assessment);
+                    if (cache()->add($processingLockKey, true, 300)) {
+                        $assessment->is_processing = 1;
+                        $assessment->save();
+                        
+                        try {
+                            $this->processOpenAI($assessment);
+                        } finally {
+                            cache()->forget($processingLockKey);
+                        }
+                    }
                 } else {
                     $assessment->is_processing = 0;
                     $assessment->save();
@@ -125,14 +136,41 @@ class AssessmentController extends Controller
         // El usuario verá los resultados incluso si OpenAI no ha terminado
         return view('dashboard.users.finish',compact('items','user','assessment','pdf_interest','pdf_individual'));
     }
+
+    public function downloadReport($id, $kind)
+    {
+        $assessment = Assessment::where('assessment_id', $id)->firstOrFail();
+        $locale = 'es-PR';
+
+        $this->ensurePDFs($id, $locale, $assessment);
+
+        $field = match ($kind) {
+            'individual' => 'individual_url',
+            'interests' => 'interest_url',
+            default => null,
+        };
+
+        if (empty($field)) {
+            abort(404);
+        }
+
+        $path = $assessment->{$field};
+        if (empty($path) || !Storage::disk('public')->exists($path)) {
+            abort(404);
+        }
+
+        return Storage::disk('public')->download($path, $id . '_' . $kind . '.pdf', [
+            'Content-Type' => 'application/pdf',
+        ]);
+    }
     
     /**
      * Procesa los PDFs en segundo plano
      */
     private function ensurePDFs($id, $locale, $assessment)
     {
-        $needsInterests = empty($assessment->interest_url) || !Storage::disk('public')->exists($assessment->interest_url);
-        $needsIndividual = empty($assessment->individual_url) || !Storage::disk('public')->exists($assessment->individual_url);
+        $needsInterests = empty($assessment->interest_url) || !$this->storedPdfIsValid($assessment->interest_url);
+        $needsIndividual = empty($assessment->individual_url) || !$this->storedPdfIsValid($assessment->individual_url);
 
         if (!$needsInterests && !$needsIndividual) {
             return;
@@ -177,6 +215,40 @@ class AssessmentController extends Controller
         return url(Storage::url($path));
     }
 
+    private function downloadRouteUrlIfExists($assessmentId, $path, $kind)
+    {
+        if (empty($assessmentId) || empty($path)) {
+            return null;
+        }
+
+        if (!Storage::disk('public')->exists($path)) {
+            return null;
+        }
+
+        return route('assessments.report.download', [$assessmentId, $kind]);
+    }
+
+    private function storedPdfIsValid($path)
+    {
+        if (empty($path)) {
+            return false;
+        }
+
+        if (!Storage::disk('public')->exists($path)) {
+            return false;
+        }
+
+        $stream = Storage::disk('public')->readStream($path);
+        if ($stream === false) {
+            return false;
+        }
+
+        $header = fread($stream, 4);
+        fclose($stream);
+
+        return $header === '%PDF';
+    }
+
     private function downloadBinary($url)
     {
         try {
@@ -192,9 +264,20 @@ class AssessmentController extends Controller
                 return null;
             }
 
+            $contentType = $response->header('Content-Type');
             $body = $response->body();
             if (empty($body)) {
                 \Log::warning('Descarga de PDF vacía', ['url' => $url]);
+                return null;
+            }
+
+            $isPdf = str_starts_with($body, '%PDF') || (!empty($contentType) && stripos($contentType, 'pdf') !== false);
+            if (!$isPdf) {
+                \Log::warning('Descarga remota no parece PDF', [
+                    'url' => $url,
+                    'content_type' => $contentType,
+                    'prefix' => substr($body, 0, 20),
+                ]);
                 return null;
             }
 
@@ -211,6 +294,9 @@ class AssessmentController extends Controller
     private function processOpenAI($assessment)
     {
         try {
+            @ignore_user_abort(true);
+            @set_time_limit(0);
+
             // Solo procesar si tenemos un PDF disponible
             if (($assessment->interest_url && Storage::disk('public')->exists($assessment->interest_url)) || 
                 ($assessment->individual_url && Storage::disk('public')->exists($assessment->individual_url))) {

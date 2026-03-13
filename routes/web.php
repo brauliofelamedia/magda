@@ -96,6 +96,7 @@ Route::get('/', [DashboardController::class, 'welcome'])->name('dashboard.welcom
     Route::post('/assessment/user/new', [AssessmentController::class, 'createNewUser'])->name('assessments.user.new');
     Route::post('/assessment/close', [AssessmentController::class, 'closeAssessment'])->name('assessments.close');
     Route::get('/assessment/finish/{id}', [AssessmentController::class, 'finish'])->name('assessments.finish');
+    Route::get('/assessment/finish/{id}/download/{kind}', [AssessmentController::class, 'downloadReport'])->name('assessments.report.download');
 
     //SuperLink
     Route::get('/superlink/{email}/{idTemplate}', [DashboardController::class, 'superLink'])->name('dashboard.superlink');

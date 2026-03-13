@@ -341,13 +341,13 @@
                                                     <div class="download-section" style="margin-top: 30px;">
                                                         <h4 style="color: #333;margin-bottom: 15px;">Descargar informes:</h4>
                                                         <div class="d-flex flex-column gap-2">
-                                                            @if(isset($pdf_individual))
-                                                                <a href="{{$pdf_individual}}" target="_blank" download class="btn btn-success">
+                                                            @if(!empty($pdf_individual))
+                                                                <a href="{{$pdf_individual}}" download class="btn btn-success">
                                                                     <i class="fas fa-file-pdf mr-2"></i> Individual
                                                                 </a>
                                                             @endif
-                                                            @if(isset($pdf_interest))
-                                                                <a href="{{$pdf_interest}}" target="_blank" download class="btn btn-success">
+                                                            @if(!empty($pdf_interest))
+                                                                <a href="{{$pdf_interest}}" download class="btn btn-success">
                                                                     <i class="fas fa-file-pdf mr-2"></i> Intereses de orientación profesional
                                                                 </a>
                                                             @endif
