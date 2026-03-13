@@ -25,7 +25,7 @@ class ReportController extends Controller
                   Para cada trabajo, explica brevemente por qué sería una buena opción y dame un texto de introduccion principal antes de los 5 trabajos:\n\n" . $pdfText;
 
         $response = $client->chat()->create([
-            'model' => 'gpt-3.5-turbo',
+            'model' => 'gpt-4o-mini',
             'messages' => [
                 ['role' => 'user', 'content' => $prompt]
             ],

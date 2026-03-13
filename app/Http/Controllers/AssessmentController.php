@@ -110,13 +110,18 @@ class AssessmentController extends Controller
         $pdf_individual = $this->downloadRouteUrlIfExists($assessment->assessment_id, $assessment->individual_url, 'individual');
         
         // Procesar con OpenAI en segundo plano si no está hecho
-        if (empty($assessment->openia) || empty($assessment->resumen_openia)) {
+        $hasOpenAIErrorPlaceholder = $this->isOpenAIErrorPlaceholder($assessment->openia) || $this->isOpenAIErrorPlaceholder($assessment->resumen_openia);
+        if (empty($assessment->openia) || empty($assessment->resumen_openia) || $hasOpenAIErrorPlaceholder) {
             $hasAnyPdf = !empty($pdf_interest) || !empty($pdf_individual);
 
             if ($assessment->is_processing != 1) {
                 if ($hasAnyPdf) {
                     if (cache()->add($processingLockKey, true, 300)) {
                         $assessment->is_processing = 1;
+                        if ($hasOpenAIErrorPlaceholder) {
+                            $assessment->openia = null;
+                            $assessment->resumen_openia = null;
+                        }
                         $assessment->save();
                         
                         try {
@@ -135,6 +140,20 @@ class AssessmentController extends Controller
         // Devolver la vista aunque no esté completamente procesado
         // El usuario verá los resultados incluso si OpenAI no ha terminado
         return view('dashboard.users.finish',compact('items','user','assessment','pdf_interest','pdf_individual'));
+    }
+
+    private function isOpenAIErrorPlaceholder($value): bool
+    {
+        if (empty($value) || !is_string($value)) {
+            return false;
+        }
+
+        $needle = 'Hubo un error al procesar el informe';
+        if (str_contains($value, $needle)) {
+            return true;
+        }
+
+        return str_contains($value, 'Análisis no disponible') || str_contains($value, 'Resumen no disponible');
     }
 
     public function downloadReport($id, $kind)
@@ -481,7 +500,7 @@ Este es el informe para analizar: \n\n" . $pdfText;
 
             $client = \OpenAI::client($apiKey);
             $response = $client->chat()->create([
-                'model' => 'gpt-3.5-turbo-16k', // Usar modelo con contexto más grande para mejor manejo de documentos
+                'model' => 'gpt-4o-mini',
                 'messages' => [
                     ['role' => 'user', 'content' => $prompt]
                 ],
@@ -528,7 +547,7 @@ Este es el informe para analizar: \n\n" . $pdfText;
 
             $client = \OpenAI::client($apiKey);
             $response = $client->chat()->create([
-                'model' => 'gpt-3.5-turbo',
+                'model' => 'gpt-4o-mini',
                 'messages' => [
                     ['role' => 'user', 'content' => $prompt]
                 ],

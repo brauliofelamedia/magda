@@ -77,7 +77,7 @@ Este es el informe para analizar: generalo en html solo entregame el body, no po
 
         $client = \OpenAI::client($apiKey);
         $response = $client->chat()->create([
-            'model' => 'gpt-3.5-turbo',
+            'model' => 'gpt-4o-mini',
             'messages' => [
                 ['role' => 'user', 'content' => $prompt]
             ],

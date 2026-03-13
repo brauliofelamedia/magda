@@ -86,7 +86,7 @@
                                     <p class="instruction-title">Instrucciones:</p>
                                     <p class="instruction-step">1. Ingrese su API Key de OpenAI para utilizar en las consultas de IA dentro del sistema.</p>
                                     <p class="instruction-step">2. La API Key se almacenará de forma segura en la base de datos.</p>
-                                    <p class="instruction-step">3. Si no se proporciona una API Key personalizada, el sistema utilizará la configurada por defecto en el archivo de entorno.</p>
+                                    <p class="instruction-step">3. El sistema usará esta API Key guardada aquí para todas las consultas de OpenAI.</p>
                                     
                                     <div class="alert alert-info mt-3 mb-3">
                                         <strong>Nota importante:</strong>

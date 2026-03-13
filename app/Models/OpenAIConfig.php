@@ -45,13 +45,12 @@ class OpenAIConfig extends Model
     }
 
     /**
-     * Get the active API key with fallback to env variable
+     * Get the active API key
      * 
      * @return string|null
      */
     public static function getApiKey()
     {
-        $apiKey = self::getActiveApiKey();
-        return $apiKey ?? env('OPENAI_API_KEY');
+        return self::getActiveApiKey();
     }
 }
