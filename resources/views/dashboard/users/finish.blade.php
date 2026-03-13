@@ -274,7 +274,7 @@
                                                         </div>
                                                     @endif
                                                     
-                                                    @if(isset($assessment->resumen_openia) && empty($assessment->resumen_openia))
+                                                    @if(isset($assessment->resumen_openia) && !empty($assessment->resumen_openia))
                                                         <div class="resume interpreter-collapse" style="margin-top: 30px;box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
                                                             <div class="interpreter-header" data-toggle="collapse" data-target="#interpreterContent" aria-expanded="false" aria-controls="interpreterContent" style="cursor: pointer;">
                                                                 <div style="display: flex; align-items: center;">

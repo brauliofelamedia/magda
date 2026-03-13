@@ -14,13 +14,17 @@ class ReportController extends Controller
     private function analyzePDFWithOpenAI($pdfText) {
         // Verificar si hay una API key personalizada configurada
         $apiKey = \App\Models\OpenAIConfig::getApiKey();
+        if (empty($apiKey)) {
+            throw new Exception('OpenAI API key no configurada');
+        }
+
         $client = OpenAI::client($apiKey);
         
         $prompt = "Basado en el siguiente texto que contiene intereses y habilidades profesionales, 
                   sugiere 5 trabajos actualizados y relevantes en el mercado laboral actual, enfocate en la actualidad nada de vacantes viejas / antiguas. 
                   Para cada trabajo, explica brevemente por qué sería una buena opción y dame un texto de introduccion principal antes de los 5 trabajos:\n\n" . $pdfText;
 
-        $response = OpenAI::chat()->create([
+        $response = $client->chat()->create([
             'model' => 'gpt-3.5-turbo',
             'messages' => [
                 ['role' => 'user', 'content' => $prompt]

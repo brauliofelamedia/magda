@@ -70,7 +70,13 @@ Este es el informe para analizar: generalo en html solo entregame el body, no po
 
 " . $openiaContent;
 
-        $response = OpenAI::chat()->create([
+        $apiKey = \App\Models\OpenAIConfig::getApiKey();
+        if (empty($apiKey)) {
+            throw new \RuntimeException('OpenAI API key no configurada');
+        }
+
+        $client = OpenAI::client($apiKey);
+        $response = $client->chat()->create([
             'model' => 'gpt-3.5-turbo',
             'messages' => [
                 ['role' => 'user', 'content' => $prompt]

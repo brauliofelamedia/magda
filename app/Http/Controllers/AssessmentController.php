@@ -14,6 +14,7 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Mail;
 use OpenAI\Laravel\Facades\OpenAI;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Http;
 
 class AssessmentController extends Controller
 {
@@ -26,7 +27,7 @@ class AssessmentController extends Controller
         return view('dashboard.assessments.index',compact('assesments','user'));
     }
 
-public function welcome()
+    public function welcome()
     {
         $institutions = User::role('institution')->get();
         return view('assessments.welcome', compact('institutions'));
@@ -82,37 +83,41 @@ public function welcome()
         $cacheKey = 'report_assessment_' . $id;
         $items = cache()->remember($cacheKey, 86400, function() use($id, $locale) {
             return $this->getReportAssessment($id, $locale);
-        });
+        }) ?? [];
         
         if (!$assessment) {
-            $assessment = new Assessment();
-            $assessment->assessment_id = $id;
-            $assessment->save();
-            
-            // Si es nuevo, procesamos los reportes PDF en segundo plano
-            $this->processPDFs($id, $locale, $assessment);
+            $assessment = Assessment::create(['assessment_id' => $id]);
         }
+
+        if ($assessment->is_processing == 1 && $assessment->updated_at && $assessment->updated_at->lt(now()->subMinutes(15))) {
+            $assessment->is_processing = 0;
+            $assessment->save();
+        }
+
+        $this->ensurePDFs($id, $locale, $assessment);
 
         $pdf_interest = null;
         $pdf_individual = null;
 
-        if ($assessment->interest_url && Storage::disk('public')->exists($assessment->interest_url)) {
-            $pdf_interest = url(Storage::url($assessment->interest_url));
-        }
-        
-        if ($assessment->individual_url && Storage::disk('public')->exists($assessment->individual_url)) {
-            $pdf_individual = url(Storage::url($assessment->individual_url));
-        }
+        $pdf_interest = $this->storagePublicUrlIfExists($assessment->interest_url);
+        $pdf_individual = $this->storagePublicUrlIfExists($assessment->individual_url);
         
         // Procesar con OpenAI en segundo plano si no está hecho
         if (empty($assessment->openia) || empty($assessment->resumen_openia)) {
+            $hasAnyPdf = !empty($pdf_interest) || !empty($pdf_individual);
+
             if ($assessment->is_processing != 1) {
-                $assessment->is_processing = 1;
-                $assessment->save();
-                
-                // En un entorno real, esto se manejaría con colas
-                // Por ahora hacemos una versión simplificada
-                $this->processOpenAI($assessment);
+                if ($hasAnyPdf) {
+                    $assessment->is_processing = 1;
+                    $assessment->save();
+                    
+                    // En un entorno real, esto se manejaría con colas
+                    // Por ahora hacemos una versión simplificada
+                    $this->processOpenAI($assessment);
+                } else {
+                    $assessment->is_processing = 0;
+                    $assessment->save();
+                }
             }
         }
         
@@ -124,26 +129,80 @@ public function welcome()
     /**
      * Procesa los PDFs en segundo plano
      */
-    private function processPDFs($id, $locale, $assessment)
+    private function ensurePDFs($id, $locale, $assessment)
     {
-        // En un sistema de producción, esto iría a una cola
-        $reports = $this->getReportAssessmentPDF($id, $locale);
-        
-        if (!empty($reports['interests']) && $assessment->interest_url == null) {
-            $interestsContent = file_get_contents($reports['interests']);
-            $interestsPath = 'assessments/' . $id . '_interests.pdf';
-            Storage::disk('public')->put($interestsPath, $interestsContent);
-            $assessment->interest_url = $interestsPath;
+        $needsInterests = empty($assessment->interest_url) || !Storage::disk('public')->exists($assessment->interest_url);
+        $needsIndividual = empty($assessment->individual_url) || !Storage::disk('public')->exists($assessment->individual_url);
+
+        if (!$needsInterests && !$needsIndividual) {
+            return;
         }
 
-        if (!empty($reports['individual']) && $assessment->individual_url == null) {
-            $individualContent = file_get_contents($reports['individual']);
-            $individualPath = 'assessments/' . $id . '_individual.pdf';
-            Storage::disk('public')->put($individualPath, $individualContent);
-            $assessment->individual_url = $individualPath;
+        $reports = $this->getReportAssessmentPDF($id, $locale);
+        if (empty($reports) || !is_array($reports)) {
+            return;
+        }
+        
+        if ($needsInterests && !empty($reports['interests'])) {
+            $interestsContent = $this->downloadBinary($reports['interests']);
+            if (!empty($interestsContent)) {
+                $interestsPath = 'assessments/' . $id . '_interests.pdf';
+                Storage::disk('public')->put($interestsPath, $interestsContent);
+                $assessment->interest_url = $interestsPath;
+            }
+        }
+
+        if ($needsIndividual && !empty($reports['individual'])) {
+            $individualContent = $this->downloadBinary($reports['individual']);
+            if (!empty($individualContent)) {
+                $individualPath = 'assessments/' . $id . '_individual.pdf';
+                Storage::disk('public')->put($individualPath, $individualContent);
+                $assessment->individual_url = $individualPath;
+            }
         }
 
         $assessment->save();
+    }
+
+    private function storagePublicUrlIfExists($path)
+    {
+        if (empty($path)) {
+            return null;
+        }
+
+        if (!Storage::disk('public')->exists($path)) {
+            return null;
+        }
+
+        return url(Storage::url($path));
+    }
+
+    private function downloadBinary($url)
+    {
+        try {
+            $response = Http::withOptions(array_merge($this->getHttpOptions(), [
+                'allow_redirects' => true,
+            ]))->get($url);
+
+            if (!$response->successful()) {
+                \Log::warning('No se pudo descargar PDF remoto', [
+                    'url' => $url,
+                    'status' => $response->status(),
+                ]);
+                return null;
+            }
+
+            $body = $response->body();
+            if (empty($body)) {
+                \Log::warning('Descarga de PDF vacía', ['url' => $url]);
+                return null;
+            }
+
+            return $body;
+        } catch (\Exception $e) {
+            \Log::warning('Error descargando PDF remoto: ' . $e->getMessage(), ['url' => $url]);
+            return null;
+        }
     }
     
     /**
@@ -187,6 +246,9 @@ public function welcome()
                         $assessment->save();
                     }
                 }
+            } else {
+                $assessment->is_processing = 0;
+                $assessment->save();
             }
         } catch (\Exception $e) {
             // Log del error pero permitir que la página se siga mostrando
@@ -326,7 +388,13 @@ IMPORTANTE:
 
 Este es el informe para analizar: \n\n" . $pdfText;
 
-            $response = OpenAI::chat()->create([
+            $apiKey = \App\Models\OpenAIConfig::getApiKey();
+            if (empty($apiKey)) {
+                throw new \RuntimeException('OpenAI API key no configurada');
+            }
+
+            $client = OpenAI::client($apiKey);
+            $response = $client->chat()->create([
                 'model' => 'gpt-3.5-turbo-16k', // Usar modelo con contexto más grande para mejor manejo de documentos
                 'messages' => [
                     ['role' => 'user', 'content' => $prompt]
@@ -367,7 +435,13 @@ Este es el informe para analizar: \n\n" . $pdfText;
         $prompt = "Crea un resumen conciso del siguiente análisis vocacional. Incluye las 5 profesiones recomendadas y las 5 ideas de emprendimiento con una breve justificación para cada una (1-2 líneas). Formatea la respuesta en HTML limpio sin fechas ni headers: \n\n" . $openiaContent;
 
         try {
-            $response = OpenAI::chat()->create([
+            $apiKey = \App\Models\OpenAIConfig::getApiKey();
+            if (empty($apiKey)) {
+                throw new \RuntimeException('OpenAI API key no configurada');
+            }
+
+            $client = OpenAI::client($apiKey);
+            $response = $client->chat()->create([
                 'model' => 'gpt-3.5-turbo',
                 'messages' => [
                     ['role' => 'user', 'content' => $prompt]
