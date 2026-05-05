@@ -406,6 +406,21 @@ trait APICalls
         }
     }
 
+    public function findRespondentIdByEmail(string $email): ?string
+    {
+        try {
+            $respondents = $this->getRespondents();
+            foreach ($respondents as $r) {
+                if (isset($r['node']['email']) && strtolower(trim($r['node']['email'])) === strtolower(trim($email))) {
+                    return $r['node']['id'];
+                }
+            }
+        } catch (\Exception $e) {
+            \Log::error("Error buscando respondent por email: {$e->getMessage()}");
+        }
+        return null;
+    }
+
     public function createUser($firstName,$lastName,$email,$gender,$locale)
     {
         try {

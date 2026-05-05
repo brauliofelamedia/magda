@@ -66,7 +66,7 @@ class UsersImport implements ToModel, WithStartRow
         }
         
         // Verificar si el usuario ya existe
-        $userExist = User::where('email', $row[$emailIndex])->first();
+        $userExist = User::where('email', trim($row[$emailIndex]))->first();
         if ($userExist) {
             // Registrar usuario existente para el resumen
             $this->existing[] = [
@@ -123,7 +123,7 @@ class UsersImport implements ToModel, WithStartRow
         $userData = [
             'name' => $row[$nameIndex],
             'last_name' => $row[$lastNameIndex],
-            'email' => $row[$emailIndex],
+            'email' => trim($row[$emailIndex]),
             'lang' => $lang,
             'password' => $password,
         ];
@@ -193,22 +193,37 @@ class UsersImport implements ToModel, WithStartRow
         $data = $this->createUser(
             $row[$nameIndex],
             $row[$lastNameIndex],
-            $row[$emailIndex],
+            trim($row[$emailIndex]),
             $gender,
             $lang
         );
-        
+
         try {
-            // Guardamos el usuario en la base de datos independientemente del resultado de la API
             $accountId = null;
-            
-            // Intentamos crear el usuario remoto si es necesario
+
             if (isset($data['data']['createRespondent'])) {
+                // Creación exitosa en la API
                 $accountId = $data['data']['createRespondent']['respondent']['id'];
                 $user->account_id = $accountId;
                 $user->save();
+            } elseif (isset($data['errors'])) {
+                // La API retornó un error — verificar si el respondent ya existe
+                $apiError = $data['errors'][0]['message'] ?? '';
+                \Log::warning("API error al crear respondent '{$user->email}': {$apiError}");
+
+                if (stripos($apiError, 'already exists') !== false) {
+                    // El respondent existe en gr8pi — buscar su ID para vincularlo localmente
+                    $accountId = $this->findRespondentIdByEmail(trim($row[$emailIndex]));
+                    if ($accountId) {
+                        $user->account_id = $accountId;
+                        $user->save();
+                        \Log::info("Respondent existente vinculado: {$user->email} -> account_id {$accountId}");
+                    } else {
+                        \Log::warning("No se pudo recuperar el account_id del respondent existente: {$user->email}");
+                    }
+                }
             }
-            
+
             // Enviar correo de notificación independientemente del resultado de la API
             try {
                 \Log::info("Intentando enviar correo a: {$user->email} con password: {$passwordText}");
@@ -216,9 +231,8 @@ class UsersImport implements ToModel, WithStartRow
                 \Log::info("Correo enviado correctamente a: {$user->email}");
             } catch (\Exception $mailException) {
                 \Log::error("Error al enviar correo: {$mailException->getMessage()}");
-                // No hacemos fallar toda la importación por un error de correo
             }
-            
+
             // Registrar usuario importado exitosamente
             $this->imported[] = [
                 'email' => $user->email,
@@ -226,11 +240,11 @@ class UsersImport implements ToModel, WithStartRow
                 'password' => $passwordText,
                 'row' => $this->getRowCount()
             ];
-            
+
             if (!$accountId) {
-                \Log::warning("Usuario importado localmente pero sin crear cuenta remota: {$user->email}");
+                \Log::warning("Usuario importado localmente pero sin account_id remoto: {$user->email}");
             }
-            
+
         } catch (\Exception $e) {
             // Registrar cualquier error en el proceso
             $this->failed[] = [
