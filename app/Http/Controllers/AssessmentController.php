@@ -418,56 +418,63 @@ class AssessmentController extends Controller
             return redirect()->back()->with('error', 'Error al conectar con la API: ' . $data);
         }
 
-        if(isset($data['data']['createRespondent']) && $data['data']['createRespondent']){
-            //Creamos el usuario en la base de datos
-            $user = new User();
-            $user->name = $request->name;
-            $user->last_name = $request->lastname;
-            $user->email = $request->email;
-            // Si el evaluado no tiene tipo de evaluación asignado pero pertenece a una institución, heredar el de la institución
-            $typeOfEvaluation = $request->type_of_evaluation;
-            if (empty($typeOfEvaluation) && $request->user_id) {
-                $institution = User::find($request->user_id);
-                if ($institution && !empty($institution->type_of_evaluation)) {
-                    $typeOfEvaluation = $institution->type_of_evaluation;
+        // Determinar el account_id: creación exitosa o respondent ya existente en gr8pi
+        $accountId = null;
+
+        if (isset($data['data']['createRespondent']) && $data['data']['createRespondent']) {
+            $accountId = $data['data']['createRespondent']['respondent']['id'];
+        } elseif (isset($data['errors'])) {
+            $apiError = $data['errors'][0]['message'] ?? '';
+            if (stripos($apiError, 'already exists') !== false) {
+                $accountId = $this->findRespondentIdByEmail(trim($request->email));
+                if (!$accountId) {
+                    \Log::warning("No se pudo recuperar account_id del respondent existente: {$request->email}");
                 }
-            }
-            $user->type_of_evaluation = $typeOfEvaluation;
-            $user->lang = $request->locale;
-            $user->user_id = $request->user_id;
-            $user->account_id = $data['data']['createRespondent']['respondent']['id'];
-            $user->password = bcrypt($request->password);
-            $user->assignRole($request->role);
-            $user->save();
-
-            //Generate password / Save passwords
-            if($request->password){
-                $user->password = bcrypt($request->password);
-                $user->save();
-                Mail::to($user->email)->send(new SendCreateUser($user,$request->password));
             } else {
-                $passwordRandom = Str::random(10);
-                $user->password = bcrypt($passwordRandom);
-                $user->save();
-
-                Mail::to($user->email)->send(new SendCreateUser($user,$passwordRandom));
+                return redirect()->back()->with('error', $apiError ?: 'Error desconocido al crear el usuario en la plataforma.');
             }
+        }
 
-            if($request->name_institution){
-                $user->name_institution = $request->name_institution;
-                $user->save();
+        // Crear el usuario localmente (con o sin account_id)
+        $user = new User();
+        $user->name = $request->name;
+        $user->last_name = $request->lastname;
+        $user->email = trim($request->email);
+        $typeOfEvaluation = $request->type_of_evaluation;
+        if (empty($typeOfEvaluation) && $request->user_id) {
+            $institution = User::find($request->user_id);
+            if ($institution && !empty($institution->type_of_evaluation)) {
+                $typeOfEvaluation = $institution->type_of_evaluation;
             }
+        }
+        $user->type_of_evaluation = $typeOfEvaluation;
+        $user->lang = $request->locale;
+        $user->user_id = $request->user_id;
+        $user->account_id = $accountId;
+        $user->password = bcrypt($request->password ?: Str::random(10));
+        $user->assignRole($request->role);
+        $user->save();
 
-            if($request->hasFile('avatar')){
-                $user->avatar = $request->file('avatar')->store('avatars', 'public');
-                $user->save();
-            }
-
-            return redirect()->back()->with('success','Se ha creado el usuario correctamente.');
+        if ($request->password) {
+            Mail::to($user->email)->send(new SendCreateUser($user, $request->password));
         } else {
-            $errorMessage = isset($data['errors'][0]['message']) ? $data['errors'][0]['message'] : 'Error desconocido al crear el usuario.';
-            return redirect()->back()->with('error', $errorMessage);
-         }
+            $passwordRandom = Str::random(10);
+            $user->password = bcrypt($passwordRandom);
+            $user->save();
+            Mail::to($user->email)->send(new SendCreateUser($user, $passwordRandom));
+        }
+
+        if ($request->name_institution) {
+            $user->name_institution = $request->name_institution;
+            $user->save();
+        }
+
+        if ($request->hasFile('avatar')) {
+            $user->avatar = $request->file('avatar')->store('avatars', 'public');
+            $user->save();
+        }
+
+        return redirect()->back()->with('success', 'Se ha creado el usuario correctamente.');
 
     }
 
