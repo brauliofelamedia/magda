@@ -424,7 +424,15 @@ class AssessmentController extends Controller
             $user->name = $request->name;
             $user->last_name = $request->lastname;
             $user->email = $request->email;
-            $user->type_of_evaluation = $request->type_of_evaluation;
+            // Si el evaluado no tiene tipo de evaluación asignado pero pertenece a una institución, heredar el de la institución
+            $typeOfEvaluation = $request->type_of_evaluation;
+            if (empty($typeOfEvaluation) && $request->user_id) {
+                $institution = User::find($request->user_id);
+                if ($institution && !empty($institution->type_of_evaluation)) {
+                    $typeOfEvaluation = $institution->type_of_evaluation;
+                }
+            }
+            $user->type_of_evaluation = $typeOfEvaluation;
             $user->lang = $request->locale;
             $user->user_id = $request->user_id;
             $user->account_id = $data['data']['createRespondent']['respondent']['id'];
@@ -447,6 +455,11 @@ class AssessmentController extends Controller
 
             if($request->name_institution){
                 $user->name_institution = $request->name_institution;
+                $user->save();
+            }
+
+            if($request->hasFile('avatar')){
+                $user->avatar = $request->file('avatar')->store('avatars', 'public');
                 $user->save();
             }
 

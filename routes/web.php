@@ -42,6 +42,7 @@ Route::get('/', [DashboardController::class, 'welcome'])->name('dashboard.welcom
     Route::get('/import/template', [DashboardController::class, 'download_template'])->name('dashboard.download.template');
     Route::get('/import/template/admin', [DashboardController::class, 'download_admin_template'])->name('dashboard.download.template.admin');
     Route::get('/import/template/institution', [DashboardController::class, 'download_institution_template'])->name('dashboard.download.template.institution');
+    Route::get('/import/template/respondent', [DashboardController::class, 'download_respondent_template'])->name('dashboard.download.template.respondent');
     Route::get('/import/summary', [DashboardController::class, 'import_summary'])->name('dashboard.import.summary');
     Route::post('remove-notification', [DashboardController::class, 'remove_notification'])->name('dashboard.remove.notification');
 

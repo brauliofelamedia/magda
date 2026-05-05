@@ -50,15 +50,19 @@ class UserController extends Controller
             $data['name_institution'] = $request->name_institution;
         }
 
-        if ($request->avatar) {
+        if ($request->hasFile('avatar') && $request->file('avatar')->isValid()) {
             $request->validate([
                 'avatar' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
             ]);
 
-            if ($request->hasFile('avatar')) {
-                $imagePath = $request->file('avatar')->store('avatars', 'public');
-                $data['avatar'] = $imagePath;
+            $file = $request->file('avatar');
+            $filename = uniqid() . '.' . $file->getClientOriginalExtension();
+            $destDir = storage_path('app/public/avatars');
+            if (!is_dir($destDir)) {
+                mkdir($destDir, 0775, true);
             }
+            $file->move($destDir, $filename);
+            $data['avatar'] = 'avatars/' . $filename;
         }
 
         if ($request->password == $request->password_confirmation) {
@@ -66,6 +70,14 @@ class UserController extends Controller
         }
 
         $user->update($data);
+
+        // Si es institución y cambió sus tipos de evaluación, propagarlos a los evaluados asociados que no tengan asignación propia
+        if ($user->hasRole('institution') && $request->has('type_of_evaluation')) {
+            User::where('user_id', $user->id)
+                ->role('respondent')
+                ->whereNull('type_of_evaluation')
+                ->update(['type_of_evaluation' => $request->type_of_evaluation]);
+        }
 
         return redirect()->route('users.edit', $user->uuid)->with('success', 'Usuario actualizado correctamente.');
     }

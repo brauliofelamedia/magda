@@ -139,8 +139,12 @@
                                     <a href="{{ route('dashboard.download.template.admin') }}" class="example-file">Descargar plantilla para administradores (todas las columnas)</a>
                                     <br>
                                     <a href="{{ route('dashboard.download.template.institution') }}" class="example-file mt-2">Descargar plantilla para instituciones (columnas simplificadas)</a>
+                                    <br>
+                                    <a href="{{ route('dashboard.download.template.respondent') }}" class="example-file mt-2">Descargar plantilla para evaluados (con columna de evaluación)</a>
                                 @else
                                     <a href="{{ route('dashboard.download.template.institution') }}" class="example-file">Descargar plantilla de ejemplo para importación de usuarios</a>
+                                    <br>
+                                    <a href="{{ route('dashboard.download.template.respondent') }}" class="example-file mt-2">Descargar plantilla para evaluados (con columna de evaluación)</a>
                                 @endif
                                 </div>
                             </div>

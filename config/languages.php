@@ -1,9 +1,10 @@
 <?php
 return [
     'locales' => [
+        'es-PR' => 'Español (Puerto Rico)',
+        'en-US' => 'Inglés (Estados Unidos)',
         'fr-FR' => 'Francés (Francia)',
         'de-DE' => 'Alemán (Alemania)',
-        'en-US' => 'Inglés (Estados Unidos)',
         'pt-BR' => 'Portugués (Brasil)',
         'en-GB' => 'Inglés (Reino Unido)',
         'es-ES' => 'Español (España)',
@@ -29,7 +30,6 @@ return [
         'nb' => 'Noruego Bokmål',
         'ru' => 'Ruso',
         'es-PE' => 'Español (Perú)',
-        'es-PR' => 'Español (Puerto Rico)',
         'it' => 'Italiano',
         'pt-PT' => 'Portugués (Portugal)',
         'ro' => 'Rumano',

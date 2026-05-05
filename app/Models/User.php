@@ -30,7 +30,9 @@ class User extends Authenticatable
         'platform',
         'password',
         'user_id',
-        'category_id'
+        'category_id',
+        'avatar',
+        'name_institution',
     ];
 
     /**
@@ -111,8 +113,8 @@ class User extends Authenticatable
 
     public function getAvatarUrlAttribute()
     {
-        if (!$this->avatar) {
-            return asset('images/default.png');
+        if (!$this->avatar || $this->avatar === 'avatars/default.png') {
+            return asset('assets/img/default.png');
         }
 
         return asset('storage/' . $this->avatar);

@@ -153,7 +153,7 @@
                                                         <select name="user_id" id="user_id" class="form-control">
                                                             <option value="">-- Selecciona a quien sera asignado el usuario --</option>
                                                             @foreach($institutes as $institute)
-                                                                <option value="{{$institute->id}}" @if($institute->id == $user->user_id) selected @endif>{{$institute->name}}</option>
+                                                                <option value="{{$institute->id}}" @if($institute->id == $user->user_id) selected @endif>{{$institute->name_institution ?? $institute->name}}</option>
                                                             @endforeach
                                                         </select>
                                                     </div>
@@ -187,12 +187,12 @@
                                                             <div class="form-check">
                                                                 <input type="checkbox" id="evaluation_short" name="type_of_evaluation[]" value="short" class="form-check-input"
                                                                     @if(is_array($user->type_of_evaluation) && in_array('short', $user->type_of_evaluation)) checked @endif>
-                                                                <label class="form-check-label" for="evaluation_short">Evaluación corta (intereses) - 60 preguntas</label>
+                                                                <label class="form-check-label" for="evaluation_short">Evaluación resumida</label>
                                                             </div>
                                                             <div class="form-check">
                                                                 <input type="checkbox" id="evaluation_long" name="type_of_evaluation[]" value="long" class="form-check-input"
                                                                     @if(is_array($user->type_of_evaluation) && in_array('long', $user->type_of_evaluation)) checked @endif>
-                                                                <label class="form-check-label" for="evaluation_long">Evaluación larga (comportamientos, intereses y cognitivo) - 202 preguntas</label>
+                                                                <label class="form-check-label" for="evaluation_long">Evaluación completa</label>
                                                             </div>
                                                         </div>
                                                     </div>

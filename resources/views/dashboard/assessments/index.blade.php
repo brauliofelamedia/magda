@@ -115,10 +115,10 @@
                             <select class="form-select" id="evaluationType" name="type" required>
                                 <option value="" selected disabled>Seleccione una opción</option>
                                 @if(in_array('short', $user->type_of_evaluation ?? []))
-                                    <option value="short">Evaluación corta (intereses) - 60 preguntas</option>
+                                    <option value="short">Evaluación resumida</option>
                                 @endif
                                 @if(in_array('long', $user->type_of_evaluation ?? []))
-                                    <option value="long">Evaluación larga (comportamientos, intereses y cognitivo) - 202 preguntas</option>
+                                    <option value="long">Evaluación completa</option>
                                 @endif
                             </select>
                         </div>

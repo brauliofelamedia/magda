@@ -217,7 +217,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form class="form" method="post" id="formModalCreate" action="{{route('assessments.user.new')}}">
+                <form class="form" method="post" id="formModalCreate" action="{{route('assessments.user.new')}}" enctype="multipart/form-data">
                     @csrf
                     <div class="row">
                         <div class="col-xl-12">
@@ -237,16 +237,16 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="col-xl-12" id="legal_representative" style="display: none;">
-                            <h5>Representante legal:</h5>
-                        </div>
-                         <div class="row" id="institution_name" style="display: none;">
+                        <div class="row" id="institution_name" style="display: none;">
                             <div class="col-xl-12">
                                 <div class="form-group">
-                                    <label for="name">Nombre de la institución:</label>
+                                    <label for="name_institution"><strong>Nombre de la Institución:</strong></label>
                                     <input type="text" id="name_institution" name="name_institution" class="form-control" autocomplete="off">
                                 </div>
                             </div>
+                        </div>
+                        <div class="col-xl-12" id="legal_representative" style="display: none;">
+                            <h5>Representante Legal:</h5>
                         </div>
                         <div class="col-xl-12" id="institution">
                             <div class="form-group">
@@ -254,9 +254,15 @@
                                 <select name="user_id" class="form-control">
                                         <option value="">-- Selecciona una instutución --</option>
                                     @foreach($institutions as $institution)
-                                        <option value="{{$institution->id}}">{{$institution->name}}</option>
+                                        <option value="{{$institution->id}}">{{$institution->name_institution ?? $institution->name}}</option>
                                     @endforeach
                                 </select>
+                            </div>
+                        </div>
+                        <div class="col-xl-12">
+                            <div class="form-group">
+                                <label for="avatar">Foto de perfil: <small class="text-muted">(opcional)</small></label>
+                                <input type="file" id="avatar" name="avatar" class="form-control" accept="image/jpeg,image/png,image/jpg,image/gif">
                             </div>
                         </div>
                         <div class="col-xl-6">
@@ -278,11 +284,11 @@
                             <div class="form-group" style="margin-bottom: 0;">
                                 <div class="form-check">
                                     <input type="checkbox" id="evaluation_short" name="type_of_evaluation[]" value="short" class="form-check-input">
-                                    <label class="form-check-label" for="evaluation_short">Evaluación corta (intereses) - 60 preguntas</label>
+                                    <label class="form-check-label" for="evaluation_short">Evaluación resumida</label>
                                 </div>
                                 <div class="form-check">
                                     <input type="checkbox" id="evaluation_long" name="type_of_evaluation[]" value="long" class="form-check-input">
-                                    <label class="form-check-label" for="evaluation_long">Evaluación larga (comportamientos, intereses y cognitivo) - 202 preguntas</label>
+                                    <label class="form-check-label" for="evaluation_long">Evaluación completa</label>
                                 </div>
                             </div>
                         </div>
@@ -374,10 +380,19 @@
                                         </div>
                                         @endhasanyrole
                                     </div>
-                                    <div class="col-xl-4 col-lg-6 offset-xl-4">
-                                        <form action="{{ route('dashboard.welcome') }}" method="GET" class="d-flex">
+                                    <div class="col-xl-5 col-lg-6 ms-auto">
+                                        <form action="{{ route('dashboard.welcome') }}" method="GET" class="d-flex align-items-center gap-2">
+                                            @hasrole('administrator')
+                                            <select name="role" class="form-control flex-shrink-0" style="width:160px;">
+                                                <option value="">Todos los roles</option>
+                                                <option value="administrator" {{ request('role') == 'administrator' ? 'selected' : '' }}>Administrador</option>
+                                                <option value="institution" {{ request('role') == 'institution' ? 'selected' : '' }}>Institución</option>
+                                                <option value="coordinator" {{ request('role') == 'coordinator' ? 'selected' : '' }}>Coordinador</option>
+                                                <option value="respondent" {{ request('role') == 'respondent' ? 'selected' : '' }}>Evaluado</option>
+                                            </select>
+                                            @endhasrole
                                             <input type="text" name="search" class="form-control" placeholder="Buscar por nombre..." value="{{ request('search') }}">
-                                            <button type="submit" class="btn btn-primary ms-2">Buscar</button>
+                                            <button type="submit" class="btn btn-primary flex-shrink-0">Buscar</button>
                                         </form>
                                     </div>
                                 </div>

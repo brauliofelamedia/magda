@@ -62,6 +62,9 @@ class DashboardController extends Controller
             })
             ->when(request('category'), function($query) {
                 $query->where('category_id', request('category'));
+            })
+            ->when(request('role'), function($query) {
+                $query->role([request('role')]);
             });
 
         if(Auth::user()->hasRole('administrator')){
@@ -398,6 +401,54 @@ class DashboardController extends Controller
         $tempPath = storage_path('app/public/' . $filename);
         $writer->save($tempPath);
         
+        return response()->download($tempPath, $filename)->deleteFileAfterSend(true);
+    }
+
+    /**
+     * Descarga la plantilla para importar evaluados (respondents).
+     */
+    public function download_respondent_template()
+    {
+        $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+
+        $headers = ['Nombre', 'Apellidos', 'Correo', 'Idioma', 'Género', 'Contraseña (opcional)', 'Correo de Institución (opcional)', 'Tipo de Evaluación (resumida/completa)'];
+        $lastCol = 'H';
+
+        $sheet->fromArray([$headers], NULL, 'A1');
+
+        $headerStyle = [
+            'font' => [
+                'bold' => true,
+                'color' => ['rgb' => 'FFFFFF'],
+            ],
+            'fill' => [
+                'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                'startColor' => ['rgb' => '033A60'],
+            ],
+            'borders' => [
+                'allBorders' => [
+                    'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                ],
+            ],
+        ];
+        $sheet->getStyle("A1:{$lastCol}1")->applyFromArray($headerStyle);
+
+        $exampleData = [
+            ['Juan', 'Pérez González', 'juan.perez@example.com', 'es-PR', 'M', 'password123', 'institucion@example.com', 'resumida'],
+            ['María', 'López Sánchez', 'maria.lopez@example.com', 'es-PR', 'F', '', 'institucion@example.com', 'completa'],
+        ];
+        $sheet->fromArray($exampleData, NULL, 'A2');
+
+        foreach (range('A', $lastCol) as $col) {
+            $sheet->getColumnDimension($col)->setAutoSize(true);
+        }
+
+        $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
+        $filename = 'plantilla_importacion_evaluados.xlsx';
+        $tempPath = storage_path('app/public/' . $filename);
+        $writer->save($tempPath);
+
         return response()->download($tempPath, $filename)->deleteFileAfterSend(true);
     }
 
