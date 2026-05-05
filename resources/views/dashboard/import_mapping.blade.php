@@ -114,11 +114,11 @@
                                         <div class="form-group mb-3">
                                             <label for="{{ $field }}">
                                                 {{ $label }}
-                                                @if($field != 'password')
+                                                @if(!in_array($field, ['password', 'type_of_evaluation', 'user_id', 'role']))
                                                     <span class="required-field">*</span>
                                                 @endif
                                             </label>
-                                            <select name="mapping[{{ $field }}]" id="{{ $field }}" class="form-select" {{ $field != 'password' ? 'required' : '' }}>
+                                            <select name="mapping[{{ $field }}]" id="{{ $field }}" class="form-select" {{ !in_array($field, ['password', 'type_of_evaluation', 'user_id', 'role']) ? 'required' : '' }}>
                                                 <option value="">Selecciona la columna correspondiente</option>
                                                 @foreach($headers as $index => $header)
                                                     <option value="{{ $index }}">{{ $header }}</option>
@@ -159,16 +159,23 @@
             'role': ['rol', 'role', 'perfil', 'tipo'],
             'gender': ['género', 'genero', 'sexo', 'gender'],
             'lang': ['idioma', 'language', 'lang', 'locale', 'idioma preferido'],
-            'password': ['contraseña', 'password', 'clave', 'pass']
+            'password': ['contraseña', 'password', 'clave', 'pass'],
+            'type_of_evaluation': ['tipo de evaluacion', 'tipo evaluacion', 'tipo_evaluacion', 'evaluation type', 'type_of_evaluation', 'tipo de evaluaci', 'tipo evaluaci']
         };
         
+        // Normaliza texto quitando acentos para comparación robusta
+        function normalize(str) {
+            return str.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim();
+        }
+
         // Intenta hacer el mapeo automático
         Object.keys(mapping).forEach(field => {
-            const possibleNames = mapping[field];
+            const possibleNames = mapping[field].map(normalize);
             headers.forEach((header, index) => {
-                const headerLower = header.toLowerCase().trim();
-                if (possibleNames.some(name => headerLower === name || headerLower.includes(name))) {
-                    document.getElementById(field).value = index;
+                const headerNorm = normalize(header);
+                if (possibleNames.some(name => headerNorm === name || headerNorm.includes(name))) {
+                    const el = document.getElementById(field);
+                    if (el) el.value = index;
                 }
             });
         });

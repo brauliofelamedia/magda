@@ -165,12 +165,13 @@ class DashboardController extends Controller
             'email' => 'Correo electrónico',
             'gender' => 'Género',
             'lang' => 'Idioma preferido',
-            'password' => 'Contraseña (opcional)'
+            'password' => 'Contraseña (opcional)',
+            'type_of_evaluation' => 'Tipo de Evaluación (opcional)'
         ];
-        
+
         // Si es administrador, añadir las columnas de rol y correo de institución
         if (Auth::user()->hasRole('administrator')) {
-            $requiredColumns['role'] = 'Rol';
+            $requiredColumns['role'] = 'Rol (opcional)';
             $requiredColumns['user_id'] = 'Correo de Institución (opcional)';
         }
         
@@ -191,11 +192,7 @@ class DashboardController extends Controller
             'mapping.lang' => 'required|numeric',
         ];
         
-        // Si es administrador, validar también los campos adicionales
-        if (Auth::user()->hasRole('administrator')) {
-            $validationRules['mapping.role'] = 'required|numeric';
-            // user_id es opcional
-        }
+        // role y user_id son opcionales incluso para administradores
         
         $request->validate($validationRules);
         

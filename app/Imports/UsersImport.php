@@ -47,15 +47,17 @@ class UsersImport implements ToModel, WithStartRow
             $passwordIndex = 5; // Si hay contraseña
             $genderIndex = 6; // Si hay género
             $userIdIndex = 7; // Para asignar a institución
+            $typeOfEvaluationIndex = null;
         } else {
             $nameIndex = $this->mapping['name'];
             $lastNameIndex = $this->mapping['last_name'];
             $emailIndex = $this->mapping['email'];
             $langIndex = $this->mapping['lang'];
             $genderIndex = $this->mapping['gender'];
-            $passwordIndex = isset($this->mapping['password']) ? $this->mapping['password'] : null;
-            $roleIndex = isset($this->mapping['role']) ? $this->mapping['role'] : null;
-            $userIdIndex = isset($this->mapping['user_id']) ? $this->mapping['user_id'] : null;
+            $passwordIndex = (isset($this->mapping['password']) && $this->mapping['password'] !== '') ? (int)$this->mapping['password'] : null;
+            $roleIndex = (isset($this->mapping['role']) && $this->mapping['role'] !== '') ? (int)$this->mapping['role'] : null;
+            $userIdIndex = (isset($this->mapping['user_id']) && $this->mapping['user_id'] !== '') ? (int)$this->mapping['user_id'] : null;
+            $typeOfEvaluationIndex = (isset($this->mapping['type_of_evaluation']) && $this->mapping['type_of_evaluation'] !== '') ? (int)$this->mapping['type_of_evaluation'] : null;
         }
         
         // Verificar si hay datos en la fila
@@ -129,7 +131,50 @@ class UsersImport implements ToModel, WithStartRow
         if ($institutionId !== null) {
             $userData['user_id'] = $institutionId;
         }
-        
+
+        // Determinar tipo de evaluación
+        $resolvedEvalType = null;
+
+        // 1) Buscar en la columna mapeada explícitamente
+        if ($typeOfEvaluationIndex !== null && !empty($row[$typeOfEvaluationIndex])) {
+            $resolvedEvalType = strtolower(trim($row[$typeOfEvaluationIndex]));
+        }
+
+        // 2) Si no fue mapeado o vino vacío, escanear todas las celdas buscando el valor
+        if (!$resolvedEvalType) {
+            foreach ($row as $cell) {
+                $cellVal = strtolower(trim((string)$cell));
+                if (in_array($cellVal, ['resumida', 'short', 'completa', 'long'])) {
+                    $resolvedEvalType = $cellVal;
+                    break;
+                }
+            }
+        }
+
+        // Normalizar a los valores internos del sistema: 'short' y 'long'
+        $evalMap = [
+            'resumida' => 'short',
+            'short'    => 'short',
+            'completa' => 'long',
+            'long'     => 'long',
+        ];
+
+        // 3) Guardar si se encontró un valor válido
+        if ($resolvedEvalType && isset($evalMap[$resolvedEvalType])) {
+            $internalVal = $evalMap[$resolvedEvalType];
+            $userData['type_of_evaluation'] = [$internalVal];
+            \Log::info("type_of_evaluation asignado: {$internalVal} para {$row[$emailIndex]}");
+        }
+
+        // 4) Si sigue sin valor, heredar de la institución asignada
+        if (!isset($userData['type_of_evaluation']) && $institutionId) {
+            $institution = User::find($institutionId);
+            if ($institution && !empty($institution->type_of_evaluation)) {
+                $userData['type_of_evaluation'] = $institution->type_of_evaluation;
+                \Log::info("type_of_evaluation heredado de institución para {$row[$emailIndex]}");
+            }
+        }
+
         $user = new User($userData);
         
         // Guardar el usuario para obtener su ID
