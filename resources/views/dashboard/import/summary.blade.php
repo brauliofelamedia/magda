@@ -111,6 +111,7 @@
                                                         <th>Correo</th>
                                                         <th>Contraseña</th>
                                                         <th>Estado del correo</th>
+                                                        <th></th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
@@ -121,6 +122,7 @@
                                                         <td>{{ $user['email'] }}</td>
                                                         <td>{{ $user['password'] }}</td>
                                                         <td><span class="badge bg-success">Enviado</span></td>
+                                                        <td><a href="{{ route('dashboard.welcome') . '?search=' . urlencode($user['email']) }}" class="btn btn-sm btn-outline-primary">Ver</a></td>
                                                     </tr>
                                                     @endforeach
                                                 </tbody>
@@ -147,6 +149,7 @@
                                                         <th>Fila</th>
                                                         <th>Nombre</th>
                                                         <th>Email</th>
+                                                        <th></th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
@@ -155,6 +158,7 @@
                                                         <td>{{ $user['row'] }}</td>
                                                         <td>{{ $user['name'] }}</td>
                                                         <td>{{ $user['email'] }}</td>
+                                                        <td><a href="{{ route('dashboard.welcome') . '?search=' . urlencode($user['email']) }}" class="btn btn-sm btn-outline-warning">Ver en dashboard</a></td>
                                                     </tr>
                                                     @endforeach
                                                 </tbody>

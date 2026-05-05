@@ -57,8 +57,12 @@ class DashboardController extends Controller
 
         $users = User::query()
             ->when(request('search'), function($query) {
-                $query->where('name', 'like', '%' . request('search') . '%')
-                      ->orWhere('email', 'like', '%' . request('search') . '%');
+                $search = '%' . request('search') . '%';
+                $query->where(function($q) use ($search) {
+                    $q->where('name', 'like', $search)
+                      ->orWhere('last_name', 'like', $search)
+                      ->orWhere('email', 'like', $search);
+                });
             })
             ->when(request('category'), function($query) {
                 $query->where('category_id', request('category'));
