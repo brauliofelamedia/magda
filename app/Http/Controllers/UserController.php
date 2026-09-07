@@ -86,12 +86,24 @@ class UserController extends Controller
     {
         $user = User::find($request->id);
 
-        Mail::to($user->email)->send(new Welcome($user));
+        if (!$user) {
+            return response()->json([
+                'error' => 'Usuario no encontrado'
+            ], 404);
+        }
 
-        return response()->json([
-            'success' => 'Se ha enviado el correo',
-            'data' => $user
-        ], 200);
+        try {
+            Mail::to($user->email)->send(new Welcome($user));
+            return response()->json([
+                'success' => 'Se ha enviado el correo',
+                'data' => $user
+            ], 200);
+        } catch (\Throwable $e) {
+            \Log::error("Error al enviar correo de bienvenida a {$user->email}: " . $e->getMessage());
+            return response()->json([
+                'error' => 'No se pudo enviar el correo por un fallo en el servidor SMTP: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     public function resetPassword(Request $request)
@@ -99,10 +111,20 @@ class UserController extends Controller
         $user = User::where('email', $request->email)->first();
 
         if ($user) {
+            $originalPassword = $user->password;
             $passwordRandom = Str::random(8);
             $user->password = Hash::make($passwordRandom);
             $user->save();
-            Mail::to($user->email)->send(new resetPassword($user, $passwordRandom));
+
+            try {
+                Mail::to($user->email)->send(new resetPassword($user, $passwordRandom));
+            } catch (\Throwable $e) {
+                // Revertir contraseña si el envío falló
+                $user->password = $originalPassword;
+                $user->save();
+                \Log::error("Error al enviar correo de restablecimiento de contraseña a {$user->email}: " . $e->getMessage());
+                return redirect()->back()->with('error', 'No se pudo enviar el correo de recuperación debido a un fallo en el servidor de correo SMTP. Por favor intente más tarde.');
+            }
         }
 
         if ($request->type == 'reset_admin') {

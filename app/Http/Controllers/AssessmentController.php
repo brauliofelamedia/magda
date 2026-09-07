@@ -57,7 +57,13 @@ class AssessmentController extends Controller
         $url = route('assessments.continue',[$respondentId,$id_return,$token,$lang]);
 
         if(Auth::user()->hasRole('institution')){
-            Mail::to($user->email)->send(new AssignEvaluate($user,$url));
+            try {
+                if ($user && !empty($user->email)) {
+                    Mail::to($user->email)->send(new AssignEvaluate($user,$url));
+                }
+            } catch (\Throwable $e) {
+                \Log::error("Error al enviar correo de asignación de evaluación a {$user->email}: " . $e->getMessage());
+            }
             return redirect()->route('assessments.index',$respondentId);
         } else {
             return redirect()->route('assessments.continue',[$respondentId,$id_return,$token,$lang]);
@@ -410,12 +416,23 @@ class AssessmentController extends Controller
 
     public function createNewUser(Request $request)
     {
-        //Creamos el usuario en la plataforma
-        $data = $this->createUser($request->name,$request->lastname,$request->email,$request->gender,$request->locale);
+        $email = trim($request->email);
+
+        if (empty($email)) {
+            return redirect()->back()->withInput()->with('error', 'El correo electrónico es obligatorio.');
+        }
+
+        // 1. Evitar violación de unicidad: Verificar si el correo ya existe en la base de datos local
+        if (User::where('email', $email)->exists()) {
+            return redirect()->back()->withInput()->with('error', 'El correo electrónico ya se encuentra registrado en el sistema.');
+        }
+
+        // Creamos el usuario en la plataforma (gr8pi)
+        $data = $this->createUser($request->name, $request->lastname, $email, $request->gender, $request->locale);
         
         // Verificar si ocurrió un error de excepción (string) o si la respuesta no tiene la estructura esperada
         if (is_string($data)) {
-            return redirect()->back()->with('error', 'Error al conectar con la API: ' . $data);
+            return redirect()->back()->withInput()->with('error', 'Error al conectar con la API: ' . $data);
         }
 
         // Determinar el account_id: creación exitosa o respondent ya existente en gr8pi
@@ -426,12 +443,12 @@ class AssessmentController extends Controller
         } elseif (isset($data['errors'])) {
             $apiError = $data['errors'][0]['message'] ?? '';
             if (stripos($apiError, 'already exists') !== false) {
-                $accountId = $this->findRespondentIdByEmail(trim($request->email));
+                $accountId = $this->findRespondentIdByEmail($email);
                 if (!$accountId) {
-                    \Log::warning("No se pudo recuperar account_id del respondent existente: {$request->email}");
+                    \Log::warning("No se pudo recuperar account_id del respondent existente: {$email}");
                 }
             } else {
-                return redirect()->back()->with('error', $apiError ?: 'Error desconocido al crear el usuario en la plataforma.');
+                return redirect()->back()->withInput()->with('error', $apiError ?: 'Error desconocido al crear el usuario en la plataforma.');
             }
         }
 
@@ -439,7 +456,7 @@ class AssessmentController extends Controller
         $user = new User();
         $user->name = $request->name;
         $user->last_name = $request->lastname;
-        $user->email = trim($request->email);
+        $user->email = $email;
         $typeOfEvaluation = $request->type_of_evaluation;
         if (empty($typeOfEvaluation) && $request->user_id) {
             $institution = User::find($request->user_id);
@@ -451,31 +468,35 @@ class AssessmentController extends Controller
         $user->lang = $request->locale;
         $user->user_id = $request->user_id;
         $user->account_id = $accountId;
-        $user->password = bcrypt($request->password ?: Str::random(10));
+        
+        $plainPassword = $request->password ?: Str::random(10);
+        $user->password = bcrypt($plainPassword);
         $user->assignRole($request->role);
-        $user->save();
-
-        if ($request->password) {
-            Mail::to($user->email)->send(new SendCreateUser($user, $request->password));
-        } else {
-            $passwordRandom = Str::random(10);
-            $user->password = bcrypt($passwordRandom);
-            $user->save();
-            Mail::to($user->email)->send(new SendCreateUser($user, $passwordRandom));
-        }
 
         if ($request->name_institution) {
             $user->name_institution = $request->name_institution;
-            $user->save();
         }
 
         if ($request->hasFile('avatar')) {
             $user->avatar = $request->file('avatar')->store('avatars', 'public');
-            $user->save();
+        }
+
+        $user->save();
+
+        // Enviar correo de bienvenida protegiendo contra fallos del servidor SMTP
+        $mailSent = true;
+        try {
+            Mail::to($user->email)->send(new SendCreateUser($user, $plainPassword));
+        } catch (\Throwable $e) {
+            $mailSent = false;
+            \Log::error("Error enviando correo de bienvenida a {$user->email}: " . $e->getMessage());
+        }
+
+        if (!$mailSent) {
+            return redirect()->back()->with('warning', 'El usuario fue registrado correctamente, pero no se pudo enviar el correo de bienvenida debido a un problema con el servidor SMTP. Verifique las credenciales de correo.');
         }
 
         return redirect()->back()->with('success', 'Se ha creado el usuario correctamente.');
-
     }
 
     private function combinedOpenAIAnalysis($pdfText) {

@@ -37,7 +37,8 @@ trait APICalls
             return $data['data']['account']['respondents']['edges'] ?? [];
 
         } catch (\Exception $e) {
-            dd($e->getMessage());
+            \Log::error("Error en getRespondents: " . $e->getMessage());
+            return [];
         }
     }
 
@@ -408,16 +409,74 @@ trait APICalls
 
     public function findRespondentIdByEmail(string $email): ?string
     {
+        $email = strtolower(trim($email));
+
+        // 1. Primero verificar si ya lo tenemos registrado localmente con account_id
         try {
-            $respondents = $this->getRespondents();
-            foreach ($respondents as $r) {
-                if (isset($r['node']['email']) && strtolower(trim($r['node']['email'])) === strtolower(trim($email))) {
-                    return $r['node']['id'];
-                }
+            $localUser = \App\Models\User::whereRaw('LOWER(TRIM(email)) = ?', [$email])
+                ->whereNotNull('account_id')
+                ->where('account_id', '!=', '')
+                ->first();
+            if ($localUser && !empty($localUser->account_id)) {
+                return (string) $localUser->account_id;
             }
-        } catch (\Exception $e) {
-            \Log::error("Error buscando respondent por email: {$e->getMessage()}");
+        } catch (\Throwable $e) {
+            \Log::warning("Error consultando usuario local en findRespondentIdByEmail: " . $e->getMessage());
         }
+
+        // 2. Si no, buscarlo en la API de gr8pi con paginación
+        try {
+            $cursor = null;
+            $hasMore = true;
+            $maxPages = 20; // Hasta 2000 respondents
+            $page = 0;
+
+            while ($hasMore && $page < $maxPages) {
+                $page++;
+                $afterClause = $cursor ? ', after: "' . addslashes($cursor) . '"' : '';
+                $query = '{
+                    account(id: 243576) {
+                        respondents(first: 100' . $afterClause . ') {
+                            edges {
+                                node {
+                                    id
+                                    email
+                                }
+                                cursor
+                            }
+                            pageInfo {
+                                hasNextPage
+                                endCursor
+                            }
+                        }
+                    }
+                }';
+
+                $data = $this->executeGraphQL(
+                    'https://api.gr8pi.com/api/v1/questionnaire-scheduling',
+                    $query
+                );
+
+                if (is_string($data) || isset($data['errors']) || empty($data['data']['account']['respondents']['edges'])) {
+                    break;
+                }
+
+                $edges = $data['data']['account']['respondents']['edges'];
+                foreach ($edges as $edge) {
+                    $nodeEmail = $edge['node']['email'] ?? null;
+                    if ($nodeEmail && strtolower(trim($nodeEmail)) === $email) {
+                        return (string) $edge['node']['id'];
+                    }
+                }
+
+                $pageInfo = $data['data']['account']['respondents']['pageInfo'] ?? [];
+                $hasMore = !empty($pageInfo['hasNextPage']);
+                $cursor = $pageInfo['endCursor'] ?? null;
+            }
+        } catch (\Throwable $e) {
+            \Log::error("Error buscando respondent por email en API: {$e->getMessage()}");
+        }
+
         return null;
     }
 
