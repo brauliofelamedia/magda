@@ -115,6 +115,19 @@ Auth::routes();
 Route::get('/upload-test', [FileUploadTestController::class, 'test'])->name('upload.test');
 Route::post('/upload-test/manual', [FileUploadTestController::class, 'testManual'])->name('upload.test.manual');
 
+// Ruta pública para limpiar y regenerar caché de configuración
+Route::get('/clean-cache', function () {
+    Artisan::call('optimize:clear');
+    Artisan::call('config:clear');
+    Artisan::call('config:cache');
+    Artisan::call('view:clear');
+    Artisan::call('route:clear');
+    return response()->json([
+        'status' => 'success',
+        'message' => 'Caché limpiada y regenerada correctamente (config:clear, config:cache, view:clear, route:clear).'
+    ]);
+});
+
 // Ruta para enviar correo de prueba
 Route::get('/test-email/{email?}', function ($email = 'braulio@felamedia.com') {
     \Mail::raw('Este es un correo de prueba desde Tu Talento Finder.', function ($message) use ($email) {
