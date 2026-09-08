@@ -99,6 +99,7 @@ class UserController extends Controller
                 'data' => $user
             ], 200);
         } catch (\Throwable $e) {
+            report($e);
             \Log::error("Error al enviar correo de bienvenida a {$user->email}: " . $e->getMessage());
             return response()->json([
                 'error' => 'No se pudo enviar el correo por un fallo en el servicio de correo: ' . $e->getMessage()
@@ -119,11 +120,12 @@ class UserController extends Controller
             try {
                 Mail::to($user->email)->send(new resetPassword($user, $passwordRandom));
             } catch (\Throwable $e) {
+                report($e);
                 // Revertir contraseña si el envío falló
                 $user->password = $originalPassword;
                 $user->save();
                 \Log::error("Error al enviar correo de restablecimiento de contraseña a {$user->email}: " . $e->getMessage());
-                return redirect()->back()->with('error', 'No se pudo enviar el correo de recuperación debido a un fallo en el servicio de correo. Por favor intente más tarde.');
+                return redirect()->back()->with('error', 'No se pudo enviar el correo de recuperación debido a un fallo en el servicio de correo: ' . $e->getMessage());
             }
         }
 

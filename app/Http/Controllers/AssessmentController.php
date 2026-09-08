@@ -488,8 +488,9 @@ class AssessmentController extends Controller
             Mail::to($user->email)->send(new SendCreateUser($user, $plainPassword));
             return redirect()->back()->with('success', 'Se ha creado el usuario y enviado el correo de bienvenida correctamente.');
         } catch (\Throwable $e) {
+            report($e);
             \Log::error("Error al enviar correo de bienvenida al crear usuario ({$user->email}): " . $e->getMessage());
-            return redirect()->back()->with('warning', 'El usuario fue registrado correctamente, pero no se pudo enviar el correo de bienvenida debido a un problema con el servicio de correo. Verifique las credenciales de correo.');
+            return redirect()->back()->with('warning', 'El usuario fue registrado correctamente, pero no se pudo enviar el correo de bienvenida debido a un problema con el servicio de correo: ' . $e->getMessage());
         }
     }
 
