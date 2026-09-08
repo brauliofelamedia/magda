@@ -483,20 +483,14 @@ class AssessmentController extends Controller
 
         $user->save();
 
-        // Enviar correo de bienvenida protegiendo contra fallos del servidor SMTP
-        $mailSent = true;
+        // Enviar correo de bienvenida protegiendo contra fallos del servicio de correo
         try {
             Mail::to($user->email)->send(new SendCreateUser($user, $plainPassword));
+            return redirect()->back()->with('success', 'Se ha creado el usuario y enviado el correo de bienvenida correctamente.');
         } catch (\Throwable $e) {
-            $mailSent = false;
-            \Log::error("Error enviando correo de bienvenida a {$user->email}: " . $e->getMessage());
+            \Log::error("Error al enviar correo de bienvenida al crear usuario ({$user->email}): " . $e->getMessage());
+            return redirect()->back()->with('warning', 'El usuario fue registrado correctamente, pero no se pudo enviar el correo de bienvenida debido a un problema con el servicio de correo. Verifique las credenciales de correo.');
         }
-
-        if (!$mailSent) {
-            return redirect()->back()->with('warning', 'El usuario fue registrado correctamente, pero no se pudo enviar el correo de bienvenida debido a un problema con el servidor SMTP. Verifique las credenciales de correo.');
-        }
-
-        return redirect()->back()->with('success', 'Se ha creado el usuario correctamente.');
     }
 
     private function combinedOpenAIAnalysis($pdfText) {
